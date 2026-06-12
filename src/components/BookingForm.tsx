@@ -20,9 +20,13 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
     e.preventDefault();
     setLoading(true);
     setError(false);
-    const ok = await createBooking({ experienceId, ...form });
+    const res = await fetch("/api/booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ experienceId, ...form }),
+    });
     setLoading(false);
-    if (ok) setSubmitted(true);
+    if (res.ok) setSubmitted(true);
     else setError(true);
   };
 
