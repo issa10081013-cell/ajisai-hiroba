@@ -3,13 +3,11 @@ import { useState } from "react";
 import { Category, Experience } from "@/lib/types";
 import ExperienceCard from "./ExperienceCard";
 
-type Props = {
-  experiences: Experience[];
-};
+type Props = { experiences: Experience[] };
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
-const CATEGORY_META: Record<string, { emoji: string; color: string; bg: string; text: string; border: string }> = {
+const CAT_META: Record<string, { emoji: string; color: string; bg: string; text: string; border: string }> = {
   "農業体験":   { emoji: "🌾", color: "#4ade80", bg: "#f0fdf4", text: "#15803d", border: "#bbf7d0" },
   "料理教室":   { emoji: "🍳", color: "#fb923c", bg: "#fff7ed", text: "#c2410c", border: "#fed7aa" },
   "学習体験":   { emoji: "📚", color: "#60a5fa", bg: "#eff6ff", text: "#1d4ed8", border: "#bfdbfe" },
@@ -18,19 +16,27 @@ const CATEGORY_META: Record<string, { emoji: string; color: string; bg: string; 
   "その他":     { emoji: "✨", color: "#9ca3af", bg: "#f9fafb", text: "#4b5563", border: "#e5e7eb" },
 };
 
+const AREAS = [
+  "全域", "東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区", "糸島市", "春日市", "大野城市",
+];
+
 export default function CalendarView({ experiences }: Props) {
   const [year, setYear] = useState(2026);
-  const [month, setMonth] = useState(6); // July
+  const [month, setMonth] = useState(6);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedArea, setSelectedArea] = useState("全域");
 
   const today = new Date();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // date → experiences map
+  const areaFilteredExps = selectedArea === "全域"
+    ? experiences
+    : experiences.filter(e => e.location.includes(selectedArea));
+
   const expByDate: Record<string, Experience[]> = {};
-  for (const exp of experiences) {
+  for (const exp of areaFilteredExps) {
     if (!expByDate[exp.date]) expByDate[exp.date] = [];
     expByDate[exp.date].push(exp);
   }
@@ -48,46 +54,64 @@ export default function CalendarView({ experiences }: Props) {
   };
 
   const handleDateSelect = (dateStr: string) => {
-    if (selectedDate === dateStr) {
-      setSelectedDate(null);
-      setSelectedCategory(null);
-    } else {
-      setSelectedDate(dateStr);
-      setSelectedCategory(null);
-    }
+    if (selectedDate === dateStr) { setSelectedDate(null); setSelectedCategory(null); }
+    else { setSelectedDate(dateStr); setSelectedCategory(null); }
   };
 
-  // Categories available on the selected date
   const dateCategories: Category[] = selectedDate
     ? [...new Set((expByDate[selectedDate] ?? []).map(e => e.category))]
     : [];
 
-  // Experiences to show (date × category filtered)
   const visibleExps: Experience[] = selectedDate && selectedCategory
     ? (expByDate[selectedDate] ?? []).filter(e => e.category === selectedCategory)
     : [];
 
   const selectedDateLabel = selectedDate
-    ? new Date(selectedDate + "T00:00:00").toLocaleDateString("ja-JP", {
-        month: "long", day: "numeric", weekday: "short",
-      })
+    ? new Date(selectedDate + "T00:00:00").toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })
     : null;
+
+  const monthExps = areaFilteredExps.filter(e => {
+    const d = new Date(e.date);
+    return d.getFullYear() === year && d.getMonth() === month;
+  }).sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <div>
+      {/* Area filter */}
+      <div style={{ marginBottom: "16px" }}>
+        <p style={{ fontSize: "11px", color: "#9ca3af", fontWeight: 600, marginBottom: "8px", letterSpacing: "0.05em" }}>エリアで絞り込む</p>
+        <div style={{ display: "flex", gap: "6px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
+          {AREAS.map(area => {
+            const isActive = selectedArea === area;
+            return (
+              <button key={area} onClick={() => { setSelectedArea(area); setSelectedDate(null); setSelectedCategory(null); }}
+                style={{ flexShrink: 0, padding: "6px 14px", borderRadius: "999px", border: "1.5px solid", fontSize: "12px", fontWeight: isActive ? 700 : 500, cursor: "pointer", transition: "all 0.12s", whiteSpace: "nowrap",
+                  backgroundColor: isActive ? "#7B6BA8" : "white",
+                  color: isActive ? "white" : "#6b7280",
+                  borderColor: isActive ? "#7B6BA8" : "#e5e7eb",
+                  boxShadow: isActive ? "0 2px 8px rgba(123,107,168,0.3)" : "none",
+                }}>
+                {area}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Calendar */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+      <div style={{ backgroundColor: "white", borderRadius: "20px", boxShadow: "0 2px 16px rgba(0,0,0,0.06)", padding: "16px", border: "1px solid #f3f4f6" }}>
         {/* Month nav */}
-        <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 text-lg transition-colors">‹</button>
-          <h2 className="font-bold text-gray-800">{year}年{month + 1}月</h2>
-          <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 text-lg transition-colors">›</button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+          <button onClick={prevMonth} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "#f9fafb", color: "#9ca3af", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+          <h2 style={{ fontWeight: 700, color: "#1a1a1a", fontSize: "15px" }}>{year}年{month + 1}月</h2>
+          <button onClick={nextMonth} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "#f9fafb", color: "#9ca3af", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
         </div>
 
-        {/* Weekdays */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }} className="mb-1">
+        {/* Weekday labels */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: "4px" }}>
           {WEEKDAYS.map((w, i) => (
-            <div key={w} className={`text-center text-xs py-1 font-medium ${i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"}`}>
+            <div key={w} style={{ textAlign: "center", fontSize: "11px", fontWeight: 600, padding: "4px 0",
+              color: i === 0 ? "#f87171" : i === 6 ? "#60a5fa" : "#9ca3af" }}>
               {w}
             </div>
           ))}
@@ -107,35 +131,19 @@ export default function CalendarView({ experiences }: Props) {
             const dayCats = [...new Set(dayExps.map(e => e.category))].slice(0, 3);
 
             return (
-              <button
-                key={day}
-                onClick={() => hasExp && handleDateSelect(dateStr)}
-                disabled={!hasExp}
-                className={`flex flex-col items-center py-1.5 rounded-xl transition-colors ${
-                  isSelected ? "bg-[#7B6BA8]" : hasExp ? "hover:bg-[#E8E4F5] cursor-pointer" : "cursor-default"
-                }`}
-              >
-                <span className={`text-sm font-medium leading-none ${
-                  isSelected ? "text-white"
-                  : isToday ? "text-[#7B6BA8] font-bold"
-                  : !hasExp ? "text-gray-200"
-                  : dow === 0 ? "text-red-400"
-                  : dow === 6 ? "text-blue-400"
-                  : "text-gray-700"
-                }`}>
+              <button key={day} onClick={() => hasExp && handleDateSelect(dateStr)} disabled={!hasExp}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "6px 2px", borderRadius: "12px", border: "none", cursor: hasExp ? "pointer" : "default", transition: "all 0.12s",
+                  backgroundColor: isSelected ? "#7B6BA8" : "transparent",
+                }}>
+                <span style={{ fontSize: "13px", fontWeight: 600, lineHeight: 1,
+                  color: isSelected ? "white" : isToday ? "#7B6BA8" : !hasExp ? "#d1d5db" : dow === 0 ? "#f87171" : dow === 6 ? "#60a5fa" : "#374151" }}>
                   {day}
                 </span>
                 {hasExp && (
                   <div style={{ display: "flex", gap: "2px", marginTop: "4px" }}>
                     {dayCats.map(cat => (
-                      <span
-                        key={cat}
-                        style={{
-                          width: "6px", height: "6px", borderRadius: "50%",
-                          backgroundColor: isSelected ? "white" : (CATEGORY_META[cat]?.color ?? "#9ca3af"),
-                          display: "inline-block",
-                        }}
-                      />
+                      <span key={cat} style={{ width: "5px", height: "5px", borderRadius: "50%", display: "inline-block",
+                        backgroundColor: isSelected ? "rgba(255,255,255,0.8)" : (CAT_META[cat]?.color ?? "#9ca3af") }} />
                     ))}
                   </div>
                 )}
@@ -145,48 +153,41 @@ export default function CalendarView({ experiences }: Props) {
         </div>
 
         {/* Legend */}
-        <div style={{ marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #f9fafb", display: "flex", flexWrap: "wrap", gap: "8px 12px" }}>
-          {Object.entries(CATEGORY_META).map(([cat, meta]) => (
-            <div key={cat} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "#9ca3af" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: meta.color, display: "inline-block" }} />
+        <div style={{ marginTop: "16px", paddingTop: "12px", borderTop: "1px solid #f3f4f6", display: "flex", flexWrap: "wrap", gap: "6px 12px" }}>
+          {Object.entries(CAT_META).map(([cat, meta]) => (
+            <div key={cat} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "#9ca3af" }}>
+              <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: meta.color, display: "inline-block" }} />
               {cat}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Step 2: Category chips (日付選択後) */}
+      {/* Step 2: Category chips */}
       {selectedDate && (
-        <div className="mt-5">
-          <p className="text-sm font-bold text-gray-800 mb-3">
+        <div style={{ marginTop: "20px" }}>
+          <p style={{ fontSize: "14px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>
             {selectedDateLabel}
-            <span className="text-gray-400 font-normal text-xs ml-2">何を体験する？</span>
+            <span style={{ color: "#9ca3af", fontWeight: 400, fontSize: "12px", marginLeft: "8px" }}>何を体験する？</span>
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
             {dateCategories.map(cat => {
-              const meta = CATEGORY_META[cat];
+              const meta = CAT_META[cat];
               const isActive = selectedCategory === cat;
               const count = (expByDate[selectedDate] ?? []).filter(e => e.category === cat).length;
               return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(isActive ? null : cat)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: "6px",
-                    padding: "8px 16px", borderRadius: "9999px", border: "1px solid",
-                    fontSize: "14px", fontWeight: 500, cursor: "pointer", transition: "all 0.15s",
+                <button key={cat} onClick={() => setSelectedCategory(isActive ? null : cat)}
+                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 18px", borderRadius: "999px", border: "1.5px solid", fontSize: "13px", fontWeight: 600, cursor: "pointer", transition: "all 0.12s",
                     backgroundColor: isActive ? "#7B6BA8" : (meta?.bg ?? "#f9fafb"),
                     color: isActive ? "white" : (meta?.text ?? "#4b5563"),
                     borderColor: isActive ? "#7B6BA8" : (meta?.border ?? "#e5e7eb"),
-                  }}
-                >
+                    boxShadow: isActive ? "0 2px 8px rgba(123,107,168,0.25)" : "none",
+                  }}>
                   <span>{meta?.emoji}</span>
                   <span>{cat}</span>
                   {count > 1 && (
-                    <span style={{
-                      fontSize: "11px", padding: "1px 6px", borderRadius: "9999px",
-                      backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.05)",
-                    }}>
+                    <span style={{ fontSize: "10px", padding: "1px 6px", borderRadius: "999px",
+                      backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.06)" }}>
                       {count}
                     </span>
                   )}
@@ -199,44 +200,43 @@ export default function CalendarView({ experiences }: Props) {
 
       {/* Step 3: Experience cards */}
       {selectedDate && selectedCategory && (
-        <div className="mt-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-bold text-gray-800">
-              {CATEGORY_META[selectedCategory]?.emoji} {selectedCategory}の体験
+        <div style={{ marginTop: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <p style={{ fontSize: "14px", fontWeight: 700, color: "#111827" }}>
+              {CAT_META[selectedCategory]?.emoji} {selectedCategory}の体験
             </p>
-            <button onClick={() => setSelectedCategory(null)} className="text-xs text-gray-400 hover:text-gray-600">← カテゴリに戻る</button>
+            <button onClick={() => setSelectedCategory(null)}
+              style={{ fontSize: "12px", color: "#9ca3af", background: "none", border: "none", cursor: "pointer" }}>
+              ← カテゴリに戻る
+            </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {visibleExps.map(exp => (
-              <ExperienceCard key={exp.id} experience={exp} />
-            ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+            {visibleExps.map(exp => <ExperienceCard key={exp.id} experience={exp} />)}
           </div>
         </div>
       )}
 
-      {/* 日付未選択：月全体をカードで表示 */}
+      {/* No date selected: show all month experiences */}
       {!selectedDate && (
-        <div className="mt-5">
-          <p className="text-sm font-bold text-gray-800 mb-3">
-            {year}年{month + 1}月の体験
-            <span className="ml-2 text-gray-400 font-normal text-xs">
-              {experiences.filter(e => { const d = new Date(e.date); return d.getFullYear() === year && d.getMonth() === month; }).length}件
+        <div style={{ marginTop: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <p style={{ fontSize: "14px", fontWeight: 700, color: "#111827" }}>
+              {year}年{month + 1}月の体験
+            </p>
+            <span style={{ fontSize: "12px", color: "#9ca3af", fontWeight: 500 }}>
+              {monthExps.length}件
             </span>
-          </p>
-          {experiences.filter(e => {
-            const d = new Date(e.date);
-            return d.getFullYear() === year && d.getMonth() === month;
-          }).length === 0 ? (
-            <div className="text-center py-10 text-gray-400 text-sm">
-              <p className="text-2xl mb-2">🌸</p>
-              <p>この月の体験はまだありません</p>
+          </div>
+          {monthExps.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 0", color: "#9ca3af" }}>
+              <p style={{ fontSize: "32px", marginBottom: "8px" }}>🌸</p>
+              <p style={{ fontSize: "13px" }}>
+                {selectedArea !== "全域" ? `${selectedArea}の` : ""}この月の体験はまだありません
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {experiences
-                .filter(e => { const d = new Date(e.date); return d.getFullYear() === year && d.getMonth() === month; })
-                .sort((a, b) => a.date.localeCompare(b.date))
-                .map(exp => <ExperienceCard key={exp.id} experience={exp} />)}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
+              {monthExps.map(exp => <ExperienceCard key={exp.id} experience={exp} />)}
             </div>
           )}
         </div>

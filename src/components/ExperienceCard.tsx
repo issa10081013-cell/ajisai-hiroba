@@ -2,95 +2,117 @@
 import Link from "next/link";
 import { Experience } from "@/lib/types";
 
-type Props = {
-  experience: Experience;
+const CAT_STYLE: Record<string, { gradient: string; emoji: string }> = {
+  "農業体験":  { gradient: "linear-gradient(135deg, #bbf7d0 0%, #4ade80 60%, #16a34a 100%)", emoji: "🌾" },
+  "料理教室":  { gradient: "linear-gradient(135deg, #fed7aa 0%, #fb923c 60%, #c2410c 100%)", emoji: "🍳" },
+  "学習体験":  { gradient: "linear-gradient(135deg, #bfdbfe 0%, #60a5fa 60%, #1d4ed8 100%)", emoji: "📚" },
+  "ものづくり": { gradient: "linear-gradient(135deg, #fbcfe8 0%, #f472b6 60%, #be185d 100%)", emoji: "🧵" },
+  "自然体験":  { gradient: "linear-gradient(135deg, #a7f3d0 0%, #34d399 60%, #059669 100%)", emoji: "🌿" },
+  "その他":    { gradient: "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 60%, #4b5563 100%)", emoji: "✨" },
 };
 
-export default function ExperienceCard({ experience }: Props) {
+export default function ExperienceCard({ experience }: { experience: Experience }) {
   const spotsLeft = experience.capacity - experience.currentBookings;
   const isFull = spotsLeft <= 0;
   const isFree = experience.priceMember === 0;
+  const cat = CAT_STYLE[experience.category] ?? CAT_STYLE["その他"];
 
-  const dateObj = new Date(experience.date);
-  const dateStr = dateObj.toLocaleDateString("ja-JP", {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  });
+  const dateObj = new Date(experience.date + "T00:00:00");
+  const dateStr = dateObj.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric", weekday: "short" });
 
   return (
-    <Link href={`/experiences/${experience.id}`}>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-50 cursor-pointer group">
-        <div className="relative h-44 overflow-hidden">
-          <img
-            src={experience.imageUrl}
-            alt={experience.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div className="absolute top-3 left-3 flex gap-2">
-            <span className="bg-white/90 backdrop-blur-sm text-[#7B6BA8] text-xs font-medium px-2.5 py-1 rounded-full">
+    <Link href={`/experiences/${experience.id}`} style={{ textDecoration: "none", display: "block" }}>
+      <div style={{ backgroundColor: "white", borderRadius: "20px", overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.08)", transition: "transform 0.15s, box-shadow 0.15s" }}
+        onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)"; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 16px rgba(0,0,0,0.08)"; }}>
+
+        {/* Image / Gradient */}
+        <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
+          {experience.imageUrl ? (
+            <img src={experience.imageUrl} alt={experience.title}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <div style={{ width: "100%", height: "100%", background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: "56px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}>{cat.emoji}</span>
+            </div>
+          )}
+
+          {/* Badges */}
+          <div style={{ position: "absolute", top: "12px", left: "12px", display: "flex", gap: "6px" }}>
+            <span style={{ backgroundColor: "rgba(255,255,255,0.92)", color: "#7B6BA8", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", backdropFilter: "blur(8px)" }}>
               {experience.category}
             </span>
             {isFree && (
-              <span className="bg-[#5A8A6A] text-white text-xs font-bold px-2.5 py-1 rounded-full">
+              <span style={{ backgroundColor: "#059669", color: "white", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px" }}>
                 無料
               </span>
             )}
           </div>
+
+          {spotsLeft <= 3 && !isFull && (
+            <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+              <span style={{ backgroundColor: "#ef4444", color: "white", fontSize: "10px", fontWeight: 700, padding: "4px 8px", borderRadius: "999px" }}>
+                残り{spotsLeft}席
+              </span>
+            </div>
+          )}
+
           {isFull && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">満員</span>
+            <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: "white", fontWeight: 800, fontSize: "18px", letterSpacing: "0.05em" }}>SOLD OUT</span>
             </div>
           )}
         </div>
 
-        <div className="p-4">
-          <h3 className="font-bold text-gray-800 text-sm leading-snug mb-2 line-clamp-2">
+        {/* Body */}
+        <div style={{ padding: "14px 16px 16px" }}>
+          {/* Provider row */}
+          <div style={{ display: "flex", alignItems: "center", gap: "7px", marginBottom: "8px" }}>
+            <img src={experience.provider.imageUrl || `https://i.pravatar.cc/40?u=${experience.provider.id}`}
+              alt={experience.provider.name}
+              style={{ width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "1.5px solid #E8E4F5" }} />
+            <span style={{ fontSize: "11px", color: "#9ca3af", fontWeight: 600 }}>{experience.provider.name}</span>
+          </div>
+
+          {/* Title */}
+          <h3 style={{ fontSize: "14px", fontWeight: 700, color: "#111827", margin: "0 0 10px", lineHeight: 1.45,
+            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
             {experience.title}
           </h3>
 
-          <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
-            <span>📅</span>
-            <span>{dateStr} {experience.timeStart}〜{experience.timeEnd}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
-            <span>📍</span>
-            <span className="truncate">{experience.location.split("（")[0]}</span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              {isFree ? (
-                <span className="text-[#5A8A6A] font-bold text-sm">無料</span>
-              ) : (
-                <div>
-                  <span className="text-[#7B6BA8] font-bold text-sm">
-                    会員 ¥{experience.priceMember.toLocaleString()}
-                  </span>
-                  <span className="text-gray-400 text-xs ml-1.5 line-through">
-                    ¥{experience.priceRegular.toLocaleString()}
-                  </span>
-                </div>
-              )}
+          {/* Meta */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "#6b7280" }}>
+              <span>📅</span>
+              <span>{dateStr}　{experience.timeStart}〜{experience.timeEnd}</span>
             </div>
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-              isFull
-                ? "bg-gray-100 text-gray-400"
-                : spotsLeft <= 3
-                ? "bg-red-50 text-red-500"
-                : "bg-[#E8E4F5] text-[#7B6BA8]"
-            }`}>
-              {isFull ? "満員" : `残り${spotsLeft}席`}
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "#6b7280" }}>
+              <span>📍</span>
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {experience.location.split("（")[0]}
+              </span>
+            </div>
           </div>
 
-          <div className="mt-3 flex items-center gap-2">
-            <img
-              src={experience.provider.imageUrl}
-              alt={experience.provider.name}
-              className="w-5 h-5 rounded-full object-cover"
-            />
-            <span className="text-xs text-gray-500">{experience.provider.name}</span>
+          {/* Price row */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid #f3f4f6", paddingTop: "10px" }}>
+            {isFree ? (
+              <div>
+                <span style={{ color: "#059669", fontWeight: 800, fontSize: "16px" }}>無料</span>
+                <span style={{ color: "#9ca3af", fontSize: "11px", marginLeft: "4px" }}>で参加</span>
+              </div>
+            ) : (
+              <div>
+                <span style={{ color: "#7B6BA8", fontWeight: 800, fontSize: "16px" }}>¥{experience.priceMember.toLocaleString()}</span>
+                <span style={{ color: "#d1d5db", fontSize: "11px", marginLeft: "4px", textDecoration: "line-through" }}>¥{experience.priceRegular.toLocaleString()}</span>
+                <span style={{ color: "#9ca3af", fontSize: "11px" }}> /家族</span>
+              </div>
+            )}
+            {!isFull && spotsLeft > 3 && (
+              <span style={{ fontSize: "11px", fontWeight: 600, padding: "4px 10px", borderRadius: "999px", backgroundColor: "#EDE9F8", color: "#7B6BA8" }}>
+                残り{spotsLeft}席
+              </span>
+            )}
           </div>
         </div>
       </div>

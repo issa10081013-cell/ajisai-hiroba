@@ -71,7 +71,7 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
             placeholder="090-0000-0000"
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8]" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
           <div>
             <label className="block text-xs text-gray-500 mb-1">大人の人数 *</label>
             <select value={form.adultsCount} onChange={(e) => setForm({ ...form, adultsCount: Number(e.target.value) })}
