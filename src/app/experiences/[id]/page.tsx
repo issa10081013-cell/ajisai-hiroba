@@ -2,6 +2,7 @@ import { getExperienceById, getReviewsByExperienceId } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import BookingForm from "@/components/BookingForm";
+import { Calendar, MapPin, Banknote, Users } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -96,16 +97,16 @@ export default async function ExperienceDetailPage({ params }: Props) {
       {/* Info grid */}
       <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", marginBottom: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
         <div>
-          <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>📅 日時</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "4px" }}><Calendar size={12} color="#9ca3af" /><span style={{ fontSize: "11px", color: "#9ca3af" }}>日時</span></div>
           <p style={{ fontWeight: 600, color: "#111827", fontSize: "13px", marginBottom: "2px" }}>{dateStr}</p>
           <p style={{ color: "#6b7280", fontSize: "13px" }}>{experience.timeStart}〜{experience.timeEnd}</p>
         </div>
         <div>
-          <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>📍 場所</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "4px" }}><MapPin size={12} color="#9ca3af" /><span style={{ fontSize: "11px", color: "#9ca3af" }}>場所</span></div>
           <p style={{ fontWeight: 600, color: "#111827", fontSize: "13px" }}>{experience.location}</p>
         </div>
         <div>
-          <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>💴 参加費</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "4px" }}><Banknote size={12} color="#9ca3af" /><span style={{ fontSize: "11px", color: "#9ca3af" }}>参加費</span></div>
           {isFree ? (
             <p style={{ fontWeight: 800, color: "#059669", fontSize: "16px" }}>無料</p>
           ) : (
@@ -116,7 +117,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
           )}
         </div>
         <div>
-          <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "4px" }}>👥 残席</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "4px" }}><Users size={12} color="#9ca3af" /><span style={{ fontSize: "11px", color: "#9ca3af" }}>残席</span></div>
           <p style={{ fontWeight: 700, fontSize: "15px", color: isFull ? "#9ca3af" : spotsLeft <= 3 ? "#ef4444" : "#111827" }}>
             {isFull ? "満員" : `${spotsLeft} / ${experience.capacity}席`}
           </p>

@@ -1,14 +1,15 @@
 "use client";
 import Link from "next/link";
 import { Experience } from "@/lib/types";
+import { Calendar, MapPin } from "lucide-react";
 
 const CAT_STYLE: Record<string, { gradient: string; emoji: string }> = {
-  "農業体験":  { gradient: "linear-gradient(135deg, #bbf7d0 0%, #4ade80 60%, #16a34a 100%)", emoji: "🌾" },
-  "料理教室":  { gradient: "linear-gradient(135deg, #fed7aa 0%, #fb923c 60%, #c2410c 100%)", emoji: "🍳" },
-  "学習体験":  { gradient: "linear-gradient(135deg, #bfdbfe 0%, #60a5fa 60%, #1d4ed8 100%)", emoji: "📚" },
-  "ものづくり": { gradient: "linear-gradient(135deg, #fbcfe8 0%, #f472b6 60%, #be185d 100%)", emoji: "🧵" },
-  "自然体験":  { gradient: "linear-gradient(135deg, #a7f3d0 0%, #34d399 60%, #059669 100%)", emoji: "🌿" },
-  "その他":    { gradient: "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 60%, #4b5563 100%)", emoji: "✨" },
+  "農業体験":   { gradient: "linear-gradient(135deg, #bbf7d0 0%, #4ade80 60%, #16a34a 100%)", emoji: "🌾" },
+  "料理教室":   { gradient: "linear-gradient(135deg, #fed7aa 0%, #fb923c 60%, #c2410c 100%)", emoji: "🍳" },
+  "学習体験":   { gradient: "linear-gradient(135deg, #bfdbfe 0%, #60a5fa 60%, #1d4ed8 100%)", emoji: "📚" },
+  "ものづくり":  { gradient: "linear-gradient(135deg, #fbcfe8 0%, #f472b6 60%, #be185d 100%)", emoji: "🧵" },
+  "自然体験":   { gradient: "linear-gradient(135deg, #a7f3d0 0%, #34d399 60%, #059669 100%)", emoji: "🌿" },
+  "その他":     { gradient: "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 60%, #4b5563 100%)", emoji: "✨" },
 };
 
 export default function ExperienceCard({ experience }: { experience: Experience }) {
@@ -22,10 +23,17 @@ export default function ExperienceCard({ experience }: { experience: Experience 
 
   return (
     <Link href={`/experiences/${experience.id}`} style={{ textDecoration: "none", display: "block" }}>
-      <div style={{ backgroundColor: "white", borderRadius: "20px", overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.08)", transition: "transform 0.15s, box-shadow 0.15s" }}
-        onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)"; }}
-        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 16px rgba(0,0,0,0.08)"; }}>
-
+      <div
+        style={{ backgroundColor: "white", borderRadius: "20px", overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", transition: "transform 0.15s, box-shadow 0.15s", cursor: "pointer" }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 10px 28px rgba(0,0,0,0.12)";
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 16px rgba(0,0,0,0.07)";
+        }}
+      >
         {/* Image / Gradient */}
         <div style={{ position: "relative", height: "180px", overflow: "hidden" }}>
           {experience.imageUrl ? (
@@ -33,13 +41,13 @@ export default function ExperienceCard({ experience }: { experience: Experience 
               style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             <div style={{ width: "100%", height: "100%", background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "56px", filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}>{cat.emoji}</span>
+              <span style={{ fontSize: "60px", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}>{cat.emoji}</span>
             </div>
           )}
 
-          {/* Badges */}
+          {/* Category badge */}
           <div style={{ position: "absolute", top: "12px", left: "12px", display: "flex", gap: "6px" }}>
-            <span style={{ backgroundColor: "rgba(255,255,255,0.92)", color: "#7B6BA8", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", backdropFilter: "blur(8px)" }}>
+            <span style={{ backgroundColor: "rgba(255,255,255,0.93)", color: "#7B6BA8", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", backdropFilter: "blur(8px)" }}>
               {experience.category}
             </span>
             {isFree && (
@@ -49,9 +57,10 @@ export default function ExperienceCard({ experience }: { experience: Experience 
             )}
           </div>
 
+          {/* Urgency badge */}
           {spotsLeft <= 3 && !isFull && (
             <div style={{ position: "absolute", top: "12px", right: "12px" }}>
-              <span style={{ backgroundColor: "#ef4444", color: "white", fontSize: "10px", fontWeight: 700, padding: "4px 8px", borderRadius: "999px" }}>
+              <span style={{ backgroundColor: "#ef4444", color: "white", fontSize: "10px", fontWeight: 700, padding: "4px 9px", borderRadius: "999px" }}>
                 残り{spotsLeft}席
               </span>
             </div>
@@ -59,18 +68,20 @@ export default function ExperienceCard({ experience }: { experience: Experience 
 
           {isFull && (
             <div style={{ position: "absolute", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: "white", fontWeight: 800, fontSize: "18px", letterSpacing: "0.05em" }}>SOLD OUT</span>
+              <span style={{ color: "white", fontWeight: 800, fontSize: "16px", letterSpacing: "0.1em" }}>SOLD OUT</span>
             </div>
           )}
         </div>
 
         {/* Body */}
         <div style={{ padding: "14px 16px 16px" }}>
-          {/* Provider row */}
+          {/* Provider */}
           <div style={{ display: "flex", alignItems: "center", gap: "7px", marginBottom: "8px" }}>
-            <img src={experience.provider.imageUrl || `https://i.pravatar.cc/40?u=${experience.provider.id}`}
+            <img
+              src={experience.provider.imageUrl || `https://i.pravatar.cc/40?u=${experience.provider.id}`}
               alt={experience.provider.name}
-              style={{ width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "1.5px solid #E8E4F5" }} />
+              style={{ width: "20px", height: "20px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "1.5px solid #E8E4F5" }}
+            />
             <span style={{ fontSize: "11px", color: "#9ca3af", fontWeight: 600 }}>{experience.provider.name}</span>
           </div>
 
@@ -80,15 +91,15 @@ export default function ExperienceCard({ experience }: { experience: Experience 
             {experience.title}
           </h3>
 
-          {/* Meta */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "3px", marginBottom: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "#6b7280" }}>
-              <span>📅</span>
-              <span>{dateStr}　{experience.timeStart}〜{experience.timeEnd}</span>
+          {/* Date & Location */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <Calendar size={12} color="#9ca3af" strokeWidth={2} />
+              <span style={{ fontSize: "12px", color: "#6b7280" }}>{dateStr}　{experience.timeStart}〜{experience.timeEnd}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "12px", color: "#6b7280" }}>
-              <span>📍</span>
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <MapPin size={12} color="#9ca3af" strokeWidth={2} />
+              <span style={{ fontSize: "12px", color: "#6b7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {experience.location.split("（")[0]}
               </span>
             </div>
@@ -109,7 +120,7 @@ export default function ExperienceCard({ experience }: { experience: Experience 
               </div>
             )}
             {!isFull && spotsLeft > 3 && (
-              <span style={{ fontSize: "11px", fontWeight: 600, padding: "4px 10px", borderRadius: "999px", backgroundColor: "#EDE9F8", color: "#7B6BA8" }}>
+              <span style={{ fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", backgroundColor: "#EDE9F8", color: "#7B6BA8" }}>
                 残り{spotsLeft}席
               </span>
             )}
