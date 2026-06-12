@@ -50,7 +50,8 @@ export default function NewExperiencePage() {
     });
 
     setLoading(false);
-    if (!error) router.push("/admin/dashboard");
+    if (error) { alert("エラー: " + error.message); return; }
+    router.push("/admin/dashboard");
   };
 
   const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
