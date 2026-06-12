@@ -52,6 +52,7 @@ function mapReview(r: Record<string, unknown>): Review {
 }
 
 export async function getExperiences(): Promise<Experience[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("experiences")
     .select("*, providers(*)")
@@ -62,6 +63,7 @@ export async function getExperiences(): Promise<Experience[]> {
 }
 
 export async function getExperienceById(id: string): Promise<Experience | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("experiences")
     .select("*, providers(*)")
@@ -73,6 +75,7 @@ export async function getExperienceById(id: string): Promise<Experience | null> 
 }
 
 export async function getReviewsByExperienceId(experienceId: string): Promise<Review[]> {
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
@@ -92,6 +95,7 @@ export async function createBooking(booking: {
   adultsCount: number;
   message?: string;
 }): Promise<boolean> {
+  if (!supabase) return false;
   const { error } = await supabase.from("bookings").insert({
     experience_id: booking.experienceId,
     parent_name: booking.parentName,
