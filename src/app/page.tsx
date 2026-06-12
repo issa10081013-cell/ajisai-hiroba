@@ -1,5 +1,5 @@
 import { getExperiences } from "@/lib/queries";
-import CalendarView from "@/components/CalendarView";
+import ExperienceBrowse from "@/components/ExperienceBrowse";
 
 export const revalidate = 60;
 
@@ -8,58 +8,85 @@ export default async function Home() {
 
   return (
     <div style={{ backgroundColor: "#FAFAF9", minHeight: "100vh" }}>
-      {/* Hero */}
-      <section style={{ position: "relative", overflow: "hidden", padding: "48px 20px 40px", textAlign: "center", background: "linear-gradient(160deg, #EDE9F8 0%, #F5F3FA 40%, #E8F0E8 100%)" }}>
-        {/* decorative blobs */}
-        <div style={{ position: "absolute", top: "-40px", left: "-40px", width: "200px", height: "200px", borderRadius: "50%", background: "rgba(123,107,168,0.08)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "-30px", right: "-30px", width: "160px", height: "160px", borderRadius: "50%", background: "rgba(90,138,106,0.08)", pointerEvents: "none" }} />
+      {/* Full-bleed hero */}
+      <section style={{ position: "relative", height: "440px", overflow: "hidden" }}>
+        <img
+          src="https://images.unsplash.com/photo-1536337005238-94b997371b40?w=1600&q=85&auto=format&fit=crop"
+          alt="hero"
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%" }}
+        />
+        {/* Gradient overlay */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)" }} />
 
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <span style={{ display: "inline-block", backgroundColor: "rgba(123,107,168,0.12)", color: "#7B6BA8", fontSize: "11px", fontWeight: 700, padding: "5px 14px", borderRadius: "999px", marginBottom: "16px", letterSpacing: "0.06em" }}>
-            🌱 福岡の子育て家族のための体験プラットフォーム
-          </span>
-          <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#111827", lineHeight: 1.3, marginBottom: "12px" }}>
+        {/* Hero text */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "0 20px" }}>
+          <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "12px", fontWeight: 600, letterSpacing: "0.1em", marginBottom: "12px" }}>
+            FUKUOKA · FAMILY · EXPERIENCE
+          </p>
+          <h1 style={{ color: "white", fontSize: "34px", fontWeight: 800, lineHeight: 1.25, marginBottom: "14px", textShadow: "0 2px 16px rgba(0,0,0,0.3)" }}>
             本物の体験が、<br />子どもを育てる。
           </h1>
-          <p style={{ color: "#6b7280", fontSize: "13px", lineHeight: 1.8, maxWidth: "300px", margin: "0 auto 24px" }}>
-            農家・料理教室・塾・職人——<br />日付を選んで体験を予約しよう
+          <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "14px", lineHeight: 1.8, maxWidth: "360px", fontWeight: 500 }}>
+            農家・料理人・職人が福岡の子育て家族を待っています
           </p>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+          {/* Stats */}
+          <div style={{ display: "flex", gap: "32px", marginTop: "28px" }}>
             {[
-              { emoji: "🌾", label: "農業・自然" },
-              { emoji: "🍳", label: "料理体験" },
-              { emoji: "🧵", label: "ものづくり" },
+              { num: "30+", label: "体験プログラム" },
+              { num: "10+", label: "地域のプロ" },
+              { num: "福岡", label: "全エリア対応" },
             ].map(item => (
-              <div key={item.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                <span style={{ fontSize: "24px" }}>{item.emoji}</span>
-                <span style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 600 }}>{item.label}</span>
+              <div key={item.label} style={{ textAlign: "center" }}>
+                <p style={{ color: "white", fontWeight: 800, fontSize: "20px", lineHeight: 1 }}>{item.num}</p>
+                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px", marginTop: "4px" }}>{item.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Calendar */}
-      <section style={{ maxWidth: "720px", margin: "0 auto", padding: "24px 16px" }}>
-        <CalendarView experiences={experiences} />
-      </section>
+      {/* Browse section */}
+      <ExperienceBrowse experiences={experiences} />
 
-      {/* About */}
-      <section style={{ backgroundColor: "white", margin: "8px 0 0", padding: "40px 20px" }}>
-        <div style={{ maxWidth: "640px", margin: "0 auto", textAlign: "center" }}>
-          <p style={{ fontSize: "11px", fontWeight: 700, color: "#7B6BA8", letterSpacing: "0.06em", marginBottom: "8px" }}>ABOUT</p>
-          <h2 style={{ fontSize: "17px", fontWeight: 800, color: "#111827", marginBottom: "28px" }}>あじさい体験ひろばとは</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+      {/* About section */}
+      <section style={{ backgroundColor: "white", padding: "56px 20px", marginTop: "32px" }}>
+        <div style={{ maxWidth: "880px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+            <p style={{ fontSize: "11px", fontWeight: 700, color: "#7B6BA8", letterSpacing: "0.08em", marginBottom: "8px" }}>WHY AJISAI</p>
+            <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#111827" }}>なぜあじさい体験ひろばなのか</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
             {[
-              { icon: "🌱", title: "本物に触れる", desc: "農家・料理人・職人の現場へ" },
-              { icon: "💜", title: "会員は特別価格", desc: "月額¥1,000で割引体験" },
-              { icon: "🤝", title: "つながりが生まれる", desc: "福岡の家族と仲間になる" },
+              {
+                img: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=260&q=80&auto=format&fit=crop",
+                icon: "🌱",
+                title: "本物に触れる体験",
+                desc: "農家・料理人・職人——教科書では学べない現場の知識と技術を子どもたちに",
+              },
+              {
+                img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=260&q=80&auto=format&fit=crop",
+                icon: "💜",
+                title: "会員は特別価格",
+                desc: "月額¥1,000のメンバーシップで、すべての体験が大幅割引。家族で気軽に参加できる",
+              },
+              {
+                img: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=260&q=80&auto=format&fit=crop",
+                icon: "🤝",
+                title: "つながりが生まれる",
+                desc: "福岡の家族と仲間になる。同じ価値観を持つ保護者コミュニティが広がっていく",
+              },
             ].map(item => (
-              <div key={item.title} style={{ backgroundColor: "#FAFAF9", borderRadius: "16px", padding: "20px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "28px" }}>{item.icon}</span>
-                <p style={{ fontWeight: 700, color: "#111827", fontSize: "12px" }}>{item.title}</p>
-                <p style={{ color: "#9ca3af", fontSize: "11px", lineHeight: 1.5 }}>{item.desc}</p>
+              <div key={item.title} style={{ borderRadius: "16px", overflow: "hidden", backgroundColor: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <div style={{ height: "160px", overflow: "hidden", position: "relative" }}>
+                  <img src={item.img} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 60%)" }} />
+                  <span style={{ position: "absolute", bottom: "12px", left: "14px", fontSize: "22px" }}>{item.icon}</span>
+                </div>
+                <div style={{ padding: "16px" }}>
+                  <h3 style={{ fontSize: "14px", fontWeight: 700, color: "#111827", marginBottom: "6px" }}>{item.title}</h3>
+                  <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.7 }}>{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
