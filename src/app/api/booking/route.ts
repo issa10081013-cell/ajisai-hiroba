@@ -38,18 +38,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: bookingError.message }, { status: 500 });
   }
 
-  // 提供者のメールアドレスを取得
-  let providerEmail = "issa10081013@gmail.com";
-  if (exp?.providers) {
-    const provider = exp.providers as { name: string; auth_user_id: string };
-    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(provider.auth_user_id);
-    if (authUser?.user?.email) providerEmail = authUser.user.email;
-  }
-
-  // メール送信
+  // メール送信（無料プランのため登録メールに固定）
   await resend.emails.send({
     from: "あじさい体験ひろば <onboarding@resend.dev>",
-    to: providerEmail,
+    to: "issa10081013@gmail.com",
     subject: `【予約通知】${exp?.title ?? "体験"} に新しい予約が入りました`,
     html: `
       <h2>新しい予約が入りました</h2>
