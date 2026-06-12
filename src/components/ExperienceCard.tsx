@@ -1,15 +1,15 @@
 "use client";
 import Link from "next/link";
 import { Experience } from "@/lib/types";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Leaf, ChefHat, BookOpen, Scissors, TreePine, Sparkles } from "lucide-react";
 
-const CAT_STYLE: Record<string, { gradient: string; emoji: string }> = {
-  "農業体験":   { gradient: "linear-gradient(135deg, #bbf7d0 0%, #4ade80 60%, #16a34a 100%)", emoji: "🌾" },
-  "料理教室":   { gradient: "linear-gradient(135deg, #fed7aa 0%, #fb923c 60%, #c2410c 100%)", emoji: "🍳" },
-  "学習体験":   { gradient: "linear-gradient(135deg, #bfdbfe 0%, #60a5fa 60%, #1d4ed8 100%)", emoji: "📚" },
-  "ものづくり":  { gradient: "linear-gradient(135deg, #fbcfe8 0%, #f472b6 60%, #be185d 100%)", emoji: "🧵" },
-  "自然体験":   { gradient: "linear-gradient(135deg, #a7f3d0 0%, #34d399 60%, #059669 100%)", emoji: "🌿" },
-  "その他":     { gradient: "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 60%, #4b5563 100%)", emoji: "✨" },
+const CAT_STYLE: Record<string, { gradient: string; Icon: React.ElementType; iconColor: string }> = {
+  "農業体験":   { gradient: "linear-gradient(135deg, #bbf7d0 0%, #4ade80 60%, #16a34a 100%)", Icon: Leaf,      iconColor: "rgba(255,255,255,0.9)" },
+  "料理教室":   { gradient: "linear-gradient(135deg, #fed7aa 0%, #fb923c 60%, #c2410c 100%)", Icon: ChefHat,   iconColor: "rgba(255,255,255,0.9)" },
+  "学習体験":   { gradient: "linear-gradient(135deg, #bfdbfe 0%, #60a5fa 60%, #1d4ed8 100%)", Icon: BookOpen,  iconColor: "rgba(255,255,255,0.9)" },
+  "ものづくり":  { gradient: "linear-gradient(135deg, #fbcfe8 0%, #f472b6 60%, #be185d 100%)", Icon: Scissors,  iconColor: "rgba(255,255,255,0.9)" },
+  "自然体験":   { gradient: "linear-gradient(135deg, #a7f3d0 0%, #34d399 60%, #059669 100%)", Icon: TreePine,  iconColor: "rgba(255,255,255,0.9)" },
+  "その他":     { gradient: "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 60%, #4b5563 100%)", Icon: Sparkles, iconColor: "rgba(255,255,255,0.9)" },
 };
 
 export default function ExperienceCard({ experience }: { experience: Experience }) {
@@ -17,6 +17,7 @@ export default function ExperienceCard({ experience }: { experience: Experience 
   const isFull = spotsLeft <= 0;
   const isFree = experience.priceMember === 0;
   const cat = CAT_STYLE[experience.category] ?? CAT_STYLE["その他"];
+  const { Icon } = cat;
 
   const dateObj = new Date(experience.date + "T00:00:00");
   const dateStr = dateObj.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric", weekday: "short" });
@@ -41,7 +42,7 @@ export default function ExperienceCard({ experience }: { experience: Experience 
               style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             <div style={{ width: "100%", height: "100%", background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "60px", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.18))" }}>{cat.emoji}</span>
+              <Icon size={64} color={cat.iconColor} strokeWidth={1.5} style={{ filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))" }} />
             </div>
           )}
 

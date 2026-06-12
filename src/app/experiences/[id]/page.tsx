@@ -2,19 +2,19 @@ import { getExperienceById, getReviewsByExperienceId } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import BookingForm from "@/components/BookingForm";
-import { Calendar, MapPin, Banknote, Users } from "lucide-react";
+import { Calendar, MapPin, Banknote, Users, Leaf, ChefHat, BookOpen, Scissors, TreePine, Sparkles } from "lucide-react";
 
 export const revalidate = 60;
 
 type Props = { params: Promise<{ id: string }> };
 
-const CAT_GRADIENT: Record<string, { gradient: string; emoji: string }> = {
-  "農業体験":   { gradient: "linear-gradient(135deg, #bbf7d0, #4ade80, #16a34a)", emoji: "🌾" },
-  "料理教室":   { gradient: "linear-gradient(135deg, #fed7aa, #fb923c, #c2410c)", emoji: "🍳" },
-  "学習体験":   { gradient: "linear-gradient(135deg, #bfdbfe, #60a5fa, #1d4ed8)", emoji: "📚" },
-  "ものづくり":  { gradient: "linear-gradient(135deg, #fbcfe8, #f472b6, #be185d)", emoji: "🧵" },
-  "自然体験":   { gradient: "linear-gradient(135deg, #a7f3d0, #34d399, #059669)", emoji: "🌿" },
-  "その他":     { gradient: "linear-gradient(135deg, #e5e7eb, #9ca3af, #4b5563)", emoji: "✨" },
+const CAT_GRADIENT: Record<string, { gradient: string; Icon: React.ElementType }> = {
+  "農業体験":   { gradient: "linear-gradient(135deg, #bbf7d0, #4ade80, #16a34a)", Icon: Leaf },
+  "料理教室":   { gradient: "linear-gradient(135deg, #fed7aa, #fb923c, #c2410c)", Icon: ChefHat },
+  "学習体験":   { gradient: "linear-gradient(135deg, #bfdbfe, #60a5fa, #1d4ed8)", Icon: BookOpen },
+  "ものづくり":  { gradient: "linear-gradient(135deg, #fbcfe8, #f472b6, #be185d)", Icon: Scissors },
+  "自然体験":   { gradient: "linear-gradient(135deg, #a7f3d0, #34d399, #059669)", Icon: TreePine },
+  "その他":     { gradient: "linear-gradient(135deg, #e5e7eb, #9ca3af, #4b5563)", Icon: Sparkles },
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -45,6 +45,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
   const isFree = experience.priceMember === 0;
   const { provider } = experience;
   const cat = CAT_GRADIENT[experience.category] ?? CAT_GRADIENT["その他"];
+  const CatIcon = cat.Icon;
 
   const dateStr = new Date(experience.date + "T00:00:00").toLocaleDateString("ja-JP", {
     year: "numeric", month: "long", day: "numeric", weekday: "long",
@@ -60,7 +61,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
           <img src={experience.imageUrl} alt={experience.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
           <div style={{ width: "100%", height: "100%", background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: "72px", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))" }}>{cat.emoji}</span>
+            <CatIcon size={80} color="rgba(255,255,255,0.9)" strokeWidth={1.2} style={{ filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.15))" }} />
           </div>
         )}
       </div>
