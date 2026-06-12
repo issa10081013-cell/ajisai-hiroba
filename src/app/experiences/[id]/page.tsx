@@ -1,11 +1,11 @@
-import { experiences, reviews } from "@/lib/data";
+import { getExperienceById, getReviewsByExperienceId } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import BookingForm from "@/components/BookingForm";
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
+export const revalidate = 60;
+
+type Props = { params: Promise<{ id: string }> };
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -19,10 +19,13 @@ function StarRating({ rating }: { rating: number }) {
 
 export default async function ExperienceDetailPage({ params }: Props) {
   const { id } = await params;
-  const experience = experiences.find((e) => e.id === id);
+  const [experience, expReviews] = await Promise.all([
+    getExperienceById(id),
+    getReviewsByExperienceId(id),
+  ]);
+
   if (!experience) notFound();
 
-  const expReviews = reviews.filter((r) => r.experienceId === id);
   const avgRating = expReviews.length
     ? Math.round((expReviews.reduce((s, r) => s + r.rating, 0) / expReviews.length) * 10) / 10
     : null;
@@ -38,23 +41,17 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <Link href="/" className="text-xs text-[#7B6BA8] mb-4 inline-block hover:underline">
-        ← カレンダーに戻る
-      </Link>
+      <Link href="/" className="text-xs text-[#7B6BA8] mb-4 inline-block hover:underline">← カレンダーに戻る</Link>
 
-      {/* Hero image */}
       <div className="rounded-2xl overflow-hidden mb-5 h-56">
         <img src={experience.imageUrl} alt={experience.title} className="w-full h-full object-cover" />
       </div>
 
-      {/* Category + title + rating */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-xs text-[#7B6BA8] font-medium bg-[#E8E4F5] px-3 py-1 rounded-full">
-          {experience.category}
-        </span>
+        <span className="text-xs text-[#7B6BA8] font-medium bg-[#E8E4F5] px-3 py-1 rounded-full">{experience.category}</span>
         {avgRating && (
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <span style={{ color: "#f59e0b", fontSize: "14px" }}>★</span>
+            <span style={{ color: "#f59e0b" }}>★</span>
             <span className="text-sm font-bold text-gray-700">{avgRating}</span>
             <span className="text-xs text-gray-400">（{expReviews.length}件）</span>
           </div>
@@ -62,7 +59,6 @@ export default async function ExperienceDetailPage({ params }: Props) {
       </div>
       <h1 className="text-xl font-bold text-gray-800 mb-4 leading-snug">{experience.title}</h1>
 
-      {/* Info */}
       <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-5 grid grid-cols-2 gap-3 text-sm">
         <div>
           <p className="text-xs text-gray-400 mb-0.5">日時</p>
@@ -92,32 +88,25 @@ export default async function ExperienceDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-5">
         {experience.tags.map((tag) => (
           <span key={tag} className="text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full">#{tag}</span>
         ))}
       </div>
 
-      {/* Description */}
       <div className="mb-6">
         <h2 className="font-bold text-gray-800 mb-2">体験について</h2>
         <p className="text-gray-600 text-sm leading-relaxed">{experience.description}</p>
       </div>
 
-      {/* Provider profile */}
+      {/* Provider */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
         <h2 className="font-bold text-gray-800 mb-4 text-sm">提供者プロフィール</h2>
         <div className="flex items-start gap-4">
-          <img
-            src={provider.imageUrl}
-            alt={provider.name}
-            className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-[#E8E4F5]"
-          />
+          <img src={provider.imageUrl} alt={provider.name} className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-[#E8E4F5]" />
           <div className="flex-1">
             <p className="font-bold text-gray-800">{provider.name}</p>
             <p className="text-xs text-gray-400 mt-0.5 mb-2">{provider.location}</p>
-            {/* Stats */}
             <div style={{ display: "flex", gap: "12px", marginBottom: "10px" }}>
               {provider.yearsActive && (
                 <div className="text-center">
@@ -139,13 +128,10 @@ export default async function ExperienceDetailPage({ params }: Props) {
               )}
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">{provider.bio}</p>
-            {/* Provider tags */}
             {provider.tags && (
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {provider.tags.map((tag) => (
-                  <span key={tag} className="text-xs bg-[#E8E4F5] text-[#7B6BA8] px-2 py-0.5 rounded-full">
-                    {tag}
-                  </span>
+                  <span key={tag} className="text-xs bg-[#E8E4F5] text-[#7B6BA8] px-2 py-0.5 rounded-full">{tag}</span>
                 ))}
               </div>
             )}
@@ -158,22 +144,15 @@ export default async function ExperienceDetailPage({ params }: Props) {
         <div className="mb-8">
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
             <h2 className="font-bold text-gray-800">口コミ</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <span style={{ color: "#f59e0b" }}>★</span>
-              <span className="font-bold text-gray-700">{avgRating}</span>
-              <span className="text-xs text-gray-400">/ {expReviews.length}件</span>
-            </div>
+            <span style={{ color: "#f59e0b" }}>★</span>
+            <span className="font-bold text-gray-700">{avgRating}</span>
+            <span className="text-xs text-gray-400">/ {expReviews.length}件</span>
           </div>
-
           <div className="space-y-3">
             {expReviews.map((review) => (
               <div key={review.id} className="bg-white rounded-2xl border border-gray-100 p-4">
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                  <img
-                    src={review.reviewerAvatar}
-                    alt={review.reviewerName}
-                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                  />
+                  <img src={review.reviewerAvatar} alt={review.reviewerName} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                   <div className="flex-1">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <p className="font-medium text-gray-800 text-sm">{review.reviewerName}</p>
@@ -190,7 +169,6 @@ export default async function ExperienceDetailPage({ params }: Props) {
         </div>
       )}
 
-      {/* Booking */}
       {isFull ? (
         <div className="bg-gray-50 rounded-2xl p-6 text-center text-gray-400">
           <p className="font-medium">この体験は満員です</p>

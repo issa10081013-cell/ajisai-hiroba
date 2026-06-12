@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { experiences } from "@/lib/data";
+import { getExperiences } from "@/lib/queries";
 import CalendarView from "@/components/CalendarView";
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  const experiences = await getExperiences();
+
   return (
     <div>
-      {/* Hero */}
       <section className="bg-gradient-to-b from-[#F5F3FA] to-[#FAFAF9] pt-10 pb-8 px-4 text-center">
         <p className="text-[#7B6BA8] font-medium text-xs mb-2 tracking-wide">福岡の子育て家族のための</p>
         <h1 className="text-2xl font-bold text-gray-800 mb-2 leading-tight">
@@ -20,12 +23,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Calendar section */}
       <section className="max-w-2xl mx-auto px-4 py-6">
         <CalendarView experiences={experiences} />
       </section>
 
-      {/* Value props */}
       <section className="bg-[#F5F3FA] py-10 px-4 mt-8">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-bold text-gray-800 text-center text-sm mb-6">あじさい体験ひろばとは</h2>
