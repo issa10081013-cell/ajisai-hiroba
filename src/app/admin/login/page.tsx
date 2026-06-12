@@ -18,7 +18,7 @@ export default function AdminLoginPage() {
     const { error } = await supabaseBrowser.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError("メールアドレスまたはパスワードが違います");
+      setError(error.message);
       setLoading(false);
     } else {
       router.push("/admin/dashboard");
