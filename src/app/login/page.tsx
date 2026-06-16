@@ -18,10 +18,28 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
+    const lockRes = await fetch(`/api/auth/lockout?email=${encodeURIComponent(form.email)}`);
+    const lockData = await lockRes.json();
+    if (lockData.locked) {
+      setError(`ログイン試行回数が上限を超えました。${lockData.minutesLeft}分後に再試行してください。`);
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabaseBrowser.auth.signInWithPassword({ email: form.email, password: form.password });
 
+    await fetch("/api/auth/lockout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: form.email, success: !error }),
+    });
+
     if (error) {
-      setError("メールアドレスまたはパスワードが正しくありません");
+      const remaining = 10 - ((lockData.attempts ?? 0) + 1);
+      setError(remaining > 0
+        ? `メールアドレスまたはパスワードが正しくありません（残り${remaining}回）`
+        : "ログインがロックされました。1時間後に再試行してください。"
+      );
       setLoading(false);
     } else {
       router.push(redirectTo);
