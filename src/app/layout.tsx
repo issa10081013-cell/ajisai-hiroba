@@ -3,6 +3,7 @@ import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
+import HeaderNav from "@/components/HeaderNav";
 
 const noto = Noto_Sans_JP({
   weight: ["400", "500", "600", "700", "800"],
@@ -38,33 +39,7 @@ export default function RootLayout({
               </span>
             </Link>
 
-            {/* Nav */}
-            <nav className="flex items-center gap-1 shrink-0">
-              <Link
-                href="/experiences"
-                className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
-              >
-                体験を探す
-              </Link>
-              <Link
-                href="/board"
-                className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
-              >
-                掲示板
-              </Link>
-              <Link
-                href="/login"
-                className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
-              >
-                ログイン
-              </Link>
-              <Link
-                href="/register"
-                className="ml-1 bg-[#7B6BA8] text-white px-4 py-2 rounded-full text-[13px] font-semibold no-underline whitespace-nowrap"
-              >
-                会員登録
-              </Link>
-            </nav>
+            <HeaderNav />
           </div>
         </header>
 
