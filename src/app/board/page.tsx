@@ -190,7 +190,7 @@ export default function BoardPage() {
                   <button
                     onClick={e => { e.preventDefault(); setReport({ id: post.id }); }}
                     style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
-                    title="通報">🚩</button>
+                    title="通報">⚠️</button>
                 )}
               </div>
             )}

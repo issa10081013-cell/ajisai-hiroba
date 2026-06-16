@@ -176,7 +176,7 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
             ) : (
               <button onClick={() => setReport({ type: "post", id: post.id })}
                 style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
-                title="通報">🚩</button>
+                title="通報">⚠️</button>
             )}
           </div>
         )}
@@ -207,7 +207,7 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
                   ) : (
                     <button onClick={() => setReport({ type: "comment", id: c.id })}
                       style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
-                      title="通報">🚩</button>
+                      title="通報">⚠️</button>
                   )}
                 </div>
               )}

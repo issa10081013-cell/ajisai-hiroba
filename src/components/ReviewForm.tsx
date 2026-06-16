@@ -112,7 +112,7 @@ export default function ReviewForm({ experienceId, initialReviews }: Props) {
                   ) : (
                     <button onClick={() => setReport({ id: r.id })}
                       style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "4px", touchAction: "manipulation", opacity: 0.4 }}
-                      title="通報">🚩</button>
+                      title="通報">⚠️</button>
                   )}
                 </div>
               )}
