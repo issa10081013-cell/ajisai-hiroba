@@ -27,6 +27,15 @@ type Booking = {
   experience_title?: string;
 };
 
+type Report = {
+  id: string;
+  reporter_id: string;
+  target_type: "post" | "comment" | "review";
+  target_id: string;
+  reason: string;
+  created_at: string;
+};
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -34,8 +43,9 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [providerName, setProviderName] = useState("");
   const [providerId, setProviderId] = useState("");
-  const [tab, setTab] = useState<"experiences" | "bookings">("experiences");
+  const [tab, setTab] = useState<"experiences" | "bookings" | "reports">("experiences");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     const init = async () => {
@@ -73,6 +83,10 @@ export default function AdminDashboardPage() {
           setBookings(bksWithTitle);
         }
       }
+      // 通報一覧（管理者APIで取得）
+      const res = await fetch("/api/admin/reports");
+      if (res.ok) setReports(await res.json());
+
       setLoading(false);
     };
     init();
@@ -162,10 +176,11 @@ export default function AdminDashboardPage() {
           {[
             { key: "experiences", label: `体験一覧（${experiences.length}）` },
             { key: "bookings", label: `予約一覧（${bookings.length}）` },
+            { key: "reports", label: `通報（${reports.length}）` },
           ].map(t => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key as typeof tab)}
+              onClick={() => setTab(t.key as "experiences" | "bookings" | "reports")}
               style={{
                 padding: "10px 16px", fontSize: "13px", fontWeight: tab === t.key ? 700 : 500,
                 color: tab === t.key ? "#7B6BA8" : "#9ca3af",
@@ -259,6 +274,41 @@ export default function AdminDashboardPage() {
                   )}
                 </div>
               ))}
+            </div>
+          )
+        )}
+        {/* Tab: 通報一覧 */}
+        {tab === "reports" && (
+          reports.length === 0 ? (
+            <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
+              <p style={{ fontSize: "28px", marginBottom: "8px" }}>✅</p>
+              <p style={{ fontSize: "13px", color: "#9ca3af" }}>通報はありません</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {reports.map(r => {
+                const typeLabel = { post: "掲示板投稿", comment: "コメント", review: "口コミ" }[r.target_type];
+                const typeLink = r.target_type === "post" ? `/board/${r.target_id}` : r.target_type === "comment" ? `/board` : null;
+                return (
+                  <div key={r.id} style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", border: "1px solid #fee2e2" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <span style={{ fontSize: "11px", background: "#FEF2F2", color: "#ef4444", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
+                        ⚠️ {typeLabel}
+                      </span>
+                      <span style={{ fontSize: "11px", color: "#9ca3af" }}>
+                        {new Date(r.created_at).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "13px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 6px" }}>理由：{r.reason}</p>
+                    <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 8px", wordBreak: "break-all" }}>対象ID：{r.target_id}</p>
+                    {typeLink && (
+                      <Link href={typeLink} style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>
+                        対象を確認する →
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )
         )}
