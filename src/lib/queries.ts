@@ -42,6 +42,7 @@ function mapReview(r: Record<string, unknown>): Review {
   return {
     id: r.id as string,
     experienceId: r.experience_id as string,
+    userId: r.user_id as string | undefined,
     reviewerName: r.reviewer_name as string,
     reviewerAvatar: r.reviewer_avatar as string,
     childAge: r.child_age as string,

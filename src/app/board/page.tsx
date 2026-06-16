@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import ReportModal from "@/components/ReportModal";
 
 const CATS = [
   { key: "全て", emoji: "📋" },
@@ -13,6 +14,7 @@ const CATS = [
 
 type Post = {
   id: string;
+  user_id?: string;
   author_name: string;
   category: string;
   title: string;
@@ -30,6 +32,7 @@ export default function BoardPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", body: "", category: "体験の感想" });
   const [posting, setPosting] = useState(false);
+  const [report, setReport] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data: { user: u } }) => {
@@ -47,26 +50,26 @@ export default function BoardPage() {
     setLoading(false);
   };
 
-  const handleCat = (c: string) => {
-    setCat(c);
-    fetchPosts(c);
-  };
+  const handleCat = (c: string) => { setCat(c); fetchPosts(c); };
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setPosting(true);
     const { data } = await supabaseBrowser.from("posts").insert({
-      user_id: user.id,
-      author_name: user.name,
-      title: form.title,
-      body: form.body,
-      category: form.category,
+      user_id: user.id, author_name: user.name,
+      title: form.title, body: form.body, category: form.category,
     }).select().single();
     if (data) setPosts(prev => [data as Post, ...prev]);
     setForm({ title: "", body: "", category: "体験の感想" });
     setShowForm(false);
     setPosting(false);
+  };
+
+  const handleDeletePost = async (id: string) => {
+    if (!window.confirm("この投稿を削除しますか？")) return;
+    const { error } = await supabaseBrowser.from("posts").delete().eq("id", id);
+    if (!error) setPosts(prev => prev.filter(p => p.id !== id));
   };
 
   const timeAgo = (date: string) => {
@@ -81,6 +84,10 @@ export default function BoardPage() {
 
   return (
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 0 80px" }}>
+      {report && user && (
+        <ReportModal targetType="post" targetId={report.id} reporterId={user.id} onClose={() => setReport(null)} />
+      )}
+
       {/* Header */}
       <div style={{ padding: "20px 16px 0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
@@ -115,7 +122,7 @@ export default function BoardPage() {
               placeholder="タイトル"
               style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", width: "100%", boxSizing: "border-box" }} />
             <textarea required value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-              rows={4} placeholder="内容を書いてください。悩み・体験談・募集など何でもOKです。"
+              rows={4} placeholder="内容を書いてください"
               style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", resize: "none", width: "100%", boxSizing: "border-box" }} />
             <div style={{ display: "flex", gap: "8px" }}>
               <button type="button" onClick={() => setShowForm(false)}
@@ -152,9 +159,9 @@ export default function BoardPage() {
             <p style={{ fontSize: "13px", color: "#9ca3af" }}>最初の投稿をしてみましょう！</p>
           </div>
         ) : posts.map(post => (
-          <Link key={post.id} href={`/board/${post.id}`} style={{ textDecoration: "none" }}>
-            <div style={{ background: "white", borderRadius: "16px", padding: "16px", border: "1px solid #f3f4f6" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+          <div key={post.id} style={{ position: "relative", background: "white", borderRadius: "16px", border: "1px solid #f3f4f6" }}>
+            <Link href={`/board/${post.id}`} style={{ textDecoration: "none", display: "block", padding: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", paddingRight: "28px" }}>
                 <span style={{ fontSize: "10px", background: "#E8E4F5", color: "#7B6BA8", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
                   {CATS.find(c => c.key === post.category)?.emoji} {post.category}
                 </span>
@@ -169,8 +176,25 @@ export default function BoardPage() {
                 <span style={{ fontSize: "11px", color: "#9ca3af", marginLeft: "auto" }}>❤️ {post.likes_count}</span>
                 <span style={{ fontSize: "11px", color: "#9ca3af" }}>💬 {post.comments_count}</span>
               </div>
-            </div>
-          </Link>
+            </Link>
+
+            {/* 削除 or 通報ボタン */}
+            {user && (
+              <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+                {post.user_id === user.id ? (
+                  <button
+                    onClick={e => { e.preventDefault(); handleDeletePost(post.id); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.45 }}
+                    title="削除">🗑️</button>
+                ) : (
+                  <button
+                    onClick={e => { e.preventDefault(); setReport({ id: post.id }); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                    title="通報">🚩</button>
+                )}
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </div>

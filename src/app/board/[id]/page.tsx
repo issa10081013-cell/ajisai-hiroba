@@ -3,6 +3,7 @@ import { useState, useEffect, use } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ReportModal from "@/components/ReportModal";
 
 const CAT_EMOJI: Record<string, string> = {
   "体験の感想": "🌟",
@@ -13,6 +14,7 @@ const CAT_EMOJI: Record<string, string> = {
 
 type Post = {
   id: string;
+  user_id?: string;
   author_name: string;
   category: string;
   title: string;
@@ -24,6 +26,7 @@ type Post = {
 
 type Comment = {
   id: string;
+  user_id?: string;
   author_name: string;
   body: string;
   created_at: string;
@@ -39,6 +42,7 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
   const [liked, setLiked] = useState(false);
   const [comment, setComment] = useState("");
   const [posting, setPosting] = useState(false);
+  const [report, setReport] = useState<{ type: "post" | "comment"; id: string } | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -48,11 +52,9 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
         const { data: like } = await supabaseBrowser.from("post_likes").select("id").eq("post_id", id).eq("user_id", u.id).single();
         if (like) setLiked(true);
       }
-
       const { data: p } = await supabaseBrowser.from("posts").select("*").eq("id", id).single();
       if (!p) { router.push("/board"); return; }
       setPost(p as Post);
-
       const { data: c } = await supabaseBrowser.from("post_comments").select("*").eq("post_id", id).order("created_at", { ascending: true });
       setComments((c ?? []) as Comment[]);
       setLoading(false);
@@ -80,10 +82,7 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
     if (!user || !post) return;
     setPosting(true);
     const { data } = await supabaseBrowser.from("post_comments").insert({
-      post_id: id,
-      user_id: user.id,
-      author_name: user.name,
-      body: comment,
+      post_id: id, user_id: user.id, author_name: user.name, body: comment,
     }).select().single();
     await supabaseBrowser.from("posts").update({ comments_count: post.comments_count + 1 }).eq("id", id);
     if (data) {
@@ -92,6 +91,24 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
     }
     setComment("");
     setPosting(false);
+  };
+
+  const handleDeletePost = async () => {
+    if (!window.confirm("この投稿を削除しますか？")) return;
+    const { error } = await supabaseBrowser.from("posts").delete().eq("id", id);
+    if (!error) router.push("/board");
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!window.confirm("このコメントを削除しますか？")) return;
+    const { error } = await supabaseBrowser.from("post_comments").delete().eq("id", commentId);
+    if (!error) {
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      if (post) {
+        await supabaseBrowser.from("posts").update({ comments_count: post.comments_count - 1 }).eq("id", id);
+        setPost(p => p ? { ...p, comments_count: p.comments_count - 1 } : p);
+      }
+    }
   };
 
   const timeAgo = (date: string) => {
@@ -113,14 +130,17 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 0 80px" }}>
-      {/* Header */}
+      {report && user && (
+        <ReportModal targetType={report.type} targetId={report.id} reporterId={user.id} onClose={() => setReport(null)} />
+      )}
+
       <div style={{ padding: "16px 16px 0" }}>
         <Link href="/board" style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>← 掲示板に戻る</Link>
       </div>
 
-      {/* Post */}
-      <div style={{ margin: "12px 16px 0", background: "white", borderRadius: "20px", padding: "20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+      {/* 投稿本文 */}
+      <div style={{ margin: "12px 16px 0", background: "white", borderRadius: "20px", padding: "20px", position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", paddingRight: "32px" }}>
           <span style={{ fontSize: "11px", background: "#E8E4F5", color: "#7B6BA8", padding: "4px 12px", borderRadius: "20px", fontWeight: 700 }}>
             {CAT_EMOJI[post.category] ?? "📋"} {post.category}
           </span>
@@ -145,9 +165,24 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
             <Link href="/login" style={{ color: "#7B6BA8", fontWeight: 600 }}>ログイン</Link> するといいねができます
           </p>
         )}
+
+        {/* 投稿の削除 or 通報 */}
+        {user && (
+          <div style={{ position: "absolute", top: "16px", right: "16px" }}>
+            {post.user_id === user.id ? (
+              <button onClick={handleDeletePost}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "4px", touchAction: "manipulation", opacity: 0.45 }}
+                title="削除">🗑️</button>
+            ) : (
+              <button onClick={() => setReport({ type: "post", id: post.id })}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                title="通報">🚩</button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Comments */}
+      {/* コメント一覧 */}
       <div style={{ margin: "16px 16px 0" }}>
         <p style={{ fontSize: "13px", fontWeight: 700, color: "#374151", margin: "0 0 10px" }}>コメント（{comments.length}）</p>
         {comments.length === 0 && (
@@ -155,18 +190,33 @@ export default function BoardDetailPage({ params }: { params: Promise<{ id: stri
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {comments.map(c => (
-            <div key={c.id} style={{ background: "white", borderRadius: "16px", padding: "14px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+            <div key={c.id} style={{ background: "white", borderRadius: "16px", padding: "14px", position: "relative" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", paddingRight: "28px" }}>
                 <span style={{ fontSize: "12px", fontWeight: 600, color: "#374151" }}>👤 {c.author_name}</span>
                 <span style={{ fontSize: "11px", color: "#9ca3af" }}>{timeAgo(c.created_at)}</span>
               </div>
               <p style={{ fontSize: "13px", color: "#374151", lineHeight: 1.7, margin: 0, whiteSpace: "pre-wrap" }}>{c.body}</p>
+
+              {/* コメントの削除 or 通報 */}
+              {user && (
+                <div style={{ position: "absolute", top: "10px", right: "10px" }}>
+                  {c.user_id === user.id ? (
+                    <button onClick={() => handleDeleteComment(c.id)}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "4px", touchAction: "manipulation", opacity: 0.45 }}
+                      title="削除">🗑️</button>
+                  ) : (
+                    <button onClick={() => setReport({ type: "comment", id: c.id })}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                      title="通報">🚩</button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Comment form */}
+      {/* コメント投稿フォーム */}
       <div style={{ margin: "16px 16px 0", background: "white", borderRadius: "16px", padding: "16px" }}>
         <p style={{ fontSize: "13px", fontWeight: 700, color: "#374151", margin: "0 0 10px" }}>コメントを書く</p>
         {!user ? (

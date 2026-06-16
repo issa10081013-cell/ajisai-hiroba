@@ -195,6 +195,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
           experienceId={experience.id}
           initialReviews={expReviews.map(r => ({
             id: r.id,
+            user_id: r.userId,
             reviewer_name: r.reviewerName,
             rating: r.rating,
             comment: r.comment,

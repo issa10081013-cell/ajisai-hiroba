@@ -35,6 +35,7 @@ export type Experience = {
 export type Review = {
   id: string;
   experienceId: string;
+  userId?: string;
   reviewerName: string;
   reviewerAvatar: string;
   childAge: string;
