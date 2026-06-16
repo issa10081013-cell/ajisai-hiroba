@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import BottomNav from "@/components/BottomNav";
 
 const noto = Noto_Sans_JP({
   weight: ["400", "500", "600", "700", "800"],
@@ -67,9 +68,11 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main>{children}</main>
+        <main className="pb-[60px] sm:pb-0">{children}</main>
 
-        <footer className="bg-white border-t border-[#EBEBEB] mt-20 py-10 px-6">
+        <BottomNav />
+
+        <footer className="hidden sm:block bg-white border-t border-[#EBEBEB] mt-20 py-10 px-6">
           <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <img
