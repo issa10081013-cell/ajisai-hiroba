@@ -117,7 +117,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
           ) : (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
-                <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "16px", margin: 0 }}>会員 ¥{experience.priceMember.toLocaleString()}</p>
+                <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "16px", margin: 0 }}>あじさい会員 ¥{experience.priceMember.toLocaleString()}</p>
                 {discountPct > 0 && (
                   <span style={{ fontSize: "10px", background: "#7B6BA8", color: "white", padding: "2px 7px", borderRadius: "20px", fontWeight: 700 }}>
                     {discountPct}%OFF

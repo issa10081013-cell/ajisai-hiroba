@@ -49,7 +49,7 @@ export default function ExperienceCard({ experience }: { experience: Experience 
           )}
           {discountPct > 0 && (
             <span className="bg-[#7B6BA8] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-              会員{discountPct}%OFF
+              あじさい会員{discountPct}%OFF
             </span>
           )}
           {!isFull && spotsLeft <= 3 && (
@@ -84,7 +84,7 @@ export default function ExperienceCard({ experience }: { experience: Experience 
         ) : (
           <div className="pt-0.5 flex items-baseline gap-2 flex-wrap">
             <p className="text-[13px]">
-              <span className="text-[10px] text-[#7B6BA8] font-bold">会員</span>
+              <span className="text-[10px] text-[#7B6BA8] font-bold">あじさい会員</span>
               <span className="font-bold text-[#7B6BA8] ml-1">¥{experience.priceMember.toLocaleString()}</span>
             </p>
             {experience.priceRegular > experience.priceMember && (
