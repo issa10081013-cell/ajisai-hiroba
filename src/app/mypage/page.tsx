@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -39,6 +39,9 @@ export default function MyPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [tab, setTab] = useState<"bookings" | "reviews" | "posts">("bookings");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -46,6 +49,7 @@ export default function MyPage() {
       if (!u) { router.push("/login?from=/mypage"); return; }
 
       setUser({ id: u.id, name: u.user_metadata?.display_name ?? u.email?.split("@")[0] ?? "匿名", email: u.email ?? "" });
+      if (u.user_metadata?.avatar_url) setAvatarUrl(u.user_metadata.avatar_url);
 
       // 予約履歴（メールで照合）
       const { data: bks } = await supabaseBrowser
@@ -81,6 +85,28 @@ export default function MyPage() {
     router.push("/");
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error } = await supabaseBrowser.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (error) { alert("アップロードに失敗しました"); setUploading(false); return; }
+
+    const { data } = supabaseBrowser.storage.from("avatars").getPublicUrl(path);
+    const url = `${data.publicUrl}?t=${Date.now()}`;
+
+    await supabaseBrowser.auth.updateUser({ data: { avatar_url: url } });
+    setAvatarUrl(url);
+    setUploading(false);
+  };
+
   if (loading) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <p style={{ color: "#9ca3af", fontSize: "13px" }}>読み込み中...</p>
@@ -93,8 +119,33 @@ export default function MyPage() {
       {/* プロフィールヘッダー */}
       <div style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "32px 20px 24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px" }}>
-          <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", flexShrink: 0 }}>
-            👤
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              style={{ display: "none" }}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.4)", cursor: "pointer", touchAction: "manipulation", padding: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="アバター" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <span style={{ fontSize: "28px" }}>👤</span>
+              )}
+              {uploading && (
+                <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
+                  <span style={{ fontSize: "10px", color: "white", fontWeight: 700 }}>...</span>
+                </div>
+              )}
+            </button>
+            <div style={{ position: "absolute", bottom: 0, right: 0, background: "white", borderRadius: "50%", width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", boxShadow: "0 1px 4px rgba(0,0,0,0.2)", pointerEvents: "none" }}>
+              📷
+            </div>
           </div>
           <div>
             <p style={{ fontWeight: 800, fontSize: "18px", color: "white", margin: "0 0 2px" }}>{user?.name}</p>

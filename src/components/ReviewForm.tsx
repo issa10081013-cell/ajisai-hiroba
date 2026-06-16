@@ -20,7 +20,7 @@ type Props = {
 };
 
 export default function ReviewForm({ experienceId, initialReviews }: Props) {
-  const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; name: string; avatarUrl?: string | null } | null>(null);
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [rating, setRating] = useState(5);
   const [hovered, setHovered] = useState(0);
@@ -32,7 +32,12 @@ export default function ReviewForm({ experienceId, initialReviews }: Props) {
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) setUser({ id: u.id, name: u.user_metadata?.display_name ?? u.email?.split("@")[0] ?? "匿名", email: u.email ?? "" });
+      if (u) setUser({
+        id: u.id,
+        name: u.user_metadata?.display_name ?? u.email?.split("@")[0] ?? "匿名",
+        email: u.email ?? "",
+        avatarUrl: u.user_metadata?.avatar_url ?? null,
+      });
     });
   }, []);
 
@@ -45,7 +50,7 @@ export default function ReviewForm({ experienceId, initialReviews }: Props) {
       experience_id: experienceId,
       user_id: user.id,
       reviewer_name: user.name,
-      reviewer_avatar: `https://i.pravatar.cc/80?u=${user.email}`,
+      reviewer_avatar: user.avatarUrl ?? `https://i.pravatar.cc/80?u=${user.email}`,
       rating, comment, child_age: childAge, date: today,
     }).select().single();
     setLoading(false);
