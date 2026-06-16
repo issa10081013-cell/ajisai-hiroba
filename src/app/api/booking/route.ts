@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   // 体験と提供者情報を取得
   const { data: exp } = await supabaseAdmin
     .from("experiences")
-    .select("title, date, time_start, providers(name, auth_user_id)")
+    .select("title, date, time_start, current_bookings, providers(name, auth_user_id)")
     .eq("id", experienceId)
     .single();
 
@@ -37,6 +37,12 @@ export async function POST(req: NextRequest) {
   if (bookingError) {
     return NextResponse.json({ error: bookingError.message }, { status: 500 });
   }
+
+  // 残席数を減らす
+  await supabaseAdmin
+    .from("experiences")
+    .update({ current_bookings: (exp?.current_bookings ?? 0) + 1 })
+    .eq("id", experienceId);
 
   // メール送信（無料プランのため登録メールに固定）
   if (resend) await resend.emails.send({
