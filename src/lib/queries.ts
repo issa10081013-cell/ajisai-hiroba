@@ -86,6 +86,45 @@ export async function getReviewsByExperienceId(experienceId: string): Promise<Re
   return data.map(mapReview);
 }
 
+export async function getProviderById(id: string): Promise<Provider | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("providers")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error || !data) return null;
+  return mapProvider(data as Record<string, unknown>);
+}
+
+export async function getExperiencesByProviderId(providerId: string): Promise<Experience[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("experiences")
+    .select("*, providers(*)")
+    .eq("provider_id", providerId)
+    .order("date", { ascending: false });
+  if (error || !data) return [];
+  return data.map(mapExperience);
+}
+
+export async function getReviewsByProviderId(providerId: string): Promise<Review[]> {
+  if (!supabase) return [];
+  const { data: exps } = await supabase
+    .from("experiences")
+    .select("id")
+    .eq("provider_id", providerId);
+  if (!exps || exps.length === 0) return [];
+  const ids = exps.map((e: Record<string, unknown>) => e.id as string);
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .in("experience_id", ids)
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  return data.map(mapReview);
+}
+
 export async function createBooking(booking: {
   experienceId: string;
   parentName: string;

@@ -143,12 +143,19 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
       {/* Provider */}
       <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
-        <h2 style={{ fontSize: "13px", fontWeight: 700, color: "#111827", marginBottom: "14px" }}>提供者プロフィール</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+          <h2 style={{ fontSize: "13px", fontWeight: 700, color: "#111827", margin: 0 }}>提供者プロフィール</h2>
+          <Link href={`/providers/${provider.id}`} style={{ fontSize: "11px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>
+            詳しく見る →
+          </Link>
+        </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
-          <img src={provider.imageUrl || `https://i.pravatar.cc/80?u=${provider.id}`} alt={provider.name}
-            style={{ width: "60px", height: "60px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid #E8E4F5" }} />
+          <Link href={`/providers/${provider.id}`} style={{ flexShrink: 0 }}>
+            <img src={provider.imageUrl || `https://i.pravatar.cc/80?u=${provider.id}`} alt={provider.name}
+              style={{ width: "60px", height: "60px", borderRadius: "50%", objectFit: "cover", border: "2px solid #E8E4F5" }} />
+          </Link>
           <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 700, color: "#111827", fontSize: "15px", marginBottom: "2px" }}>{provider.name}</p>
+            <Link href={`/providers/${provider.id}`} style={{ fontWeight: 700, color: "#111827", fontSize: "15px", marginBottom: "2px", textDecoration: "none", display: "block" }}>{provider.name}</Link>
             <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "10px" }}>{provider.location}</p>
             <div style={{ display: "flex", gap: "16px", marginBottom: "10px" }}>
               {provider.yearsActive && (
