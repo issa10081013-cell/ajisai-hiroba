@@ -74,10 +74,17 @@ export default function ExperienceCard({ experience }: { experience: Experience 
         {isFree ? (
           <p className="text-[13px] font-semibold text-emerald-600 pt-0.5">無料で参加</p>
         ) : (
-          <p className="text-[13px] pt-0.5">
-            <span className="font-semibold text-[#222]">¥{experience.priceMember.toLocaleString()}</span>
-            <span className="text-[#717171] text-xs font-normal"> /家族（会員価格）</span>
-          </p>
+          <div className="pt-0.5 flex items-baseline gap-2 flex-wrap">
+            <p className="text-[13px]">
+              <span className="text-[10px] text-[#7B6BA8] font-bold">会員</span>
+              <span className="font-bold text-[#7B6BA8] ml-1">¥{experience.priceMember.toLocaleString()}</span>
+            </p>
+            {experience.priceRegular > experience.priceMember && (
+              <p className="text-[11px] text-[#aaa] line-through">
+                一般 ¥{experience.priceRegular.toLocaleString()}
+              </p>
+            )}
+          </div>
         )}
       </div>
     </Link>
