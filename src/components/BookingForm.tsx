@@ -49,8 +49,9 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
         <div style={{ fontSize: "40px", marginBottom: "12px" }}>🎉</div>
         <h3 style={{ fontWeight: "bold", color: "#1a1a1a", marginBottom: "8px" }}>予約を受け付けました！</h3>
         <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.7 }}>
-          主催者からご連絡が届きます。<br />しばらくお待ちください。
+          確認メールをお送りしました。<br />主催者からもご連絡が届きます。
         </p>
+        <p style={{ marginTop: "4px", fontSize: "11px", color: "#9ca3af" }}>迷惑メールフォルダもご確認ください</p>
         <p style={{ marginTop: "12px", fontSize: "11px", color: "#9ca3af" }}>{experienceTitle}</p>
       </div>
     );

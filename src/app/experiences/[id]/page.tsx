@@ -1,6 +1,7 @@
 import { getExperienceById, getReviewsByExperienceId } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import BookingForm from "@/components/BookingForm";
 import ReviewForm from "@/components/ReviewForm";
 import { Calendar, MapPin, Banknote, Users, Leaf, ChefHat, BookOpen, Scissors, TreePine, Sparkles } from "lucide-react";
@@ -8,6 +9,36 @@ import { Calendar, MapPin, Banknote, Users, Leaf, ChefHat, BookOpen, Scissors, T
 export const revalidate = 60;
 
 type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const experience = await getExperienceById(id);
+  if (!experience) return {};
+
+  const dateStr = new Date(experience.date + "T00:00:00").toLocaleDateString("ja-JP", {
+    year: "numeric", month: "long", day: "numeric",
+  });
+  const title = `${experience.title} | あじさい体験ひろば`;
+  const description = `${dateStr}開催 · ${experience.location} · ${experience.description.slice(0, 80)}…`;
+  const image = experience.imageUrl || "https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/logo/ajisai-logo-1781517450336.png";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image, width: 1200, height: 630 }],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 const CAT_GRADIENT: Record<string, { gradient: string; Icon: React.ElementType }> = {
   "農業体験":   { gradient: "linear-gradient(135deg, #bbf7d0, #4ade80, #16a34a)", Icon: Leaf },
@@ -93,6 +124,18 @@ export default async function ExperienceDetailPage({ params }: Props) {
               残り{spotsLeft}席
             </span>
           )}
+          {/* LINEシェアボタン */}
+          <a
+            href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://ajisai-hiroba.vercel.app"}/experiences/${experience.id}`)}&text=${encodeURIComponent(experience.title)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "5px", background: "#06C755", color: "white", borderRadius: "999px", padding: "5px 12px", fontSize: "11px", fontWeight: 700, textDecoration: "none", flexShrink: 0 }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+            </svg>
+            シェア
+          </a>
         </div>
         <h1 style={{ fontSize: "20px", fontWeight: 800, color: "#111827", lineHeight: 1.35, margin: 0 }}>
           {experience.title}

@@ -41,6 +41,7 @@ export default function MyPage() {
   const [tab, setTab] = useState<"bookings" | "reviews" | "posts">("bookings");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [canceling, setCanceling] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -83,6 +84,23 @@ export default function MyPage() {
   const handleLogout = async () => {
     await supabaseBrowser.auth.signOut();
     router.push("/");
+  };
+
+  const handleCancel = async (bookingId: string) => {
+    if (!user) return;
+    if (!confirm("この予約をキャンセルしますか？")) return;
+    setCanceling(bookingId);
+    const res = await fetch("/api/cancel-booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookingId, userEmail: user.email }),
+    });
+    if (res.ok) {
+      setBookings(prev => prev.filter(b => b.id !== bookingId));
+    } else {
+      alert("キャンセルに失敗しました");
+    }
+    setCanceling(null);
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,19 +216,34 @@ export default function MyPage() {
                 const dateStr = b.experience_date
                   ? new Date(b.experience_date + "T00:00:00").toLocaleDateString("ja-JP", { month: "long", day: "numeric", weekday: "short" })
                   : "";
+                const today = new Date().toISOString().slice(0, 10);
+                const isFuture = !b.experience_date || b.experience_date >= today;
                 return (
-                  <Link key={b.id} href={`/experiences/${b.experience_id}`} style={{ textDecoration: "none" }}>
-                    <div style={{ background: "white", borderRadius: "16px", padding: "16px", border: "1px solid #f3f4f6" }}>
+                  <div key={b.id} style={{ background: "white", borderRadius: "16px", padding: "16px", border: "1px solid #f3f4f6" }}>
+                    <Link href={`/experiences/${b.experience_id}`} style={{ textDecoration: "none", display: "block", marginBottom: "10px" }}>
                       <p style={{ fontWeight: 700, color: "#1a1a1a", fontSize: "14px", margin: "0 0 6px" }}>{b.experience_title ?? "体験"}</p>
                       <div style={{ display: "flex", gap: "12px" }}>
-                        {dateStr && <span style={{ fontSize: "11px", color: "#7B6BA8", fontWeight: 600 }}>📅 {dateStr}</span>}
+                        {dateStr && (
+                          <span style={{ fontSize: "11px", color: isFuture ? "#7B6BA8" : "#9ca3af", fontWeight: 600 }}>
+                            📅 {dateStr}
+                          </span>
+                        )}
                         <span style={{ fontSize: "11px", color: "#9ca3af" }}>大人{b.adults_count}・子ども{b.children_count}</span>
                       </div>
                       <p style={{ fontSize: "10px", color: "#d1d5db", margin: "4px 0 0", textAlign: "right" }}>
                         {new Date(b.created_at).toLocaleDateString("ja-JP")}予約
                       </p>
-                    </div>
-                  </Link>
+                    </Link>
+                    {isFuture && (
+                      <button
+                        onClick={() => handleCancel(b.id)}
+                        disabled={canceling === b.id}
+                        style={{ width: "100%", padding: "8px", borderRadius: "10px", border: "1.5px solid #fecaca", background: "white", color: "#ef4444", fontSize: "12px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", opacity: canceling === b.id ? 0.5 : 1 }}
+                      >
+                        {canceling === b.id ? "キャンセル中..." : "予約をキャンセルする"}
+                      </button>
+                    )}
+                  </div>
                 );
               })}
             </div>

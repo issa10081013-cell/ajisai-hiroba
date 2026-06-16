@@ -52,31 +52,62 @@ export async function POST(req: NextRequest) {
     .update({ current_bookings: (exp?.current_bookings ?? 0) + 1 })
     .eq("id", experienceId);
 
-  // 主催者へ予約通知メール
-  if (resend && providerEmail) {
+  const dateLabel = exp?.date
+    ? new Date(exp.date + "T00:00:00").toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" })
+    : exp?.date ?? "";
+
+  if (resend) {
+    // 主催者へ予約通知メール
+    if (providerEmail) {
+      await resend.emails.send({
+        from: "あじさい体験ひろば <onboarding@resend.dev>",
+        to: providerEmail,
+        subject: `【予約通知】${exp?.title ?? "体験"} に新しい予約が入りました`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
+            <h2 style="color:#7B6BA8;">新しい予約が入りました 🎉</h2>
+            <p style="color:#374151;"><strong>体験名：</strong>${exp?.title}</p>
+            <p style="color:#374151;"><strong>開催日：</strong>${dateLabel} ${exp?.time_start}〜</p>
+            <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
+            <h3 style="color:#374151;font-size:14px;">参加者情報</h3>
+            <p style="color:#374151;"><strong>保護者名：</strong>${parentName}</p>
+            <p style="color:#374151;"><strong>メール：</strong><a href="mailto:${parentEmail}">${parentEmail}</a></p>
+            ${parentPhone ? `<p style="color:#374151;"><strong>電話：</strong>${parentPhone}</p>` : ""}
+            <p style="color:#374151;"><strong>人数：</strong>大人${adultsCount}人・子ども${childrenCount}人</p>
+            ${message ? `<p style="color:#374151;"><strong>メッセージ：</strong>${message}</p>` : ""}
+            <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
+            <p style="font-size:12px;color:#9ca3af;">あじさい体験ひろば</p>
+          </div>
+        `,
+      });
+    }
+
+    // 参加者へ予約確認メール
     await resend.emails.send({
       from: "あじさい体験ひろば <onboarding@resend.dev>",
-      to: providerEmail,
-      subject: `【予約通知】${exp?.title ?? "体験"} に新しい予約が入りました`,
+      to: parentEmail,
+      subject: `【予約確認】${exp?.title ?? "体験"} のご予約が完了しました`,
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
-          <h2 style="color:#7B6BA8;">新しい予約が入りました 🎉</h2>
-          <p style="color:#374151;"><strong>体験名：</strong>${exp?.title}</p>
-          <p style="color:#374151;"><strong>開催日：</strong>${exp?.date} ${exp?.time_start}〜</p>
+          <div style="background:linear-gradient(135deg,#a78bfa,#7B6BA8);border-radius:16px;padding:24px;text-align:center;margin-bottom:24px;">
+            <p style="font-size:32px;margin:0 0 8px;">🌸</p>
+            <h2 style="color:white;margin:0;font-size:18px;">ご予約ありがとうございます！</h2>
+          </div>
+          <p style="color:#374151;">${parentName} 様、以下の体験のご予約が完了しました。</p>
+          <div style="background:#F7F6FD;border-radius:12px;padding:16px;margin:16px 0;">
+            <h3 style="color:#7B6BA8;margin:0 0 12px;font-size:15px;">${exp?.title}</h3>
+            <p style="color:#374151;margin:4px 0;font-size:14px;">📅 ${dateLabel}</p>
+            <p style="color:#374151;margin:4px 0;font-size:14px;">🕐 ${exp?.time_start}〜</p>
+            <p style="color:#374151;margin:4px 0;font-size:14px;">👥 大人${adultsCount}人・子ども${childrenCount}人</p>
+          </div>
+          <p style="color:#374151;font-size:13px;">主催者より詳細の連絡が届く場合があります。当日は時間に余裕を持ってお越しください。</p>
           <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
-          <h3 style="color:#374151;font-size:14px;">参加者情報</h3>
-          <p style="color:#374151;"><strong>保護者名：</strong>${parentName}</p>
-          <p style="color:#374151;"><strong>メール：</strong><a href="mailto:${parentEmail}">${parentEmail}</a></p>
-          ${parentPhone ? `<p style="color:#374151;"><strong>電話：</strong>${parentPhone}</p>` : ""}
-          <p style="color:#374151;"><strong>人数：</strong>大人${adultsCount}人・子ども${childrenCount}人</p>
-          ${message ? `<p style="color:#374151;"><strong>メッセージ：</strong>${message}</p>` : ""}
-          <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
+          <p style="font-size:12px;color:#9ca3af;">ご不明な点は主催者（${provider?.name ?? ""}）までお問い合わせください。</p>
           <p style="font-size:12px;color:#9ca3af;">あじさい体験ひろば</p>
         </div>
       `,
     });
   }
-
 
   return NextResponse.json({ ok: true });
 }

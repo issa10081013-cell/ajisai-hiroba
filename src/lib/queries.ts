@@ -54,9 +54,11 @@ function mapReview(r: Record<string, unknown>): Review {
 
 export async function getExperiences(): Promise<Experience[]> {
   if (!supabase) return [];
+  const today = new Date().toISOString().slice(0, 10);
   const { data, error } = await supabase
     .from("experiences")
     .select("*, providers(*)")
+    .gte("date", today)
     .order("date", { ascending: true });
 
   if (error || !data) return [];
