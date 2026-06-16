@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("from") ?? "/";
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -16,33 +18,34 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabaseBrowser.auth.signInWithPassword({ email, password });
+    const { error } = await supabaseBrowser.auth.signInWithPassword({ email: form.email, password: form.password });
 
     if (error) {
-      setError(error.message);
+      setError("メールアドレスまたはパスワードが正しくありません");
       setLoading(false);
     } else {
-      router.push("/admin/dashboard");
+      router.push(redirectTo);
     }
   };
+
+  const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#F5F3FA", padding: "16px" }}>
       <div style={{ backgroundColor: "white", borderRadius: "24px", padding: "32px", width: "100%", maxWidth: "400px", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <span style={{ fontSize: "32px" }}>🌸</span>
           <img
             src="https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/logo/ajisai-logo-1781517450336.png"
             alt="ロゴ"
             style={{ width: "48px", height: "48px", borderRadius: "50%", objectFit: "cover", margin: "0 auto 8px" }}
           />
-          <h1 style={{ fontSize: "18px", fontWeight: "bold", color: "#1a1a1a", margin: "0 0 4px" }}>主催者ログイン</h1>
+          <h1 style={{ fontSize: "18px", fontWeight: "bold", color: "#1a1a1a", margin: "0 0 4px" }}>ログイン</h1>
           <p style={{ fontSize: "12px", color: "#9ca3af", margin: 0 }}>あじさい体験ひろば</p>
         </div>
 
         {error && (
           <div style={{ backgroundColor: "#fef2f2", border: "1px solid #fecaca", borderRadius: "12px", padding: "10px", marginBottom: "16px" }}>
-            <p style={{ fontSize: "12px", color: "#ef4444", textAlign: "center" }}>{error}</p>
+            <p style={{ fontSize: "12px", color: "#ef4444", textAlign: "center", margin: 0 }}>{error}</p>
           </div>
         )}
 
@@ -50,8 +53,7 @@ export default function AdminLoginPage() {
           <div>
             <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>メールアドレス</label>
             <input
-              type="email" required value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="email" required value={form.email} onChange={e => f("email", e.target.value)}
               placeholder="example@email.com"
               style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
             />
@@ -59,8 +61,7 @@ export default function AdminLoginPage() {
           <div>
             <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>パスワード</label>
             <input
-              type="password" required value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="password" required value={form.password} onChange={e => f("password", e.target.value)}
               placeholder="••••••••"
               style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
             />
@@ -74,10 +75,21 @@ export default function AdminLoginPage() {
         </form>
 
         <p style={{ textAlign: "center", fontSize: "12px", color: "#9ca3af", marginTop: "20px" }}>
-          初めての方は{" "}
-          <Link href="/admin/register" style={{ color: "#7B6BA8", fontWeight: 600 }}>新規登録はこちら</Link>
+          アカウントをお持ちでない方は{" "}
+          <Link href="/register" style={{ color: "#7B6BA8", fontWeight: 600 }}>新規登録</Link>
+        </p>
+        <p style={{ textAlign: "center", fontSize: "12px", color: "#9ca3af", marginTop: "8px" }}>
+          <Link href="/" style={{ color: "#9ca3af" }}>← 体験を見る（登録不要）</Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

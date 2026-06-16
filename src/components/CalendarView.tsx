@@ -85,7 +85,7 @@ export default function CalendarView({ experiences }: Props) {
             const isActive = selectedArea === area;
             return (
               <button key={area} onClick={() => { setSelectedArea(area); setSelectedDate(null); setSelectedCategory(null); }}
-                style={{ flexShrink: 0, padding: "6px 14px", borderRadius: "999px", border: "1.5px solid", fontSize: "12px", fontWeight: isActive ? 700 : 500, cursor: "pointer", transition: "all 0.12s", whiteSpace: "nowrap",
+                style={{ flexShrink: 0, padding: "6px 14px", borderRadius: "999px", border: "1.5px solid", fontSize: "12px", fontWeight: isActive ? 700 : 500, cursor: "pointer", transition: "all 0.12s", whiteSpace: "nowrap", touchAction: "manipulation",
                   backgroundColor: isActive ? "#7B6BA8" : "white",
                   color: isActive ? "white" : "#6b7280",
                   borderColor: isActive ? "#7B6BA8" : "#e5e7eb",
@@ -102,9 +102,9 @@ export default function CalendarView({ experiences }: Props) {
       <div style={{ backgroundColor: "white", borderRadius: "20px", boxShadow: "0 2px 16px rgba(0,0,0,0.06)", padding: "16px", border: "1px solid #f3f4f6" }}>
         {/* Month nav */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-          <button onClick={prevMonth} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "#f9fafb", color: "#9ca3af", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+          <button onClick={prevMonth} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "#f9fafb", color: "#9ca3af", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>‹</button>
           <h2 style={{ fontWeight: 700, color: "#1a1a1a", fontSize: "15px" }}>{year}年{month + 1}月</h2>
-          <button onClick={nextMonth} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "#f9fafb", color: "#9ca3af", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
+          <button onClick={nextMonth} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: "#f9fafb", color: "#9ca3af", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", touchAction: "manipulation" }}>›</button>
         </div>
 
         {/* Weekday labels */}
@@ -132,7 +132,7 @@ export default function CalendarView({ experiences }: Props) {
 
             return (
               <button key={day} onClick={() => hasExp && handleDateSelect(dateStr)} disabled={!hasExp}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "6px 2px", borderRadius: "12px", border: "none", cursor: hasExp ? "pointer" : "default", transition: "all 0.12s",
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "6px 2px", borderRadius: "12px", border: "none", cursor: hasExp ? "pointer" : "default", transition: "all 0.12s", touchAction: "manipulation",
                   backgroundColor: isSelected ? "#7B6BA8" : "transparent",
                 }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, lineHeight: 1,
@@ -177,7 +177,7 @@ export default function CalendarView({ experiences }: Props) {
               const count = (expByDate[selectedDate] ?? []).filter(e => e.category === cat).length;
               return (
                 <button key={cat} onClick={() => setSelectedCategory(isActive ? null : cat)}
-                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 18px", borderRadius: "999px", border: "1.5px solid", fontSize: "13px", fontWeight: 600, cursor: "pointer", transition: "all 0.12s",
+                  style={{ display: "flex", alignItems: "center", gap: "6px", padding: "9px 18px", borderRadius: "999px", border: "1.5px solid", fontSize: "13px", fontWeight: 600, cursor: "pointer", transition: "all 0.12s", touchAction: "manipulation",
                     backgroundColor: isActive ? "#7B6BA8" : (meta?.bg ?? "#f9fafb"),
                     color: isActive ? "white" : (meta?.text ?? "#4b5563"),
                     borderColor: isActive ? "#7B6BA8" : (meta?.border ?? "#e5e7eb"),
@@ -206,7 +206,7 @@ export default function CalendarView({ experiences }: Props) {
               {CAT_META[selectedCategory]?.emoji} {selectedCategory}の体験
             </p>
             <button onClick={() => setSelectedCategory(null)}
-              style={{ fontSize: "12px", color: "#9ca3af", background: "none", border: "none", cursor: "pointer" }}>
+              style={{ fontSize: "12px", color: "#9ca3af", background: "none", border: "none", cursor: "pointer", touchAction: "manipulation" }}>
               ← カテゴリに戻る
             </button>
           </div>

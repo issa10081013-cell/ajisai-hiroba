@@ -7,7 +7,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   }
 
   // メール送信（無料プランのため登録メールに固定）
-  await resend.emails.send({
+  if (resend) await resend.emails.send({
     from: "あじさい体験ひろば <onboarding@resend.dev>",
     to: "issa10081013@gmail.com",
     subject: `【予約通知】${exp?.title ?? "体験"} に新しい予約が入りました`,
@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
       <p>あじさい体験ひろばより</p>
     `,
   });
+
 
   return NextResponse.json({ ok: true });
 }

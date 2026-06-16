@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { Sparkles, Loader2 } from "lucide-react";
 
 const CATEGORIES = ["農業体験", "料理教室", "学習体験", "ものづくり", "自然体験", "その他"];
 
@@ -9,6 +10,8 @@ export default function NewExperiencePage() {
   const router = useRouter();
   const [providerId, setProviderId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null); // base64 data URL
   const [form, setForm] = useState({
     title: "", description: "", date: "", timeStart: "", timeEnd: "",
     location: "", priceMember: "", priceRegular: "", capacity: "10",
@@ -26,12 +29,53 @@ export default function NewExperiencePage() {
     init();
   }, [router]);
 
+  const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
+
+  const handleGenerateImage = async () => {
+    if (!form.title) { alert("先にタイトルを入力してください"); return; }
+    setGenerating(true);
+    setGeneratedImage(null);
+
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title, category: form.category }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "生成に失敗しました");
+      setGeneratedImage(`data:${data.mimeType};base64,${data.base64}`);
+    } catch (err) {
+      alert("画像生成エラー: " + (err instanceof Error ? err.message : "不明なエラー"));
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!providerId) return;
     setLoading(true);
 
     const tags = form.tags.split("　").concat(form.tags.split(" ")).join(",").split(",").map(t => t.trim()).filter(Boolean);
+
+    // Upload generated image to Supabase Storage if exists
+    let imageUrl = "";
+    if (generatedImage) {
+      const base64Data = generatedImage.split(",")[1];
+      const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+      const blob = new Blob([byteArray], { type: "image/png" });
+      const fileName = `experiences/${Date.now()}.png`;
+
+      const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
+        .from("images")
+        .upload(fileName, blob, { contentType: "image/png", upsert: false });
+
+      if (!uploadError && uploadData) {
+        const { data: urlData } = supabaseBrowser.storage.from("images").getPublicUrl(uploadData.path);
+        imageUrl = urlData.publicUrl;
+      }
+    }
 
     const { error } = await supabaseBrowser.from("experiences").insert({
       provider_id: providerId,
@@ -47,6 +91,7 @@ export default function NewExperiencePage() {
       current_bookings: 0,
       category: form.category,
       tags,
+      ...(imageUrl ? { image_url: imageUrl } : {}),
     });
 
     setLoading(false);
@@ -54,110 +99,194 @@ export default function NewExperiencePage() {
     router.push("/admin/dashboard");
   };
 
-  const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
-
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#F5F3FA" }}>
-      <div style={{ backgroundColor: "white", borderBottom: "1px solid #f3f4f6", padding: "0 16px" }}>
-        <div style={{ maxWidth: "640px", margin: "0 auto", height: "56px", display: "flex", alignItems: "center", gap: "12px" }}>
-          <button onClick={() => router.back()} style={{ background: "none", border: "none", color: "#7B6BA8", cursor: "pointer", fontSize: "14px" }}>← 戻る</button>
-          <span style={{ fontWeight: "bold", color: "#1a1a1a", fontSize: "14px" }}>体験を追加する</span>
+    <div className="min-h-screen bg-[#F5F3FA]">
+      {/* Header */}
+      <div className="bg-white border-b border-[#EBEBEB]">
+        <div className="max-w-[640px] mx-auto px-4 h-14 flex items-center gap-3">
+          <button onClick={() => router.back()} className="text-[#7B6BA8] text-sm bg-none border-none cursor-pointer">
+            ← 戻る
+          </button>
+          <span className="font-bold text-[#222] text-sm">体験を追加する</span>
         </div>
       </div>
 
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "24px 16px" }}>
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div className="max-w-[640px] mx-auto px-4 py-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
           {/* Title */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px" }}>
-            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>体験タイトル *</label>
-            <input required value={form.title} onChange={e => f("title", e.target.value)}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-1.5">体験タイトル *</label>
+            <input
+              required
+              value={form.title}
+              onChange={e => f("title", e.target.value)}
               placeholder="例：糸島の夏野菜収穫体験"
-              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+              className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+            />
           </div>
 
           {/* Category */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px" }}>
-            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>カテゴリ *</label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-2">カテゴリ *</label>
+            <div className="flex flex-wrap gap-2">
               {CATEGORIES.map(cat => (
-                <button key={cat} type="button" onClick={() => f("category", cat)}
-                  style={{ padding: "6px 14px", borderRadius: "999px", border: "1px solid", fontSize: "12px", cursor: "pointer", fontWeight: form.category === cat ? "bold" : "normal", backgroundColor: form.category === cat ? "#7B6BA8" : "white", color: form.category === cat ? "white" : "#6b7280", borderColor: form.category === cat ? "#7B6BA8" : "#e5e7eb" }}>
+                <button
+                  key={cat} type="button" onClick={() => f("category", cat)}
+                  className={`px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition-all ${
+                    form.category === cat
+                      ? "bg-[#7B6BA8] text-white border-[#7B6BA8]"
+                      : "bg-white text-[#717171] border-[#DDDDDD] hover:border-[#7B6BA8]"
+                  }`}
+                >
                   {cat}
                 </button>
               ))}
             </div>
           </div>
 
+          {/* AI Image Generation */}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-2">体験画像</label>
+
+            {generatedImage ? (
+              <div className="space-y-3">
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
+                  <img src={generatedImage} alt="AI生成画像" className="w-full h-full object-cover" />
+                  <span className="absolute top-2 left-2 bg-[#7B6BA8] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    ✨ AI生成
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateImage}
+                  disabled={generating}
+                  className="flex items-center gap-1.5 text-[12px] text-[#7B6BA8] font-medium cursor-pointer bg-none border-none disabled:opacity-50"
+                >
+                  {generating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                  もう一度生成する
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleGenerateImage}
+                disabled={generating || !form.title}
+                className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed text-sm font-semibold cursor-pointer transition-all ${
+                  generating
+                    ? "border-[#7B6BA8] text-[#7B6BA8] bg-[#F7F6FD]"
+                    : "border-[#DDDDDD] text-[#717171] hover:border-[#7B6BA8] hover:text-[#7B6BA8] hover:bg-[#F7F6FD]"
+                } disabled:opacity-40 disabled:cursor-not-allowed`}
+              >
+                {generating ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    AIが画像を生成中...（10〜30秒）
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={15} />
+                    ✨ AIで画像を自動生成する
+                  </>
+                )}
+              </button>
+            )}
+            {!form.title && (
+              <p className="text-[11px] text-[#AAAAAA] mt-1.5">※ タイトルを入力してから使えます</p>
+            )}
+          </div>
+
           {/* Date & Time */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div className="bg-white rounded-2xl p-4 flex flex-col gap-3">
             <div>
-              <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>開催日 *</label>
-              <input type="date" required value={form.date} onChange={e => f("date", e.target.value)}
-                style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+              <label className="text-[12px] text-[#717171] block mb-1.5">開催日 *</label>
+              <input
+                type="date" required value={form.date} onChange={e => f("date", e.target.value)}
+                className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+              />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>開始時間 *</label>
-                <input type="time" required value={form.timeStart} onChange={e => f("timeStart", e.target.value)}
-                  style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                <label className="text-[12px] text-[#717171] block mb-1.5">開始時間 *</label>
+                <input
+                  type="time" required value={form.timeStart} onChange={e => f("timeStart", e.target.value)}
+                  className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+                />
               </div>
               <div>
-                <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>終了時間 *</label>
-                <input type="time" required value={form.timeEnd} onChange={e => f("timeEnd", e.target.value)}
-                  style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                <label className="text-[12px] text-[#717171] block mb-1.5">終了時間 *</label>
+                <input
+                  type="time" required value={form.timeEnd} onChange={e => f("timeEnd", e.target.value)}
+                  className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+                />
               </div>
             </div>
           </div>
 
           {/* Location */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px" }}>
-            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>場所 *</label>
-            <input required value={form.location} onChange={e => f("location", e.target.value)}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-1.5">場所 *</label>
+            <input
+              required value={form.location} onChange={e => f("location", e.target.value)}
               placeholder="例：福岡県糸島市（詳細は予約後お知らせ）"
-              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+              className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+            />
           </div>
 
           {/* Price & Capacity */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+          <div className="bg-white rounded-2xl p-4 flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>会員価格（¥）</label>
-                <input type="number" min="0" value={form.priceMember} onChange={e => f("priceMember", e.target.value)}
+                <label className="text-[12px] text-[#717171] block mb-1.5">会員価格（¥）</label>
+                <input
+                  type="number" min="0" value={form.priceMember} onChange={e => f("priceMember", e.target.value)}
                   placeholder="0（無料の場合）"
-                  style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                  className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+                />
               </div>
               <div>
-                <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>一般価格（¥）</label>
-                <input type="number" min="0" value={form.priceRegular} onChange={e => f("priceRegular", e.target.value)}
+                <label className="text-[12px] text-[#717171] block mb-1.5">一般価格（¥）</label>
+                <input
+                  type="number" min="0" value={form.priceRegular} onChange={e => f("priceRegular", e.target.value)}
                   placeholder="0"
-                  style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                  className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+                />
               </div>
             </div>
             <div>
-              <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>定員（人）</label>
-              <input type="number" min="1" value={form.capacity} onChange={e => f("capacity", e.target.value)}
-                style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+              <label className="text-[12px] text-[#717171] block mb-1.5">定員（人）</label>
+              <input
+                type="number" min="1" value={form.capacity} onChange={e => f("capacity", e.target.value)}
+                className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+              />
             </div>
           </div>
 
           {/* Description */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px" }}>
-            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>体験の説明 *</label>
-            <textarea required value={form.description} onChange={e => f("description", e.target.value)}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-1.5">体験の説明 *</label>
+            <textarea
+              required value={form.description} onChange={e => f("description", e.target.value)}
               rows={5} placeholder="体験の内容、持ち物、注意事項などを書いてください"
-              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", resize: "vertical", boxSizing: "border-box" }} />
+              className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none resize-vertical focus:border-[#7B6BA8]"
+            />
           </div>
 
           {/* Tags */}
-          <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px" }}>
-            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>タグ（カンマ区切り）</label>
-            <input value={form.tags} onChange={e => f("tags", e.target.value)}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-1.5">タグ（カンマ区切り）</label>
+            <input
+              value={form.tags} onChange={e => f("tags", e.target.value)}
               placeholder="例：糸島, 野菜, 小学生OK"
-              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+              className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
+            />
           </div>
 
-          <button type="submit" disabled={loading || !providerId}
-            style={{ backgroundColor: "#7B6BA8", color: "white", border: "none", borderRadius: "14px", padding: "14px", fontSize: "15px", fontWeight: "bold", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }}>
+          <button
+            type="submit"
+            disabled={loading || !providerId}
+            className="bg-[#7B6BA8] text-white border-none rounded-2xl py-3.5 text-[15px] font-bold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#6a5a96] transition-colors"
+          >
             {loading ? "登録中..." : "体験を登録する"}
           </button>
         </form>

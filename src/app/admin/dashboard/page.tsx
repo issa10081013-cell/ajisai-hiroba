@@ -92,6 +92,15 @@ export default function AdminDashboardPage() {
               <p style={{ fontSize: "13px", fontWeight: "bold", color: "#1a1a1a", margin: 0 }}>プロフィール編集</p>
             </div>
           </Link>
+          <Link href="/admin/generate-images" style={{ textDecoration: "none", gridColumn: "span 2" }}>
+            <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", border: "1.5px dashed #C4B9E8", cursor: "pointer", display: "flex", alignItems: "center", gap: "12px" }}>
+              <p style={{ fontSize: "22px", margin: 0 }}>✨</p>
+              <div>
+                <p style={{ fontSize: "13px", fontWeight: "bold", color: "#7B6BA8", margin: "0 0 2px" }}>AI画像を生成する</p>
+                <p style={{ fontSize: "11px", color: "#9ca3af", margin: 0 }}>福岡らしい商店街・子供の写真をGeminiで自動生成</p>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Experiences list */}

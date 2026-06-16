@@ -4,7 +4,7 @@ import "./globals.css";
 import Link from "next/link";
 
 const noto = Noto_Sans_JP({
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
   preload: false,
 });
@@ -20,28 +20,65 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`h-full ${noto.className}`}>
-      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#FAFAF9", color: "#1a1a1a" }}>
-        <header style={{ backgroundColor: "white", borderBottom: "1px solid #f3f4f6", position: "sticky", top: 0, zIndex: 50 }}>
-          <div style={{ maxWidth: "960px", margin: "0 auto", padding: "0 16px", height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-              <span style={{ fontSize: "22px" }}>🌸</span>
-              <span style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "16px", letterSpacing: "-0.01em" }}>あじさい体験ひろば</span>
+    <html lang="ja" className={noto.className}>
+      <body className="bg-[#FAFAF9] text-[#222]" style={{ WebkitFontSmoothing: "antialiased" }}>
+
+        <header className="bg-white border-b border-[#EBEBEB] sticky top-0 z-50">
+          <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 no-underline min-w-0">
+              <img
+                src="https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/logo/ajisai-logo-1781517450336.png"
+                alt="あじさいロゴ"
+                className="w-9 h-9 rounded-full object-cover shrink-0"
+              />
+              <span className="hidden sm:block font-bold text-[#222] text-[15px] tracking-tight whitespace-nowrap">
+                あじさい<span className="text-[#7B6BA8]">体験ひろば</span>
+              </span>
             </Link>
-            <nav style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <Link href="/experiences" style={{ color: "#6b7280", fontSize: "13px", textDecoration: "none", fontWeight: 500 }}>
+
+            {/* Nav */}
+            <nav className="flex items-center gap-1 shrink-0">
+              <Link
+                href="/experiences"
+                className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
+              >
                 体験を探す
               </Link>
-              <Link href="/experiences" style={{ backgroundColor: "#7B6BA8", color: "white", padding: "7px 16px", borderRadius: "999px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
-                予約する
+              <Link
+                href="/login"
+                className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
+              >
+                ログイン
+              </Link>
+              <Link
+                href="/register"
+                className="ml-1 bg-[#7B6BA8] text-white px-4 py-2 rounded-full text-[13px] font-semibold no-underline whitespace-nowrap"
+              >
+                会員登録
               </Link>
             </nav>
           </div>
         </header>
-        <main style={{ flex: 1 }}>{children}</main>
-        <footer style={{ backgroundColor: "white", borderTop: "1px solid #f3f4f6", marginTop: "64px", padding: "32px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: "12px", color: "#9ca3af" }}>あじさい体験ひろば — 紫人彩（あじさい）が運営する福岡の子育て家族のための体験プラットフォーム</p>
+
+        <main>{children}</main>
+
+        <footer className="bg-white border-t border-[#EBEBEB] mt-20 py-10 px-6">
+          <div className="max-w-[1280px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <img
+                src="https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/logo/ajisai-logo-1781517450336.png"
+                alt="あじさいロゴ"
+                className="w-6 h-6 rounded-full object-cover"
+              />
+              <span className="text-xs font-semibold text-[#717171]">あじさい体験ひろば</span>
+            </div>
+            <p className="text-[11px] text-[#AAAAAA]">
+              © 2026 紫人彩（あじさい）— 福岡の子育て家族のための体験プラットフォーム
+            </p>
+          </div>
         </footer>
+
       </body>
     </html>
   );
