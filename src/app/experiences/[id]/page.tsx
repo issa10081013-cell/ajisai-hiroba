@@ -53,7 +53,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "16px 16px 48px", backgroundColor: "#FAFAF9", minHeight: "100vh" }}>
-      <Link href="/" style={{ fontSize: "12px", color: "#7B6BA8", display: "inline-block", marginBottom: "16px", textDecoration: "none", fontWeight: 600 }}>← カレンダーに戻る</Link>
+      <Link href="/" style={{ fontSize: "12px", color: "#7B6BA8", display: "inline-block", marginBottom: "16px", textDecoration: "none", fontWeight: 600 }}>← トップに戻る</Link>
 
       {/* Hero image */}
       <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "16px", height: "240px" }}>
