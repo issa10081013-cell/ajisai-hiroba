@@ -33,7 +33,7 @@ export default function RootLayout({
                 alt="あじさいロゴ"
                 className="w-9 h-9 rounded-full object-cover shrink-0"
               />
-              <span className="hidden sm:block font-bold text-[#222] text-[15px] tracking-tight whitespace-nowrap">
+              <span className="font-bold text-[#222] text-[15px] tracking-tight whitespace-nowrap">
                 あじさい<span className="text-[#7B6BA8]">体験ひろば</span>
               </span>
             </Link>

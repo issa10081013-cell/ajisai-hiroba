@@ -23,6 +23,9 @@ export default async function Home() {
         <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(61,53,102,0.75) 0%, rgba(61,53,102,0.3) 60%, transparent 100%)" }} />
 
         <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-[680px]">
+          <p className="text-white font-bold mb-2" style={{ fontSize: "clamp(18px, 5vw, 28px)", letterSpacing: "0.04em" }}>
+            あじさい体験ひろば
+          </p>
           <p className="text-white/60 text-[10px] font-bold tracking-[0.22em] uppercase mb-3">
             Fukuoka · 福岡の子育て家族のための体験
           </p>
