@@ -15,6 +15,9 @@ export default function ExperienceCard({ experience }: { experience: Experience 
   const spotsLeft = experience.capacity - experience.currentBookings;
   const isFull = spotsLeft <= 0;
   const isFree = experience.priceMember === 0;
+  const discountPct = !isFree && experience.priceRegular > experience.priceMember
+    ? Math.round((1 - experience.priceMember / experience.priceRegular) * 100)
+    : 0;
   const photoSrc = experience.imageUrl || CAT_PHOTOS[experience.category] || CAT_PHOTOS["その他"];
 
   const dateStr = new Date(experience.date + "T00:00:00").toLocaleDateString("ja-JP", {
@@ -42,6 +45,11 @@ export default function ExperienceCard({ experience }: { experience: Experience 
           {isFree && (
             <span className="bg-white text-emerald-600 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
               無料
+            </span>
+          )}
+          {discountPct > 0 && (
+            <span className="bg-[#7B6BA8] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+              会員{discountPct}%OFF
             </span>
           )}
           {!isFull && spotsLeft <= 3 && (

@@ -44,6 +44,9 @@ export default async function ExperienceDetailPage({ params }: Props) {
   const spotsLeft = experience.capacity - experience.currentBookings;
   const isFull = spotsLeft <= 0;
   const isFree = experience.priceMember === 0;
+  const discountPct = !isFree && experience.priceRegular > experience.priceMember
+    ? Math.round((1 - experience.priceMember / experience.priceRegular) * 100)
+    : 0;
   const { provider } = experience;
   const cat = CAT_GRADIENT[experience.category] ?? CAT_GRADIENT["その他"];
   const CatIcon = cat.Icon;
@@ -113,8 +116,17 @@ export default async function ExperienceDetailPage({ params }: Props) {
             <p style={{ fontWeight: 800, color: "#059669", fontSize: "16px" }}>無料</p>
           ) : (
             <div>
-              <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "16px" }}>会員 ¥{experience.priceMember.toLocaleString()}</p>
-              <p style={{ fontSize: "11px", color: "#d1d5db", textDecoration: "line-through" }}>一般 ¥{experience.priceRegular.toLocaleString()}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
+                <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "16px", margin: 0 }}>会員 ¥{experience.priceMember.toLocaleString()}</p>
+                {discountPct > 0 && (
+                  <span style={{ fontSize: "10px", background: "#7B6BA8", color: "white", padding: "2px 7px", borderRadius: "20px", fontWeight: 700 }}>
+                    {discountPct}%OFF
+                  </span>
+                )}
+              </div>
+              {experience.priceRegular > experience.priceMember && (
+                <p style={{ fontSize: "11px", color: "#d1d5db", textDecoration: "line-through", margin: 0 }}>一般 ¥{experience.priceRegular.toLocaleString()}</p>
+              )}
             </div>
           )}
         </div>
