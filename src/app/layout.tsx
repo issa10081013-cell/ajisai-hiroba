@@ -46,6 +46,12 @@ export default function RootLayout({
                 体験を探す
               </Link>
               <Link
+                href="/board"
+                className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
+              >
+                掲示板
+              </Link>
+              <Link
                 href="/login"
                 className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline"
               >

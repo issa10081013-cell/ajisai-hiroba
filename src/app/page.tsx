@@ -91,6 +91,17 @@ export default async function Home() {
       {/* Browse */}
       <ExperienceBrowse experiences={experiences} />
 
+      {/* Board CTA */}
+      <section style={{ background: "#F5F3FB", padding: "20px 16px" }}>
+        <a href="/board" style={{ display: "flex", alignItems: "center", gap: "14px", maxWidth: "680px", margin: "0 auto", background: "white", borderRadius: "20px", padding: "16px 20px", textDecoration: "none", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
+          <div style={{ fontSize: "28px", flexShrink: 0 }}>💬</div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontWeight: 700, color: "#222", fontSize: "14px", margin: "0 0 2px" }}>保護者掲示板</p>
+            <p style={{ fontSize: "12px", color: "#7B6BA8", margin: 0 }}>悩み・体験談・メンバー募集をシェアしよう →</p>
+          </div>
+        </a>
+      </section>
+
       {/* LINE CTA */}
       <section className="bg-[#06C755] py-12 px-6">
         <div className="max-w-[640px] mx-auto flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
