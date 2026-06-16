@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
-import { createBooking } from "@/lib/queries";
+import { useState, useEffect } from "react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
+import Link from "next/link";
 
 type Props = {
   experienceId: string;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default function BookingForm({ experienceId, experienceTitle }: Props) {
+  const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [form, setForm] = useState({
     parentName: "", parentEmail: "", parentPhone: "",
     childrenCount: 1, adultsCount: 1, message: "",
@@ -15,6 +17,17 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    supabaseBrowser.auth.getUser().then(({ data: { user: u } }) => {
+      if (u) {
+        const name = u.user_metadata?.display_name ?? "";
+        const email = u.email ?? "";
+        setUser({ email, name });
+        setForm(prev => ({ ...prev, parentName: name, parentEmail: email }));
+      }
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,72 +45,101 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
 
   if (submitted) {
     return (
-      <div className="bg-[#F5F3FA] rounded-2xl p-8 text-center">
-        <div className="text-4xl mb-3">🎉</div>
-        <h3 className="font-bold text-gray-800 mb-2">予約を受け付けました！</h3>
-        <p className="text-sm text-gray-500 leading-relaxed">
-          ご登録のメールアドレスに確認のご連絡をします。<br />しばらくお待ちください。
+      <div style={{ background: "#F5F3FA", borderRadius: "20px", padding: "32px", textAlign: "center" }}>
+        <div style={{ fontSize: "40px", marginBottom: "12px" }}>🎉</div>
+        <h3 style={{ fontWeight: "bold", color: "#1a1a1a", marginBottom: "8px" }}>予約を受け付けました！</h3>
+        <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.7 }}>
+          主催者からご連絡が届きます。<br />しばらくお待ちください。
         </p>
-        <p className="mt-4 text-xs text-gray-400">{experienceTitle}</p>
+        <p style={{ marginTop: "12px", fontSize: "11px", color: "#9ca3af" }}>{experienceTitle}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <h2 className="font-bold text-gray-800 mb-4">予約する</h2>
-      {error && (
-        <p className="text-red-500 text-xs mb-3 bg-red-50 p-2 rounded-lg">送信に失敗しました。もう一度試してください。</p>
+    <div style={{ background: "white", borderRadius: "20px", border: "1px solid #f3f4f6", padding: "20px" }}>
+      <h2 style={{ fontWeight: "bold", color: "#1a1a1a", marginBottom: "16px", fontSize: "15px" }}>予約する</h2>
+
+      {/* ログイン状態表示 */}
+      {user ? (
+        <div style={{ background: "#F5F3FA", borderRadius: "12px", padding: "10px 14px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <p style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, margin: 0 }}>✓ {user.email} でログイン中</p>
+          <button
+            onClick={() => supabaseBrowser.auth.signOut().then(() => setUser(null))}
+            style={{ fontSize: "11px", color: "#9ca3af", background: "none", border: "none", cursor: "pointer" }}
+          >ログアウト</button>
+        </div>
+      ) : (
+        <div style={{ background: "#FFF8F0", border: "1px solid #FED7AA", borderRadius: "12px", padding: "12px 14px", marginBottom: "16px" }}>
+          <p style={{ fontSize: "12px", color: "#92400E", margin: "0 0 8px", fontWeight: 600 }}>ログインすると名前・メールが自動入力されます</p>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Link href={`/login?from=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname : "/")}`}
+              style={{ flex: 1, textAlign: "center", background: "#7B6BA8", color: "white", borderRadius: "8px", padding: "7px", fontSize: "12px", fontWeight: 600, textDecoration: "none" }}>
+              ログイン
+            </Link>
+            <Link href="/register"
+              style={{ flex: 1, textAlign: "center", background: "white", color: "#7B6BA8", border: "1px solid #7B6BA8", borderRadius: "8px", padding: "7px", fontSize: "12px", fontWeight: 600, textDecoration: "none" }}>
+              新規登録
+            </Link>
+          </div>
+        </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
+
+      {error && (
+        <p style={{ color: "#ef4444", fontSize: "12px", marginBottom: "12px", background: "#fef2f2", padding: "8px", borderRadius: "8px" }}>
+          送信に失敗しました。もう一度試してください。
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">お名前 *</label>
+          <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>お名前 *</label>
           <input type="text" required value={form.parentName}
-            onChange={(e) => setForm({ ...form, parentName: e.target.value })}
+            onChange={e => setForm({ ...form, parentName: e.target.value })}
             placeholder="山田 花子"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8]" />
+            style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", background: user ? "#F9F8FF" : "white" }} />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">メールアドレス *</label>
+          <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>メールアドレス *</label>
           <input type="email" required value={form.parentEmail}
-            onChange={(e) => setForm({ ...form, parentEmail: e.target.value })}
+            onChange={e => setForm({ ...form, parentEmail: e.target.value })}
             placeholder="example@email.com"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8]" />
+            style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", background: user ? "#F9F8FF" : "white" }} />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">電話番号</label>
+          <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>電話番号</label>
           <input type="tel" value={form.parentPhone}
-            onChange={(e) => setForm({ ...form, parentPhone: e.target.value })}
+            onChange={e => setForm({ ...form, parentPhone: e.target.value })}
             placeholder="090-0000-0000"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8]" />
+            style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">大人の人数 *</label>
-            <select value={form.adultsCount} onChange={(e) => setForm({ ...form, adultsCount: Number(e.target.value) })}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8]">
+            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>大人の人数 *</label>
+            <select value={form.adultsCount} onChange={e => setForm({ ...form, adultsCount: Number(e.target.value) })}
+              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none" }}>
               {[1,2,3].map(n => <option key={n} value={n}>{n}人</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">子どもの人数 *</label>
-            <select value={form.childrenCount} onChange={(e) => setForm({ ...form, childrenCount: Number(e.target.value) })}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8]">
+            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>子どもの人数 *</label>
+            <select value={form.childrenCount} onChange={e => setForm({ ...form, childrenCount: Number(e.target.value) })}
+              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none" }}>
               {[0,1,2,3,4].map(n => <option key={n} value={n}>{n}人</option>)}
             </select>
           </div>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">メッセージ（任意）</label>
-          <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
+          <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>メッセージ（任意）</label>
+          <textarea value={form.message} onChange={e => setForm({ ...form, message: e.target.value })}
             rows={3} placeholder="アレルギーや不安なことがあれば"
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#7B6BA8] resize-none" />
+            style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", resize: "none", boxSizing: "border-box" }} />
         </div>
         <button type="submit" disabled={loading}
-          className="w-full bg-[#7B6BA8] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#6a5b97] transition-colors disabled:opacity-60">
+          style={{ width: "100%", background: "#7B6BA8", color: "white", border: "none", borderRadius: "12px", padding: "13px", fontSize: "14px", fontWeight: "bold", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1, touchAction: "manipulation" }}>
           {loading ? "送信中..." : "予約を申し込む"}
         </button>
-        <p className="text-xs text-center text-gray-400">予約後、担当者からご連絡します</p>
+        <p style={{ fontSize: "11px", textAlign: "center", color: "#9ca3af", margin: 0 }}>予約後、主催者からご連絡します</p>
       </form>
     </div>
   );
