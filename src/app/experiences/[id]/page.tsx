@@ -2,6 +2,7 @@ import { getExperienceById, getReviewsByExperienceId } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import BookingForm from "@/components/BookingForm";
+import ReviewForm from "@/components/ReviewForm";
 import { Calendar, MapPin, Banknote, Users, Leaf, ChefHat, BookOpen, Scissors, TreePine, Sparkles } from "lucide-react";
 
 export const revalidate = 60;
@@ -181,36 +182,20 @@ export default async function ExperienceDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Reviews */}
-      {expReviews.length > 0 && (
-        <div style={{ marginBottom: "24px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-            <h2 style={{ fontSize: "14px", fontWeight: 700, color: "#111827" }}>口コミ</h2>
-            <span style={{ color: "#f59e0b" }}>★</span>
-            <span style={{ fontWeight: 700, color: "#374151", fontSize: "14px" }}>{avgRating}</span>
-            <span style={{ fontSize: "11px", color: "#9ca3af" }}>/ {expReviews.length}件</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {expReviews.map(review => (
-              <div key={review.id} style={{ backgroundColor: "white", borderRadius: "16px", padding: "14px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                  <img src={review.reviewerAvatar} alt={review.reviewerName}
-                    style={{ width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <p style={{ fontWeight: 600, color: "#111827", fontSize: "13px" }}>{review.reviewerName}</p>
-                      <StarRating rating={review.rating} />
-                    </div>
-                    <p style={{ fontSize: "11px", color: "#9ca3af" }}>{review.childAge}</p>
-                  </div>
-                </div>
-                <p style={{ fontSize: "13px", color: "#374151", lineHeight: 1.7 }}>{review.comment}</p>
-                <p style={{ fontSize: "11px", color: "#d1d5db", marginTop: "8px", textAlign: "right" }}>{review.date}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Reviews + 投稿フォーム */}
+      <div style={{ marginBottom: "24px" }}>
+        <ReviewForm
+          experienceId={experience.id}
+          initialReviews={expReviews.map(r => ({
+            id: r.id,
+            reviewer_name: r.reviewerName,
+            rating: r.rating,
+            comment: r.comment,
+            child_age: r.childAge,
+            date: r.date,
+          }))}
+        />
+      </div>
 
       {/* Booking */}
       {isFull ? (
