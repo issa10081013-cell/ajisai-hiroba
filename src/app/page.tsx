@@ -2,6 +2,7 @@ import { getExperiences } from "@/lib/queries";
 import ExperienceBrowse from "@/components/ExperienceBrowse";
 import ExperienceCard from "@/components/ExperienceCard";
 import Link from "next/link";
+import ProviderCTAButton from "@/components/ProviderCTAButton";
 
 export const revalidate = 60;
 
@@ -67,9 +68,7 @@ export default async function Home() {
             <p style={{ fontWeight: 700, color: "#222", fontSize: "13px", margin: 0 }}>体験に参加する</p>
             <p style={{ fontSize: "11px", color: "#7B6BA8", margin: 0 }}>子育て家族向け →</p>
           </a>
-          <a
-            href="/admin/register"
-            className="no-underline"
+          <ProviderCTAButton
             style={{
               flex: 1,
               background: "#7B6BA8",
@@ -80,6 +79,9 @@ export default async function Home() {
               gap: "6px",
               boxShadow: "0 1px 6px rgba(123,107,168,0.3)",
               touchAction: "manipulation",
+              border: "none",
+              cursor: "pointer",
+              textAlign: "left",
             }}
           >
             <img
@@ -89,7 +91,7 @@ export default async function Home() {
             />
             <p style={{ fontWeight: 700, color: "white", fontSize: "13px", margin: 0 }}>体験を開催する</p>
             <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", margin: 0 }}>主催者・提供者向け →</p>
-          </a>
+          </ProviderCTAButton>
         </div>
       </div>
 
@@ -244,10 +246,9 @@ export default async function Home() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-[#06C755] text-white px-6 py-3 rounded-full font-bold text-sm no-underline"
               >LINE で問い合わせる</a>
-              <a
-                href="/admin/register"
-                className="inline-flex items-center gap-2 bg-[#7B6BA8] text-white px-6 py-3 rounded-full font-bold text-sm no-underline"
-              >体験を開催する</a>
+              <ProviderCTAButton className="inline-flex items-center gap-2 bg-[#7B6BA8] text-white px-6 py-3 rounded-full font-bold text-sm border-none cursor-pointer">
+                体験を開催する
+              </ProviderCTAButton>
             </div>
           </div>
 
