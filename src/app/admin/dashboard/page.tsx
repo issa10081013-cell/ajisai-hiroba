@@ -46,18 +46,28 @@ export default function AdminDashboardPage() {
   const [tab, setTab] = useState<"experiences" | "bookings" | "reports">("experiences");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
+  const [verified, setVerified] = useState(false);
+  const [verifiedStatus, setVerifiedStatus] = useState<string | null>(null);
+  const [requestingVerification, setRequestingVerification] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabaseBrowser.auth.getUser();
       if (!user) { router.push("/admin/login"); return; }
 
+      setUserId(user.id);
+      setIsAdmin(user.email === "issa10081013@gmail.com");
+
       const { data: provider } = await supabaseBrowser
-        .from("providers").select("id, name").eq("auth_user_id", user.id).single();
+        .from("providers").select("id, name, verified, verified_status").eq("auth_user_id", user.id).single();
 
       if (provider) {
         setProviderName(provider.name);
         setProviderId(provider.id);
+        setVerified(provider.verified ?? false);
+        setVerifiedStatus(provider.verified_status ?? null);
 
         const { data: exps } = await supabaseBrowser
           .from("experiences")
@@ -107,6 +117,17 @@ export default function AdminDashboardPage() {
     router.push("/admin/login");
   };
 
+  const handleRequestVerification = async () => {
+    setRequestingVerification(true);
+    await fetch("/api/request-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ providerId }),
+    });
+    setVerifiedStatus("pending");
+    setRequestingVerification(false);
+  };
+
   const totalParticipants = bookings.reduce((s, b) => s + b.children_count + b.adults_count, 0);
 
   if (loading) return (
@@ -138,7 +159,36 @@ export default function AdminDashboardPage() {
         {/* Welcome */}
         <div style={{ marginBottom: "20px" }}>
           <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 2px" }}>ようこそ</p>
-          <h1 style={{ fontSize: "20px", fontWeight: "bold", color: "#1a1a1a", margin: 0 }}>{providerName || "提供者"}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <h1 style={{ fontSize: "20px", fontWeight: "bold", color: "#1a1a1a", margin: 0 }}>{providerName || "提供者"}</h1>
+            {verified && (
+              <span style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "20px" }}>
+                ✓ 公式
+              </span>
+            )}
+          </div>
+          {/* 公式申請ボタン */}
+          {!verified && (
+            <div style={{ marginTop: "10px" }}>
+              {verifiedStatus === "pending" ? (
+                <span style={{ fontSize: "12px", color: "#9ca3af", background: "#f3f4f6", padding: "6px 14px", borderRadius: "20px" }}>
+                  申請中…審査をお待ちください
+                </span>
+              ) : verifiedStatus === "rejected" ? (
+                <span style={{ fontSize: "12px", color: "#ef4444", background: "#fef2f2", padding: "6px 14px", borderRadius: "20px" }}>
+                  今回は公式認定されませんでした
+                </span>
+              ) : (
+                <button
+                  onClick={handleRequestVerification}
+                  disabled={requestingVerification}
+                  style={{ fontSize: "12px", color: "#7B6BA8", background: "#F9F8FF", border: "1px solid #d8d0ef", padding: "6px 14px", borderRadius: "20px", cursor: "pointer", fontWeight: 600 }}
+                >
+                  {requestingVerification ? "申請中..." : "✓ 公式マークを申請する"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Stats */}
@@ -156,7 +206,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Quick actions */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isAdmin ? "1fr 1fr 1fr" : "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
           <Link href="/admin/experiences/new" style={{ textDecoration: "none" }}>
             <div style={{ backgroundColor: "#7B6BA8", borderRadius: "14px", padding: "16px", textAlign: "center", cursor: "pointer", touchAction: "manipulation" }}>
               <p style={{ fontSize: "20px", margin: "0 0 4px" }}>＋</p>
@@ -169,6 +219,14 @@ export default function AdminDashboardPage() {
               <p style={{ fontSize: "13px", fontWeight: "bold", color: "#1a1a1a", margin: 0 }}>プロフィール</p>
             </div>
           </Link>
+          {isAdmin && (
+            <Link href="/admin/verify" style={{ textDecoration: "none" }}>
+              <div style={{ backgroundColor: "white", borderRadius: "14px", padding: "16px", textAlign: "center", border: "1.5px solid #d8d0ef", cursor: "pointer", touchAction: "manipulation" }}>
+                <p style={{ fontSize: "20px", margin: "0 0 4px" }}>✓</p>
+                <p style={{ fontSize: "13px", fontWeight: "bold", color: "#7B6BA8", margin: 0 }}>公式審査</p>
+              </div>
+            </Link>
+          )}
         </div>
 
         {/* Tabs */}
