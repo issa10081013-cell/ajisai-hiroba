@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [{ price: priceId.trim(), quantity: 1 }],
       success_url: `${baseUrl}/mypage?membership=success`,
       cancel_url: `${baseUrl}/mypage?membership=canceled`,
       locale: "ja",
@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     const message = err instanceof Error ? err.message : "不明なエラー";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const priceId = process.env.STRIPE_PRICE_ID ?? "未設定";
+    return NextResponse.json({ error: message, debug_price_id: priceId }, { status: 500 });
   }
 }
