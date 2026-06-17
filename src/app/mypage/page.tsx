@@ -206,7 +206,7 @@ function MyPageContent() {
       )}
 
       {/* プロフィールヘッダー */}
-      <div style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "32px 20px 24px" }}>
+      <div style={{ background: "linear-gradient(135deg, #2d5a3f, #4A7A5C)", padding: "32px 20px 24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px" }}>
           <div style={{ position: "relative", flexShrink: 0 }}>
             <input
@@ -257,7 +257,7 @@ function MyPageContent() {
 
       {/* 会員ステータス */}
       {(membership?.status === "active" || membership?.status === "canceling") ? (
-        <div style={{ margin: "16px", background: membership.status === "canceling" ? "linear-gradient(135deg, #9ca3af, #6b7280)" : "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "20px", padding: "20px" }}>
+        <div style={{ margin: "16px", background: membership.status === "canceling" ? "linear-gradient(135deg, #9ca3af, #6b7280)" : "linear-gradient(135deg, #2d5a3f, #4A7A5C)", borderRadius: "20px", padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div>
               <span style={{ fontSize: "10px", background: "rgba(255,255,255,0.2)", color: "white", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
@@ -309,7 +309,7 @@ function MyPageContent() {
                 </button>
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  style={{ flex: 1, background: "white", border: "none", borderRadius: "10px", padding: "8px", fontSize: "12px", color: "#7B6BA8", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}
+                  style={{ flex: 1, background: "white", border: "none", borderRadius: "10px", padding: "8px", fontSize: "12px", color: "#2d5a3f", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}
                 >
                   やめる
                 </button>
@@ -318,13 +318,13 @@ function MyPageContent() {
           )}
         </div>
       ) : (
-        <div style={{ margin: "16px", background: "white", borderRadius: "20px", padding: "20px", border: "2px dashed #d8d0ef" }}>
+        <div style={{ margin: "16px", background: "white", borderRadius: "20px", padding: "20px", border: "2px dashed #b0d4bc" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div>
               <span style={{ fontSize: "10px", background: "#f3f4f6", color: "#9ca3af", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>未加入</span>
               <p style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "16px", margin: "6px 0 0" }}>あじさい会員になる</p>
             </div>
-            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">{[0,60,120,180,240,300].map((a,i)=>{const r=a*Math.PI/180;return<circle key={i} cx={24+10*Math.cos(r)} cy={24+10*Math.sin(r)} r="7" fill="rgba(255,255,255,0.7)"/>})}<circle cx="24" cy="24" r="6" fill="rgba(255,255,255,0.9)"/></svg>
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">{[0,60,120,180,240,300].map((a,i)=>{const r=a*Math.PI/180;return<circle key={i} cx={24+10*Math.cos(r)} cy={24+10*Math.sin(r)} r="7" fill="#b0d4bc"/>})}<circle cx="24" cy="24" r="6" fill="#4A7A5C"/></svg>
           </div>
           <ul style={{ margin: "0 0 16px", padding: "0 0 0 16px", display: "flex", flexDirection: "column", gap: "4px" }}>
             {["すべての体験が会員割引価格で参加できる", "保護者コミュニティへの優先参加", "新着体験の先行案内メール"].map(b => (
@@ -334,7 +334,7 @@ function MyPageContent() {
           <button
             onClick={handleJoinMembership}
             disabled={joiningMembership}
-            style={{ width: "100%", background: joiningMembership ? "#9ca3af" : "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", border: "none", borderRadius: "14px", padding: "13px", fontSize: "14px", fontWeight: 700, cursor: joiningMembership ? "not-allowed" : "pointer", touchAction: "manipulation" }}
+            style={{ width: "100%", background: joiningMembership ? "#9ca3af" : "linear-gradient(135deg, #2d5a3f, #4A7A5C)", color: "white", border: "none", borderRadius: "14px", padding: "13px", fontSize: "14px", fontWeight: 700, cursor: joiningMembership ? "not-allowed" : "pointer", touchAction: "manipulation" }}
           >
             {joiningMembership ? "処理中..." : "月額 ¥1,000 で会員になる"}
           </button>
@@ -363,7 +363,7 @@ function MyPageContent() {
             <div style={{ textAlign: "center", padding: "48px 0" }}>
               <div style={{ marginBottom: "8px", display: "flex", justifyContent: "center" }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="14" x2="10" y2="16"/><line x1="10" y1="16" x2="14" y2="13"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af", marginBottom: "16px" }}>まだ予約がありません</p>
-              <Link href="/experiences" style={{ background: "#7B6BA8", color: "white", borderRadius: "20px", padding: "10px 24px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
+              <Link href="/experiences" style={{ background: "#4A7A5C", color: "white", borderRadius: "20px", padding: "10px 24px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
                 体験を探す
               </Link>
             </div>
@@ -441,7 +441,7 @@ function MyPageContent() {
             <div style={{ textAlign: "center", padding: "48px 0" }}>
               <div style={{ marginBottom: "8px", display: "flex", justifyContent: "center" }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af", marginBottom: "16px" }}>まだ投稿がありません</p>
-              <Link href="/board" style={{ background: "#7B6BA8", color: "white", borderRadius: "20px", padding: "10px 24px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
+              <Link href="/board" style={{ background: "#4A7A5C", color: "white", borderRadius: "20px", padding: "10px 24px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
                 掲示板を見る
               </Link>
             </div>
