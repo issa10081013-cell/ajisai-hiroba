@@ -13,7 +13,7 @@ export default function EditExperiencePage() {
   const [initializing, setInitializing] = useState(true);
   const [form, setForm] = useState({
     title: "", description: "", date: "", timeStart: "", timeEnd: "",
-    location: "", priceMember: "", priceRegular: "", capacity: "10",
+    location: "", area: "", priceMember: "", priceRegular: "", capacity: "10",
     category: "農業体験", tags: "", imageUrl: "",
   });
 
@@ -34,6 +34,7 @@ export default function EditExperiencePage() {
         timeStart: exp.time_start ?? "",
         timeEnd: exp.time_end ?? "",
         location: exp.location ?? "",
+        area: exp.area ?? "",
         priceMember: exp.price_member?.toString() ?? "0",
         priceRegular: exp.price_regular?.toString() ?? "0",
         capacity: exp.capacity?.toString() ?? "10",
@@ -60,6 +61,7 @@ export default function EditExperiencePage() {
       time_start: form.timeStart,
       time_end: form.timeEnd,
       location: form.location,
+      area: form.area || null,
       price_member: Number(form.priceMember) || 0,
       price_regular: Number(form.priceRegular) || 0,
       capacity: Number(form.capacity),
@@ -129,10 +131,28 @@ export default function EditExperiencePage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4">
-            <label className="text-[12px] text-[#717171] block mb-1.5">場所 *</label>
-            <input required value={form.location} onChange={e => f("location", e.target.value)}
-              className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]" />
+          <div className="bg-white rounded-2xl p-4 flex flex-col gap-3">
+            <div>
+              <label className="text-[12px] text-[#717171] block mb-1.5">場所 *</label>
+              <input required value={form.location} onChange={e => f("location", e.target.value)}
+                className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]" />
+            </div>
+            <div>
+              <label className="text-[12px] text-[#717171] block mb-1.5">エリア</label>
+              <select value={form.area} onChange={e => f("area", e.target.value)}
+                className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8] bg-white">
+                <option value="">選択してください</option>
+                <option>博多区</option>
+                <option>中央区</option>
+                <option>城南区</option>
+                <option>南区</option>
+                <option>早良区</option>
+                <option>西区</option>
+                <option>東区</option>
+                <option>糸島市</option>
+                <option>その他</option>
+              </select>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl p-4 flex flex-col gap-3">
