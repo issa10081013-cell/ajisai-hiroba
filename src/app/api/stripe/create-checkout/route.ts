@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     const message = err instanceof Error ? err.message : "不明なエラー";
-    const priceId = process.env.STRIPE_PRICE_ID ?? "未設定";
-    return NextResponse.json({ error: message, debug_price_id: priceId }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
