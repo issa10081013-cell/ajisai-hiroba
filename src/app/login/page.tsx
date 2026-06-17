@@ -42,7 +42,13 @@ function LoginForm() {
       );
       setLoading(false);
     } else {
-      router.push(redirectTo);
+      const { data: { user } } = await supabaseBrowser.auth.getUser();
+      if (user && redirectTo === "/") {
+        const { data: provider } = await supabaseBrowser.from("providers").select("id").eq("auth_user_id", user.id).single();
+        router.push(provider ? "/admin/dashboard" : "/");
+      } else {
+        router.push(redirectTo);
+      }
     }
   };
 
