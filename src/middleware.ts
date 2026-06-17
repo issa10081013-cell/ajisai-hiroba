@@ -13,10 +13,7 @@ function isAuthenticated(req: NextRequest): boolean {
 export function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith("/admin")) {
     if (!isAuthenticated(req)) {
-      return new NextResponse("Unauthorized", {
-        status: 401,
-        headers: { "WWW-Authenticate": 'Basic realm="Admin"' },
-      });
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
   return NextResponse.next();
