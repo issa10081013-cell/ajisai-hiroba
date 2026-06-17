@@ -45,7 +45,7 @@ export async function GET() {
       if (!resend || !booking.parent_email) continue;
 
       await resend.emails.send({
-        from: "あじさい体験ひろば <onboarding@resend.dev>",
+        from: "あじさい体験ひろば <noreply@ajisai-hiroba.com>",
         to: booking.parent_email,
         subject: `【明日開催】${exp.title} のリマインダー`,
         html: `

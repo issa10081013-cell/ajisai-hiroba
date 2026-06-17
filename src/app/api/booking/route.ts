@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     // 主催者へ予約通知メール
     if (providerEmail) {
       await resend.emails.send({
-        from: "あじさい体験ひろば <onboarding@resend.dev>",
+        from: "あじさい体験ひろば <noreply@ajisai-hiroba.com>",
         to: providerEmail,
         subject: `【予約通知】${exp?.title ?? "体験"} に新しい予約が入りました`,
         html: `
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     // 参加者へ予約確認メール
     await resend.emails.send({
-      from: "あじさい体験ひろば <onboarding@resend.dev>",
+      from: "あじさい体験ひろば <noreply@ajisai-hiroba.com>",
       to: parentEmail,
       subject: `【予約確認】${exp?.title ?? "体験"} のご予約が完了しました`,
       html: `
