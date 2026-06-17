@@ -405,6 +405,13 @@ function MyPageContent() {
             ログアウト
           </button>
         </div>
+
+        {/* 法律リンク */}
+        <div style={{ marginTop: "24px", display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "center" }}>
+          <Link href="/tokusho" style={{ fontSize: "11px", color: "#9ca3af", textDecoration: "none" }}>特定商取引法に基づく表示</Link>
+          <Link href="/terms" style={{ fontSize: "11px", color: "#9ca3af", textDecoration: "none" }}>利用規約</Link>
+          <Link href="/privacy" style={{ fontSize: "11px", color: "#9ca3af", textDecoration: "none" }}>プライバシーポリシー</Link>
+        </div>
       </div>
     </div>
   );

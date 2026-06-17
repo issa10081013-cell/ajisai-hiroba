@@ -70,6 +70,7 @@ export default function RootLayout({
             <div className="flex items-center gap-4">
               <Link href="/terms" className="text-[11px] text-[#AAAAAA] hover:text-[#7B6BA8]">利用規約</Link>
               <Link href="/privacy" className="text-[11px] text-[#AAAAAA] hover:text-[#7B6BA8]">プライバシーポリシー</Link>
+              <Link href="/tokusho" className="text-[11px] text-[#AAAAAA] hover:text-[#7B6BA8]">特定商取引法に基づく表示</Link>
               <p className="text-[11px] text-[#AAAAAA] m-0">© 2026 あじさい体験ひろば</p>
             </div>
           </div>
