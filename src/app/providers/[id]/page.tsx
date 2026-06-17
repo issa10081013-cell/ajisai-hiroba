@@ -56,7 +56,14 @@ export default async function ProviderProfilePage({ params }: Props) {
             style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "3px solid #E8E4F5" }}
           />
           <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 800, fontSize: "18px", color: "#1a1a1a", margin: "0 0 2px" }}>{provider.name}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 2px" }}>
+              <p style={{ fontWeight: 800, fontSize: "18px", color: "#1a1a1a", margin: 0 }}>{provider.name}</p>
+              {provider.verified && (
+                <span style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "20px", flexShrink: 0 }}>
+                  ✓ 公式
+                </span>
+              )}
+            </div>
             <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 10px" }}>📍 {provider.location}</p>
             {/* Stats row */}
             <div style={{ display: "flex", gap: "20px" }}>

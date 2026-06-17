@@ -63,8 +63,12 @@ export default function ExperienceCard({ experience }: { experience: Experience 
       {/* Info — minimal, clean */}
       <div className="space-y-0.5 px-0.5">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-[#717171] font-medium truncate">
-            {experience.provider.name} · {experience.location.split("（")[0]}
+          <p className="text-xs text-[#717171] font-medium truncate flex items-center gap-1">
+            {experience.provider.name}
+            {experience.provider.verified && (
+              <span style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", fontSize: "9px", fontWeight: 700, padding: "1px 6px", borderRadius: "20px", flexShrink: 0 }}>✓ 公式</span>
+            )}
+            <span> · {experience.location.split("（")[0]}</span>
           </p>
           <span className="text-[10px] text-[#717171] bg-[#F3F4F6] rounded-full px-2 py-0.5 ml-2 shrink-0">
             {experience.category}

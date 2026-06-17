@@ -11,6 +11,7 @@ export type Provider = {
   yearsActive?: number;
   totalParticipants?: number;
   tags?: string[];
+  verified?: boolean;
 };
 
 export type Experience = {

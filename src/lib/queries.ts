@@ -13,6 +13,7 @@ function mapProvider(p: Record<string, unknown>): Provider {
     yearsActive: p.years_active as number | undefined,
     totalParticipants: p.total_participants as number | undefined,
     tags: p.tags as string[] | undefined,
+    verified: p.verified as boolean | undefined,
   };
 }
 
