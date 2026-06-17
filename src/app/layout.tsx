@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import Script from "next/script";
 import BottomNav from "@/components/BottomNav";
 import HeaderNav from "@/components/HeaderNav";
 
@@ -23,6 +24,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={noto.className}>
+      <head>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-BSTCWKKGVQ" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-BSTCWKKGVQ');
+        `}</Script>
+      </head>
       <body className="bg-[#FAFAF9] text-[#222]" style={{ WebkitFontSmoothing: "antialiased" }}>
 
         <header className="bg-white border-b border-[#EBEBEB] sticky top-0 z-50">
