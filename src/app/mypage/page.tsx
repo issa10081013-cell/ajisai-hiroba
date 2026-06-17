@@ -48,6 +48,8 @@ function MyPageContent() {
   const [canceling, setCanceling] = useState<string | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
   const [joiningMembership, setJoiningMembership] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelingMembership, setCancelingMembership] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -132,6 +134,29 @@ function MyPageContent() {
     } catch (err) {
       alert("通信エラーが発生しました: " + (err instanceof Error ? err.message : "不明なエラー"));
       setJoiningMembership(false);
+    }
+  };
+
+  const handleCancelMembership = async () => {
+    if (!user) return;
+    setCancelingMembership(true);
+    try {
+      const res = await fetch("/api/stripe/cancel-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMembership(prev => prev ? { ...prev, status: "canceling" } : prev);
+        setShowCancelConfirm(false);
+      } else {
+        alert("エラーが発生しました: " + (data.error ?? "不明なエラー"));
+      }
+    } catch (err) {
+      alert("通信エラーが発生しました: " + (err instanceof Error ? err.message : "不明なエラー"));
+    } finally {
+      setCancelingMembership(false);
     }
   };
 
@@ -231,22 +256,65 @@ function MyPageContent() {
       </div>
 
       {/* 会員ステータス */}
-      {membership?.status === "active" ? (
-        <div style={{ margin: "16px", background: "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "20px", padding: "20px" }}>
+      {(membership?.status === "active" || membership?.status === "canceling") ? (
+        <div style={{ margin: "16px", background: membership.status === "canceling" ? "linear-gradient(135deg, #9ca3af, #6b7280)" : "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "20px", padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div>
-              <span style={{ fontSize: "10px", background: "rgba(255,255,255,0.2)", color: "white", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>会員中</span>
+              <span style={{ fontSize: "10px", background: "rgba(255,255,255,0.2)", color: "white", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
+                {membership.status === "canceling" ? "解約予定" : "会員中"}
+              </span>
               <p style={{ color: "white", fontWeight: 800, fontSize: "16px", margin: "6px 0 0" }}>あじさい会員</p>
             </div>
             <span style={{ fontSize: "32px" }}>🌸</span>
           </div>
-          <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px", margin: 0 }}>
-            月額 ¥1,000 · すべての体験が会員価格で参加できます
-          </p>
+          {membership.status === "canceling" ? (
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px", margin: 0 }}>
+              解約手続き済みです。期間終了まで会員特典をご利用いただけます。
+            </p>
+          ) : (
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px", margin: 0 }}>
+              月額 ¥1,000 · すべての体験が会員価格で参加できます
+            </p>
+          )}
           {membership.current_period_end && (
             <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "10px", margin: "6px 0 0" }}>
-              次回更新: {new Date(membership.current_period_end).toLocaleDateString("ja-JP")}
+              {membership.status === "canceling" ? "特典利用可能期間：" : "次回更新："}
+              {new Date(membership.current_period_end).toLocaleDateString("ja-JP")} まで
             </p>
+          )}
+
+          {/* 解約ボタン（active時のみ） */}
+          {membership.status === "active" && !showCancelConfirm && (
+            <button
+              onClick={() => setShowCancelConfirm(true)}
+              style={{ marginTop: "14px", background: "none", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "10px", padding: "7px 14px", fontSize: "11px", color: "rgba(255,255,255,0.6)", cursor: "pointer", touchAction: "manipulation" }}
+            >
+              解約する
+            </button>
+          )}
+
+          {/* 解約確認 */}
+          {showCancelConfirm && (
+            <div style={{ marginTop: "14px", background: "rgba(0,0,0,0.2)", borderRadius: "12px", padding: "14px" }}>
+              <p style={{ color: "white", fontSize: "12px", margin: "0 0 12px", lineHeight: 1.6 }}>
+                解約すると今月末で会員特典が終了します。本当に解約しますか？
+              </p>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={handleCancelMembership}
+                  disabled={cancelingMembership}
+                  style={{ flex: 1, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "10px", padding: "8px", fontSize: "12px", color: "white", fontWeight: 700, cursor: cancelingMembership ? "not-allowed" : "pointer", opacity: cancelingMembership ? 0.5 : 1, touchAction: "manipulation" }}
+                >
+                  {cancelingMembership ? "処理中..." : "解約する"}
+                </button>
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  style={{ flex: 1, background: "white", border: "none", borderRadius: "10px", padding: "8px", fontSize: "12px", color: "#7B6BA8", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}
+                >
+                  やめる
+                </button>
+              </div>
+            </div>
           )}
         </div>
       ) : (

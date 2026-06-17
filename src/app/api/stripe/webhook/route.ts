@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-type StripeSubLike = { customer: string; current_period_end: number; status: string };
+type StripeSubLike = { customer: string; current_period_end: number; status: string; cancel_at_period_end: boolean };
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -51,7 +51,11 @@ export async function POST(req: NextRequest) {
       const subRaw = event.data.object as unknown as StripeSubLike;
       const customerId = subRaw.customer;
       const periodEnd = new Date(subRaw.current_period_end * 1000).toISOString();
-      const status = subRaw.status === "active" ? "active" : "inactive";
+      const status = subRaw.cancel_at_period_end
+        ? "canceling"
+        : subRaw.status === "active"
+        ? "active"
+        : "inactive";
 
       await supabaseAdmin.from("memberships")
         .update({
