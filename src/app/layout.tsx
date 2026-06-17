@@ -15,6 +15,19 @@ const noto = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "あじさい体験ひろば",
   description: "福岡の子育て家族のための体験・予約プラットフォーム",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "あじさい",
+  },
+  icons: {
+    icon: "/icons/icon-512.png",
+    apple: "/apple-touch-icon.png",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -25,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className={noto.className}>
       <head>
+        <meta name="theme-color" content="#4A7A5C" />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-BSTCWKKGVQ" strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">{`
           window.dataLayer = window.dataLayer || [];
