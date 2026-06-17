@@ -117,7 +117,14 @@ export default async function Home() {
       {/* Board CTA */}
       <section style={{ background: "#F5F3FB", padding: "20px 16px" }}>
         <a href="/board" style={{ display: "flex", alignItems: "center", gap: "14px", maxWidth: "680px", margin: "0 auto", background: "white", borderRadius: "20px", padding: "16px 20px", textDecoration: "none", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-          <div style={{ fontSize: "28px", flexShrink: 0 }}>💬</div>
+          <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#EDE9F8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M21 6a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h11l4 4V6z" fill="#7B6BA8" opacity="0.15" stroke="#7B6BA8" strokeWidth="1.6" strokeLinejoin="round"/>
+              <circle cx="8" cy="10.5" r="1.2" fill="#7B6BA8"/>
+              <circle cx="12" cy="10.5" r="1.2" fill="#7B6BA8"/>
+              <circle cx="16" cy="10.5" r="1.2" fill="#7B6BA8"/>
+            </svg>
+          </div>
           <div style={{ flex: 1 }}>
             <p style={{ fontWeight: 700, color: "#222", fontSize: "14px", margin: "0 0 2px" }}>保護者掲示板</p>
             <p style={{ fontSize: "12px", color: "#7B6BA8", margin: 0 }}>悩み・体験談・メンバー募集をシェアしよう →</p>
@@ -131,28 +138,91 @@ export default async function Home() {
           <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", color: "#7B6BA8", textTransform: "uppercase", marginBottom: "8px" }}>How it works</p>
           <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#1a1a1a", marginBottom: "28px" }}>参加するまでの3ステップ</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {[
-              { step: "01", title: "体験を選ぶ", desc: "農業・料理・ものづくりなど、子どもの興味に合った体験を探す。カレンダーやカテゴリで絞り込めます。", emoji: "🔍" },
-              { step: "02", title: "フォームから予約", desc: "参加したい体験を選んで、お名前・人数を入力するだけ。会員登録なしでも予約できます。", emoji: "📝" },
-              { step: "03", title: "当日参加するだけ", desc: "確認メールが届いたら準備完了。当日は会場に行くだけ。主催者が丁寧に案内します。", emoji: "🎉" },
-            ].map((s) => (
-              <div key={s.step} style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
-                <div style={{ flexShrink: 0, width: "40px", height: "40px", background: "#7B6BA8", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>{s.emoji}</div>
-                <div>
-                  <p style={{ fontSize: "10px", fontWeight: 700, color: "#7B6BA8", margin: "0 0 3px" }}>STEP {s.step}</p>
-                  <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>{s.title}</p>
-                  <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.7, margin: 0 }}>{s.desc}</p>
-                </div>
+            {/* Step 01 */}
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+              <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#7B6BA8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="1.7"/>
+                  <path d="M21 21l-3.5-3.5" stroke="white" strokeWidth="1.7" strokeLinecap="round"/>
+                  <path d="M8.5 11 Q11 8 13.5 11 Q11 14 8.5 11Z" fill="white"/>
+                  <line x1="11" y1="11" x2="11" y2="13.5" stroke="#7B6BA8" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
               </div>
-            ))}
+              <div>
+                <p style={{ fontSize: "10px", fontWeight: 700, color: "#7B6BA8", margin: "0 0 3px" }}>STEP 01</p>
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>体験を選ぶ</p>
+                <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.7, margin: 0 }}>農業・料理・ものづくりなど、子どもの興味に合った体験を探す。カレンダーやカテゴリで絞り込めます。</p>
+              </div>
+            </div>
+            {/* Step 02 */}
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+              <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#7B6BA8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="5" y="3" width="14" height="18" rx="2" stroke="white" strokeWidth="1.7"/>
+                  <path d="M9 3.5h6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                  <line x1="8" y1="10" x2="16" y2="10" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.7"/>
+                  <line x1="8" y1="13" x2="16" y2="13" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.7"/>
+                  <path d="M8 16.5l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <p style={{ fontSize: "10px", fontWeight: 700, color: "#7B6BA8", margin: "0 0 3px" }}>STEP 02</p>
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>フォームから予約</p>
+                <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.7, margin: 0 }}>参加したい体験を選んで、お名前・人数を入力するだけ。会員登録なしでも予約できます。</p>
+              </div>
+            </div>
+            {/* Step 03 */}
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+              <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#7B6BA8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="9" cy="6" r="2.5" stroke="white" strokeWidth="1.6"/>
+                  <path d="M4 20v-2a4 4 0 014-4h2a4 4 0 014 4v2" stroke="white" strokeWidth="1.6" strokeLinecap="round"/>
+                  <circle cx="17" cy="5" r="1.8" stroke="white" strokeWidth="1.4" opacity="0.75"/>
+                  <path d="M15.5 18.5v-1.5a3 3 0 013-3" stroke="white" strokeWidth="1.4" strokeLinecap="round" opacity="0.75"/>
+                  <path d="M19 10l.5-1.5M21 11.5l1.5-.5M20.5 13.5l1.5.5" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
+                </svg>
+              </div>
+              <div>
+                <p style={{ fontSize: "10px", fontWeight: 700, color: "#7B6BA8", margin: "0 0 3px" }}>STEP 03</p>
+                <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>当日参加するだけ</p>
+                <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.7, margin: 0 }}>確認メールが届いたら準備完了。当日は会場に行くだけ。主催者が丁寧に案内します。</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* 会員CTA */}
-      <section style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "40px 16px" }}>
-        <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center" }}>
-          <p style={{ fontSize: "28px", margin: "0 0 8px" }}>🌸</p>
+      <section style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "40px 16px", position: "relative", overflow: "hidden" }}>
+        {/* あじさい装飾SVG */}
+        <svg style={{ position: "absolute", top: "-20px", right: "-20px", opacity: 0.12 }} width="180" height="180" viewBox="0 0 180 180" fill="none">
+          {[0,60,120,180,240,300].map((angle, i) => {
+            const rad = angle * Math.PI / 180;
+            const cx = 90 + 38 * Math.cos(rad);
+            const cy = 90 + 38 * Math.sin(rad);
+            return <circle key={i} cx={cx} cy={cy} r="28" fill="white"/>;
+          })}
+          <circle cx="90" cy="90" r="22" fill="white"/>
+        </svg>
+        <svg style={{ position: "absolute", bottom: "-30px", left: "-10px", opacity: 0.08 }} width="140" height="140" viewBox="0 0 140 140" fill="none">
+          {[30,90,150,210,270,330].map((angle, i) => {
+            const rad = angle * Math.PI / 180;
+            const cx = 70 + 30 * Math.cos(rad);
+            const cy = 70 + 30 * Math.sin(rad);
+            return <circle key={i} cx={cx} cy={cy} r="22" fill="white"/>;
+          })}
+          <circle cx="70" cy="70" r="18" fill="white"/>
+        </svg>
+        <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center", position: "relative" }}>
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: "0 auto 12px" }}>
+            {[0,60,120,180,240,300].map((angle, i) => {
+              const rad = angle * Math.PI / 180;
+              const cx = 24 + 12 * Math.cos(rad);
+              const cy = 24 + 12 * Math.sin(rad);
+              return <circle key={i} cx={cx} cy={cy} r="8" fill="rgba(255,255,255,0.85)"/>;
+            })}
+            <circle cx="24" cy="24" r="7" fill="white"/>
+          </svg>
           <h2 style={{ fontSize: "20px", fontWeight: 800, color: "white", margin: "0 0 8px" }}>あじさい会員になる</h2>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", margin: "0 0 20px", lineHeight: 1.7 }}>
             月額¥1,000で全ての体験が会員割引価格に。<br />新着体験の先行案内・コミュニティ優先参加も。
