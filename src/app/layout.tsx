@@ -67,7 +67,7 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main className="pb-[60px] sm:pb-0">{children}</main>
+        <main className="sm:pb-0" style={{ paddingBottom: "calc(60px + env(safe-area-inset-bottom))" }}>{children}</main>
 
         <BottomNav />
 

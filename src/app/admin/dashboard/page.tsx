@@ -145,7 +145,7 @@ export default function AdminDashboardPage() {
     <div style={{ minHeight: "100vh", backgroundColor: "#F5F3FA" }}>
       {/* Header */}
       <div style={{ backgroundColor: "white", borderBottom: "1px solid #f3f4f6", padding: "0 16px" }}>
-        <div style={{ maxWidth: "640px", margin: "0 auto", height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ maxWidth: "720px", margin: "0 auto", height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <img src="https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/logo/ajisai-logo-1781517450336.png"
               alt="ロゴ" style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover" }} />
@@ -160,7 +160,7 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "20px 16px" }}>
+      <div style={{ maxWidth: "720px", margin: "0 auto", padding: "20px 12px" }}>
         {/* Welcome */}
         <div style={{ marginBottom: "20px" }}>
           <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 2px" }}>ようこそ</p>
