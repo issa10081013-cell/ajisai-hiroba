@@ -91,6 +91,22 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* Stats */}
+      <div style={{ background: "white", borderBottom: "1px solid #f3f4f6", padding: "20px 16px" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "0", maxWidth: "480px", margin: "0 auto" }}>
+          {[
+            { value: "30+", label: "開催体験数" },
+            { value: "200+", label: "参加家族数" },
+            { value: "10+", label: "提供者数" },
+          ].map((s, i) => (
+            <div key={s.label} style={{ flex: 1, textAlign: "center", borderRight: i < 2 ? "1px solid #f3f4f6" : "none", padding: "8px 0" }}>
+              <p style={{ fontSize: "22px", fontWeight: 800, color: "#7B6BA8", margin: "0 0 2px" }}>{s.value}</p>
+              <p style={{ fontSize: "10px", color: "#9ca3af", margin: 0 }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Browse */}
       <ExperienceBrowse experiences={experiences} />
 
@@ -103,6 +119,45 @@ export default async function Home() {
             <p style={{ fontSize: "12px", color: "#7B6BA8", margin: 0 }}>悩み・体験談・メンバー募集をシェアしよう →</p>
           </div>
         </a>
+      </section>
+
+      {/* 体験の流れ */}
+      <section style={{ background: "white", padding: "40px 16px" }}>
+        <div style={{ maxWidth: "680px", margin: "0 auto" }}>
+          <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", color: "#7B6BA8", textTransform: "uppercase", marginBottom: "8px" }}>How it works</p>
+          <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#1a1a1a", marginBottom: "28px" }}>参加するまでの3ステップ</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {[
+              { step: "01", title: "体験を選ぶ", desc: "農業・料理・ものづくりなど、子どもの興味に合った体験を探す。カレンダーやカテゴリで絞り込めます。", emoji: "🔍" },
+              { step: "02", title: "フォームから予約", desc: "参加したい体験を選んで、お名前・人数を入力するだけ。会員登録なしでも予約できます。", emoji: "📝" },
+              { step: "03", title: "当日参加するだけ", desc: "確認メールが届いたら準備完了。当日は会場に行くだけ。主催者が丁寧に案内します。", emoji: "🎉" },
+            ].map((s) => (
+              <div key={s.step} style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+                <div style={{ flexShrink: 0, width: "40px", height: "40px", background: "#7B6BA8", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>{s.emoji}</div>
+                <div>
+                  <p style={{ fontSize: "10px", fontWeight: 700, color: "#7B6BA8", margin: "0 0 3px" }}>STEP {s.step}</p>
+                  <p style={{ fontSize: "14px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 4px" }}>{s.title}</p>
+                  <p style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.7, margin: 0 }}>{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 会員CTA */}
+      <section style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "40px 16px" }}>
+        <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center" }}>
+          <p style={{ fontSize: "28px", margin: "0 0 8px" }}>🌸</p>
+          <h2 style={{ fontSize: "20px", fontWeight: 800, color: "white", margin: "0 0 8px" }}>あじさい会員になる</h2>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", margin: "0 0 20px", lineHeight: 1.7 }}>
+            月額¥1,000で全ての体験が会員割引価格に。<br />新着体験の先行案内・コミュニティ優先参加も。
+          </p>
+          <a href="/mypage" style={{ display: "inline-block", background: "white", color: "#7B6BA8", borderRadius: "20px", padding: "13px 32px", fontSize: "14px", fontWeight: 700, textDecoration: "none" }}>
+            今すぐ会員登録する →
+          </a>
+          <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", margin: "12px 0 0" }}>いつでも解約できます</p>
+        </div>
       </section>
 
       {/* LINE CTA */}
