@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -11,6 +11,9 @@ export default function EditExperiencePage() {
   const id = params.id as string;
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     title: "", description: "", date: "", timeStart: "", timeEnd: "",
     location: "", area: "", priceMember: "", priceRegular: "", capacity: "10",
@@ -42,6 +45,7 @@ export default function EditExperiencePage() {
         tags: (exp.tags ?? []).join(", "),
         imageUrl: exp.image_url ?? "",
       });
+      if (exp.image_url) setImagePreview(exp.image_url);
       setInitializing(false);
     };
     init();
@@ -49,10 +53,35 @@ export default function EditExperiencePage() {
 
   const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean);
+
+    let imageUrl = form.imageUrl;
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop() ?? "jpg";
+      const fileName = `experiences/${Date.now()}.${ext}`;
+      const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
+        .from("images")
+        .upload(fileName, imageFile, { contentType: imageFile.type, upsert: false });
+      if (uploadError) {
+        alert("画像のアップロードに失敗しました: " + uploadError.message);
+        setLoading(false);
+        return;
+      }
+      if (uploadData) {
+        const { data: urlData } = supabaseBrowser.storage.from("images").getPublicUrl(uploadData.path);
+        imageUrl = urlData.publicUrl;
+      }
+    }
 
     const { error } = await supabaseBrowser.from("experiences").update({
       title: form.title,
@@ -67,7 +96,7 @@ export default function EditExperiencePage() {
       capacity: Number(form.capacity),
       category: form.category,
       tags,
-      ...(form.imageUrl ? { image_url: form.imageUrl } : {}),
+      ...(imageUrl ? { image_url: imageUrl } : {}),
     }).eq("id", id);
 
     setLoading(false);
@@ -97,6 +126,30 @@ export default function EditExperiencePage() {
             <label className="text-[12px] text-[#717171] block mb-1.5">体験タイトル *</label>
             <input required value={form.title} onChange={e => f("title", e.target.value)}
               className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]" />
+          </div>
+
+          {/* Image Upload */}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-2">体験画像</label>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            {imagePreview ? (
+              <div className="space-y-3">
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
+                  <img src={imagePreview} alt="プレビュー" className="w-full h-full object-cover" />
+                </div>
+                <button type="button" onClick={() => fileInputRef.current?.click()}
+                  className="text-[12px] text-[#7B6BA8] font-medium cursor-pointer bg-none border-none">
+                  画像を変更する
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileInputRef.current?.click()}
+                className="w-full flex flex-col items-center justify-center gap-2 py-8 rounded-xl border-2 border-dashed border-[#DDDDDD] text-[#717171] hover:border-[#7B6BA8] hover:text-[#7B6BA8] hover:bg-[#F7F6FD] cursor-pointer transition-all">
+                <span style={{ fontSize: "28px" }}>📷</span>
+                <span className="text-sm font-semibold">タップして画像を選択</span>
+                <span className="text-[11px] text-[#AAAAAA]">JPG・PNG・HEICなど</span>
+              </button>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl p-4">
