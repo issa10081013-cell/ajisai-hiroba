@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "STRIPE_SECRET_KEY未設定" }, { status: 500 });
     }
 
+
     const priceId = process.env.STRIPE_PRICE_ID;
     if (!priceId) {
       return NextResponse.json({ error: "STRIPE_PRICE_ID未設定" }, { status: 500 });
