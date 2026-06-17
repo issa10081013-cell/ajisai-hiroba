@@ -31,6 +31,8 @@ type Post = {
   created_at: string;
 };
 
+type Membership = { status: string; current_period_end: string | null };
+
 export default function MyPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -42,6 +44,7 @@ export default function MyPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [canceling, setCanceling] = useState<string | null>(null);
+  const [membership, setMembership] = useState<Membership | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -51,6 +54,10 @@ export default function MyPage() {
 
       setUser({ id: u.id, name: u.user_metadata?.display_name ?? u.email?.split("@")[0] ?? "匿名", email: u.email ?? "" });
       if (u.user_metadata?.avatar_url) setAvatarUrl(u.user_metadata.avatar_url);
+
+      const { data: mem } = await supabaseBrowser
+        .from("memberships").select("status, current_period_end").eq("user_id", u.id).single();
+      setMembership(mem ?? { status: "inactive", current_period_end: null });
 
       // 予約履歴（メールで照合）
       const { data: bks } = await supabaseBrowser
@@ -183,6 +190,48 @@ export default function MyPage() {
           ))}
         </div>
       </div>
+
+      {/* 会員ステータス */}
+      {membership?.status === "active" ? (
+        <div style={{ margin: "16px", background: "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "20px", padding: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <div>
+              <span style={{ fontSize: "10px", background: "rgba(255,255,255,0.2)", color: "white", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>会員中</span>
+              <p style={{ color: "white", fontWeight: 800, fontSize: "16px", margin: "6px 0 0" }}>あじさい会員</p>
+            </div>
+            <span style={{ fontSize: "32px" }}>🌸</span>
+          </div>
+          <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px", margin: 0 }}>
+            月額 ¥1,000 · すべての体験が会員価格で参加できます
+          </p>
+          {membership.current_period_end && (
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "10px", margin: "6px 0 0" }}>
+              次回更新: {new Date(membership.current_period_end).toLocaleDateString("ja-JP")}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div style={{ margin: "16px", background: "white", borderRadius: "20px", padding: "20px", border: "2px dashed #d8d0ef" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <div>
+              <span style={{ fontSize: "10px", background: "#f3f4f6", color: "#9ca3af", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>未加入</span>
+              <p style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "16px", margin: "6px 0 0" }}>あじさい会員になる</p>
+            </div>
+            <span style={{ fontSize: "32px" }}>🌸</span>
+          </div>
+          <ul style={{ margin: "0 0 16px", padding: "0 0 0 16px", display: "flex", flexDirection: "column", gap: "4px" }}>
+            {["すべての体験が会員割引価格で参加できる", "保護者コミュニティへの優先参加", "新着体験の先行案内メール"].map(b => (
+              <li key={b} style={{ fontSize: "12px", color: "#374151" }}>{b}</li>
+            ))}
+          </ul>
+          <button
+            onClick={() => alert("Stripe申請承認後に利用可能になります。しばらくお待ちください。")}
+            style={{ width: "100%", background: "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", border: "none", borderRadius: "14px", padding: "13px", fontSize: "14px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}
+          >
+            月額 ¥1,000 で会員になる
+          </button>
+        </div>
+      )}
 
       {/* タブ */}
       <div style={{ background: "white", display: "flex", borderBottom: "2px solid #f3f4f6" }}>
