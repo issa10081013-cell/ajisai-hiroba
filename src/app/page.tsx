@@ -15,7 +15,7 @@ export default async function Home() {
       {/* Hero */}
       <div
         className="relative h-[200px] md:h-[320px] overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #7B6BA8 0%, #3d3566 100%)" }}
+        style={{ background: "linear-gradient(135deg, #2d5a3f 0%, #4A3d7A 100%)" }}
       >
         <img
           src="https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/category/hero-1781515899862.png"
@@ -23,7 +23,7 @@ export default async function Home() {
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: "center 65%", opacity: 0.45 }}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(61,53,102,0.75) 0%, rgba(61,53,102,0.3) 60%, transparent 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(45,90,63,0.55) 0%, rgba(61,53,102,0.45) 50%, transparent 100%)" }} />
 
         <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-16 max-w-[680px]">
           <p className="text-white font-bold mb-2" style={{ fontSize: "clamp(18px, 5vw, 28px)", letterSpacing: "0.04em" }}>
@@ -43,7 +43,7 @@ export default async function Home() {
       </div>
 
       {/* Role selection */}
-      <div style={{ background: "#F5F3FB", padding: "16px 16px" }}>
+      <div style={{ background: "#EDF4EE", padding: "16px 16px" }}>
         <div style={{ display: "flex", gap: "12px", maxWidth: "680px", margin: "0 auto" }}>
           <a
             href="#browse"
@@ -66,18 +66,18 @@ export default async function Home() {
               style={{ width: "48px", height: "48px", borderRadius: "12px", objectFit: "cover" }}
             />
             <p style={{ fontWeight: 700, color: "#222", fontSize: "13px", margin: 0 }}>体験に参加する</p>
-            <p style={{ fontSize: "11px", color: "#7B6BA8", margin: 0 }}>子育て家族向け →</p>
+            <p style={{ fontSize: "11px", color: "#4A7A5C", margin: 0 }}>子育て家族向け →</p>
           </a>
           <ProviderCTAButton
             style={{
               flex: 1,
-              background: "#7B6BA8",
+              background: "#4A7A5C",
               borderRadius: "16px",
               padding: "16px",
               display: "flex",
               flexDirection: "column",
               gap: "6px",
-              boxShadow: "0 1px 6px rgba(123,107,168,0.3)",
+              boxShadow: "0 1px 6px rgba(74,122,92,0.3)",
               touchAction: "manipulation",
               border: "none",
               cursor: "pointer",
@@ -115,19 +115,19 @@ export default async function Home() {
       <ExperienceBrowse experiences={experiences} />
 
       {/* Board CTA */}
-      <section style={{ background: "#F5F3FB", padding: "20px 16px" }}>
+      <section style={{ background: "#EDF4EE", padding: "20px 16px" }}>
         <a href="/board" style={{ display: "flex", alignItems: "center", gap: "14px", maxWidth: "680px", margin: "0 auto", background: "white", borderRadius: "20px", padding: "16px 20px", textDecoration: "none", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-          <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#EDE9F8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#D4EAD9", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M21 6a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h11l4 4V6z" fill="#7B6BA8" opacity="0.15" stroke="#7B6BA8" strokeWidth="1.6" strokeLinejoin="round"/>
-              <circle cx="8" cy="10.5" r="1.2" fill="#7B6BA8"/>
-              <circle cx="12" cy="10.5" r="1.2" fill="#7B6BA8"/>
-              <circle cx="16" cy="10.5" r="1.2" fill="#7B6BA8"/>
+              <path d="M21 6a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h11l4 4V6z" fill="#4A7A5C" opacity="0.15" stroke="#4A7A5C" strokeWidth="1.6" strokeLinejoin="round"/>
+              <circle cx="8" cy="10.5" r="1.2" fill="#4A7A5C"/>
+              <circle cx="12" cy="10.5" r="1.2" fill="#4A7A5C"/>
+              <circle cx="16" cy="10.5" r="1.2" fill="#4A7A5C"/>
             </svg>
           </div>
           <div style={{ flex: 1 }}>
             <p style={{ fontWeight: 700, color: "#222", fontSize: "14px", margin: "0 0 2px" }}>保護者掲示板</p>
-            <p style={{ fontSize: "12px", color: "#7B6BA8", margin: 0 }}>悩み・体験談・メンバー募集をシェアしよう →</p>
+            <p style={{ fontSize: "12px", color: "#4A7A5C", margin: 0 }}>悩み・体験談・メンバー募集をシェアしよう →</p>
           </div>
         </a>
       </section>
@@ -139,7 +139,7 @@ export default async function Home() {
           <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#1a1a1a", marginBottom: "28px" }}>参加するまでの3ステップ</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {/* Step 01 */}
-            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#EDF4EE", borderRadius: "16px", padding: "16px" }}>
               <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#7B6BA8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="1.7"/>
@@ -155,7 +155,7 @@ export default async function Home() {
               </div>
             </div>
             {/* Step 02 */}
-            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#EDF4EE", borderRadius: "16px", padding: "16px" }}>
               <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#7B6BA8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <rect x="5" y="3" width="14" height="18" rx="2" stroke="white" strokeWidth="1.7"/>
@@ -172,7 +172,7 @@ export default async function Home() {
               </div>
             </div>
             {/* Step 03 */}
-            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#F7F6FD", borderRadius: "16px", padding: "16px" }}>
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", background: "#EDF4EE", borderRadius: "16px", padding: "16px" }}>
               <div style={{ flexShrink: 0, width: "44px", height: "44px", background: "#7B6BA8", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <circle cx="9" cy="6" r="2.5" stroke="white" strokeWidth="1.6"/>
@@ -193,19 +193,15 @@ export default async function Home() {
       </section>
 
       {/* 会員CTA */}
-      <section style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "40px 16px", position: "relative", overflow: "hidden" }}>
-        {/* あじさい装飾SVG */}
+      <section style={{ background: "linear-gradient(135deg, #2d5a3f, #4A7A5C)", padding: "40px 16px", position: "relative", overflow: "hidden" }}>
+        {/* 葉の形の装飾SVG */}
         <svg style={{ position: "absolute", top: "-20px", right: "-20px", opacity: 0.12 }} width="180" height="180" viewBox="0 0 180 180" fill="none">
-          {[0,60,120,180,240,300].map((angle, i) => {
-            const rad = angle * Math.PI / 180;
-            const cx = 90 + 38 * Math.cos(rad);
-            const cy = 90 + 38 * Math.sin(rad);
-            return <circle key={i} cx={cx} cy={cy} r="28" fill="white"/>;
-          })}
-          <circle cx="90" cy="90" r="22" fill="white"/>
+          <ellipse cx="100" cy="60" rx="60" ry="35" transform="rotate(30 100 60)" fill="white"/>
+          <ellipse cx="50" cy="110" rx="55" ry="32" transform="rotate(-20 50 110)" fill="white"/>
+          <ellipse cx="130" cy="120" rx="45" ry="28" transform="rotate(15 130 120)" fill="white"/>
         </svg>
         <svg style={{ position: "absolute", bottom: "-30px", left: "-10px", opacity: 0.08 }} width="140" height="140" viewBox="0 0 140 140" fill="none">
-          {[30,90,150,210,270,330].map((angle, i) => {
+          {[0,60,120,180,240,300].map((angle, i) => {
             const rad = angle * Math.PI / 180;
             const cx = 70 + 30 * Math.cos(rad);
             const cy = 70 + 30 * Math.sin(rad);
@@ -214,6 +210,7 @@ export default async function Home() {
           <circle cx="70" cy="70" r="18" fill="white"/>
         </svg>
         <div style={{ maxWidth: "680px", margin: "0 auto", textAlign: "center", position: "relative" }}>
+          {/* あじさい花SVG（紫・緑の葉の上に咲くイメージ） */}
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ margin: "0 auto 12px" }}>
             {[0,60,120,180,240,300].map((angle, i) => {
               const rad = angle * Math.PI / 180;
@@ -227,7 +224,7 @@ export default async function Home() {
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", margin: "0 0 20px", lineHeight: 1.7 }}>
             月額¥1,000で全ての体験が会員割引価格に。<br />新着体験の先行案内・コミュニティ優先参加も。
           </p>
-          <a href="/mypage" style={{ display: "inline-block", background: "white", color: "#7B6BA8", borderRadius: "20px", padding: "13px 32px", fontSize: "14px", fontWeight: 700, textDecoration: "none" }}>
+          <a href="/mypage" style={{ display: "inline-block", background: "white", color: "#2d5a3f", borderRadius: "20px", padding: "13px 32px", fontSize: "14px", fontWeight: 700, textDecoration: "none" }}>
             今すぐ会員登録する →
           </a>
           <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", margin: "12px 0 0" }}>いつでも解約できます</p>
@@ -257,14 +254,14 @@ export default async function Home() {
 
       {/* 人気の体験 */}
       {experiences.filter(e => e.isFeatured).length > 0 && (
-        <section style={{ background: "#F7F6FD", padding: "32px 16px" }}>
+        <section style={{ background: "#EDF4EE", padding: "32px 16px" }}>
           <div style={{ maxWidth: "680px", margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
               <div>
-                <p style={{ fontSize: "11px", fontWeight: 700, color: "#7B6BA8", letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 4px" }}>Popular</p>
+                <p style={{ fontSize: "11px", fontWeight: 700, color: "#4A7A5C", letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 4px" }}>Popular</p>
                 <h2 style={{ fontSize: "18px", fontWeight: 800, color: "#1a1a1a", margin: 0 }}>注目の体験</h2>
               </div>
-              <Link href="/experiences" style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>すべて見る →</Link>
+              <Link href="/experiences" style={{ fontSize: "12px", color: "#4A7A5C", fontWeight: 600, textDecoration: "none" }}>すべて見る →</Link>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               {experiences.filter(e => e.isFeatured).slice(0, 4).map(exp => (
@@ -304,7 +301,7 @@ export default async function Home() {
           </div>
 
           {/* Contact CTA */}
-          <div className="bg-[#F7F6FD] rounded-2xl p-7">
+          <div className="bg-[#EDF4EE] rounded-2xl p-7">
             <p className="font-bold text-[#222] text-base mb-1">あじさいの取り組みに興味がありますか？</p>
             <p className="text-sm text-[#717171] leading-relaxed mb-5">
               体験の開催を考えている方・活動に共感してくれた方・一緒に何かやりたい方、まずはLINEで気軽にご連絡ください。
