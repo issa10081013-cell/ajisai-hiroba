@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 type Booking = {
@@ -33,8 +33,10 @@ type Post = {
 
 type Membership = { status: string; current_period_end: string | null };
 
-export default function MyPage() {
+function MyPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const membershipResult = searchParams.get("membership");
   const [user, setUser] = useState<{ id: string; name: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -45,6 +47,7 @@ export default function MyPage() {
   const [uploading, setUploading] = useState(false);
   const [canceling, setCanceling] = useState<string | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
+  const [joiningMembership, setJoiningMembership] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -110,6 +113,23 @@ export default function MyPage() {
     setCanceling(null);
   };
 
+  const handleJoinMembership = async () => {
+    if (!user) return;
+    setJoiningMembership(true);
+    const res = await fetch("/api/stripe/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id, userEmail: user.email }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("エラーが発生しました: " + (data.error ?? "不明なエラー"));
+      setJoiningMembership(false);
+    }
+  };
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -138,8 +158,22 @@ export default function MyPage() {
     </div>
   );
 
+
+
   return (
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 0 80px" }}>
+
+      {/* 会員登録結果バナー */}
+      {membershipResult === "success" && (
+        <div style={{ background: "#d1fae5", color: "#065f46", padding: "12px 16px", fontSize: "13px", fontWeight: 600, textAlign: "center" }}>
+          🎉 あじさい会員登録が完了しました！
+        </div>
+      )}
+      {membershipResult === "canceled" && (
+        <div style={{ background: "#fef3c7", color: "#92400e", padding: "12px 16px", fontSize: "13px", fontWeight: 600, textAlign: "center" }}>
+          会員登録をキャンセルしました
+        </div>
+      )}
 
       {/* プロフィールヘッダー */}
       <div style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", padding: "32px 20px 24px" }}>
@@ -225,10 +259,11 @@ export default function MyPage() {
             ))}
           </ul>
           <button
-            onClick={() => alert("Stripe申請承認後に利用可能になります。しばらくお待ちください。")}
-            style={{ width: "100%", background: "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", border: "none", borderRadius: "14px", padding: "13px", fontSize: "14px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}
+            onClick={handleJoinMembership}
+            disabled={joiningMembership}
+            style={{ width: "100%", background: joiningMembership ? "#9ca3af" : "linear-gradient(135deg, #7B6BA8, #3d3566)", color: "white", border: "none", borderRadius: "14px", padding: "13px", fontSize: "14px", fontWeight: 700, cursor: joiningMembership ? "not-allowed" : "pointer", touchAction: "manipulation" }}
           >
-            月額 ¥1,000 で会員になる
+            {joiningMembership ? "処理中..." : "月額 ¥1,000 で会員になる"}
           </button>
         </div>
       )}
@@ -367,5 +402,17 @@ export default function MyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MyPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "#9ca3af", fontSize: "13px" }}>読み込み中...</p>
+      </div>
+    }>
+      <MyPageContent />
+    </Suspense>
   );
 }
