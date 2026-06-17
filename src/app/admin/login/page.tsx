@@ -30,7 +30,6 @@ export default function AdminLoginPage() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#F5F3FA", padding: "16px" }}>
       <div style={{ backgroundColor: "white", borderRadius: "24px", padding: "32px", width: "100%", maxWidth: "400px", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          <span style={{ fontSize: "32px" }}>🌸</span>
           <img
             src="https://dvqewysazrkhlvvlvuww.supabase.co/storage/v1/object/public/images/logo/ajisai-logo-1781517450336.png"
             alt="ロゴ"

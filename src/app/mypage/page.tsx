@@ -196,7 +196,7 @@ function MyPageContent() {
       {/* 会員登録結果バナー */}
       {membershipResult === "success" && (
         <div style={{ background: "#d1fae5", color: "#065f46", padding: "12px 16px", fontSize: "13px", fontWeight: 600, textAlign: "center" }}>
-          🎉 あじさい会員登録が完了しました！
+          ✓ あじさい会員登録が完了しました！
         </div>
       )}
       {membershipResult === "canceled" && (
@@ -224,7 +224,7 @@ function MyPageContent() {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="アバター" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
-                <span style={{ fontSize: "28px" }}>👤</span>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
               )}
               {uploading && (
                 <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
@@ -233,7 +233,7 @@ function MyPageContent() {
               )}
             </button>
             <div style={{ position: "absolute", bottom: 0, right: 0, background: "white", borderRadius: "50%", width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", boxShadow: "0 1px 4px rgba(0,0,0,0.2)", pointerEvents: "none" }}>
-              📷
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7B6BA8" strokeWidth="2" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </div>
           </div>
           <div>
@@ -265,7 +265,7 @@ function MyPageContent() {
               </span>
               <p style={{ color: "white", fontWeight: 800, fontSize: "16px", margin: "6px 0 0" }}>あじさい会員</p>
             </div>
-            <span style={{ fontSize: "32px" }}>🌸</span>
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">{[0,60,120,180,240,300].map((a,i)=>{const r=a*Math.PI/180;return<circle key={i} cx={24+10*Math.cos(r)} cy={24+10*Math.sin(r)} r="7" fill="rgba(255,255,255,0.7)"/>})}<circle cx="24" cy="24" r="6" fill="rgba(255,255,255,0.9)"/></svg>
           </div>
           {membership.status === "canceling" ? (
             <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "11px", margin: 0 }}>
@@ -324,7 +324,7 @@ function MyPageContent() {
               <span style={{ fontSize: "10px", background: "#f3f4f6", color: "#9ca3af", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>未加入</span>
               <p style={{ color: "#1a1a1a", fontWeight: 800, fontSize: "16px", margin: "6px 0 0" }}>あじさい会員になる</p>
             </div>
-            <span style={{ fontSize: "32px" }}>🌸</span>
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">{[0,60,120,180,240,300].map((a,i)=>{const r=a*Math.PI/180;return<circle key={i} cx={24+10*Math.cos(r)} cy={24+10*Math.sin(r)} r="7" fill="rgba(255,255,255,0.7)"/>})}<circle cx="24" cy="24" r="6" fill="rgba(255,255,255,0.9)"/></svg>
           </div>
           <ul style={{ margin: "0 0 16px", padding: "0 0 0 16px", display: "flex", flexDirection: "column", gap: "4px" }}>
             {["すべての体験が会員割引価格で参加できる", "保護者コミュニティへの優先参加", "新着体験の先行案内メール"].map(b => (
@@ -361,7 +361,7 @@ function MyPageContent() {
         {tab === "bookings" && (
           bookings.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <p style={{ fontSize: "32px", marginBottom: "8px" }}>🎪</p>
+              <div style={{ marginBottom: "8px", display: "flex", justifyContent: "center" }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="14" x2="10" y2="16"/><line x1="10" y1="16" x2="14" y2="13"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af", marginBottom: "16px" }}>まだ予約がありません</p>
               <Link href="/experiences" style={{ background: "#7B6BA8", color: "white", borderRadius: "20px", padding: "10px 24px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
                 体験を探す
@@ -382,7 +382,7 @@ function MyPageContent() {
                       <div style={{ display: "flex", gap: "12px" }}>
                         {dateStr && (
                           <span style={{ fontSize: "11px", color: isFuture ? "#7B6BA8" : "#9ca3af", fontWeight: 600 }}>
-                            📅 {dateStr}
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{display:"inline",marginRight:"3px",verticalAlign:"middle"}}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>{dateStr}
                           </span>
                         )}
                         <span style={{ fontSize: "11px", color: "#9ca3af" }}>大人{b.adults_count}・子ども{b.children_count}</span>
@@ -411,7 +411,7 @@ function MyPageContent() {
         {tab === "reviews" && (
           reviews.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <p style={{ fontSize: "32px", marginBottom: "8px" }}>⭐</p>
+              <div style={{ marginBottom: "8px", display: "flex", justifyContent: "center" }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af" }}>まだ口コミを書いていません</p>
             </div>
           ) : (
@@ -439,7 +439,7 @@ function MyPageContent() {
         {tab === "posts" && (
           posts.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
-              <p style={{ fontSize: "32px", marginBottom: "8px" }}>💬</p>
+              <div style={{ marginBottom: "8px", display: "flex", justifyContent: "center" }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af", marginBottom: "16px" }}>まだ投稿がありません</p>
               <Link href="/board" style={{ background: "#7B6BA8", color: "white", borderRadius: "20px", padding: "10px 24px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
                 掲示板を見る
@@ -453,8 +453,8 @@ function MyPageContent() {
                     <span style={{ fontSize: "10px", background: "#E8E4F5", color: "#7B6BA8", padding: "2px 8px", borderRadius: "20px", fontWeight: 700 }}>{p.category}</span>
                     <p style={{ fontWeight: 700, color: "#1a1a1a", fontSize: "14px", margin: "6px 0 8px" }}>{p.title}</p>
                     <div style={{ display: "flex", gap: "12px" }}>
-                      <span style={{ fontSize: "11px", color: "#9ca3af" }}>❤️ {p.likes_count}</span>
-                      <span style={{ fontSize: "11px", color: "#9ca3af" }}>💬 {p.comments_count}</span>
+                      <span style={{ fontSize: "11px", color: "#9ca3af", display:"flex", alignItems:"center", gap:"3px" }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>{p.likes_count}</span>
+                      <span style={{ fontSize: "11px", color: "#9ca3af", display:"flex", alignItems:"center", gap:"3px" }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>{p.comments_count}</span>
                       <span style={{ fontSize: "11px", color: "#9ca3af", marginLeft: "auto" }}>
                         {new Date(p.created_at).toLocaleDateString("ja-JP")}
                       </span>

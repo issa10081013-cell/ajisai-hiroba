@@ -3,15 +3,16 @@ import { useState } from "react";
 import { Experience } from "@/lib/types";
 import ExperienceCard from "./ExperienceCard";
 import CalendarView from "./CalendarView";
+import { LayoutGrid, Leaf, UtensilsCrossed, BookOpen, Wrench, TreePine, Sparkles, MapPin, CalendarDays, Search } from "lucide-react";
 
-const CATS = [
-  { key: "全て",      label: "すべて",      emoji: "🏡" },
-  { key: "農業体験",  label: "農業・収穫",  emoji: "🌾" },
-  { key: "料理教室",  label: "料理・食",    emoji: "🍳" },
-  { key: "学習体験",  label: "学び",        emoji: "📚" },
-  { key: "ものづくり", label: "ものづくり", emoji: "🔨" },
-  { key: "自然体験",  label: "自然・外遊び", emoji: "🌿" },
-  { key: "その他",    label: "その他",      emoji: "✨" },
+const CATS: { key: string; label: string; Icon: React.ElementType }[] = [
+  { key: "全て",      label: "すべて",      Icon: LayoutGrid },
+  { key: "農業体験",  label: "農業・収穫",  Icon: Leaf },
+  { key: "料理教室",  label: "料理・食",    Icon: UtensilsCrossed },
+  { key: "学習体験",  label: "学び",        Icon: BookOpen },
+  { key: "ものづくり", label: "ものづくり", Icon: Wrench },
+  { key: "自然体験",  label: "自然・外遊び", Icon: TreePine },
+  { key: "その他",    label: "その他",      Icon: Sparkles },
 ];
 
 const AREAS = ["全域", "東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区", "糸島市", "春日市"];
@@ -48,7 +49,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
           WebkitOverflowScrolling: "touch",
           padding: "0 12px",
         }}>
-          {CATS.map(({ key, label, emoji }) => {
+          {CATS.map(({ key, label, Icon }) => {
             const active = selectedCat === key;
             return (
               <button
@@ -70,7 +71,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
                   opacity: active ? 1 : 0.65,
                 }}
               >
-                <span style={{ fontSize: "20px", lineHeight: 1 }}>{emoji}</span>
+                <Icon size={20} strokeWidth={1.5} color={active ? "#222" : "#717171"} />
                 <span style={{
                   fontSize: "10px",
                   fontWeight: active ? 700 : 500,
@@ -96,7 +97,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
               cursor: "pointer", touchAction: "manipulation",
             }}
           >
-            📍 {selectedArea !== "全域" ? selectedArea : "エリア"}
+            <MapPin size={13} strokeWidth={2} /> {selectedArea !== "全域" ? selectedArea : "エリア"}
           </button>
 
           <button
@@ -111,7 +112,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
               cursor: "pointer", touchAction: "manipulation",
             }}
           >
-            📅 {viewMode === "calendar" ? "一覧に戻る" : "日程で探す"}
+            <CalendarDays size={13} strokeWidth={2} /> {viewMode === "calendar" ? "一覧に戻る" : "日程で探す"}
           </button>
 
           {hasFilter && (
@@ -163,7 +164,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
           <CalendarView experiences={filtered} />
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 20px" }}>
-            <p style={{ fontSize: "36px", marginBottom: "12px" }}>🔍</p>
+            <div style={{ marginBottom: "12px", display: "flex", justifyContent: "center" }}><Search size={40} strokeWidth={1.2} color="#d1d5db" /></div>
             <p style={{ fontWeight: 600, color: "#222", marginBottom: "8px" }}>体験が見つかりませんでした</p>
             <p style={{ fontSize: "13px", color: "#717171", marginBottom: "20px" }}>
               エリアやカテゴリを変えてみてください

@@ -215,7 +215,7 @@ export default function AdminDashboardPage() {
           </Link>
           <Link href="/admin/profile" style={{ textDecoration: "none" }}>
             <div style={{ backgroundColor: "white", borderRadius: "14px", padding: "16px", textAlign: "center", border: "1px solid #f3f4f6", cursor: "pointer", touchAction: "manipulation" }}>
-              <p style={{ fontSize: "20px", margin: "0 0 4px" }}>👤</p>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" style={{margin:"0 auto 4px"}}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
               <p style={{ fontSize: "13px", fontWeight: "bold", color: "#1a1a1a", margin: 0 }}>プロフィール</p>
             </div>
           </Link>
@@ -254,7 +254,7 @@ export default function AdminDashboardPage() {
         {tab === "experiences" && (
           experiences.length === 0 ? (
             <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
-              <p style={{ fontSize: "28px", marginBottom: "8px" }}>🌱</p>
+              <div style={{ marginBottom: "8px", display:"flex", justifyContent:"center" }}><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round"><path d="M12 22V12"/><path d="M12 12C12 12 7 11 7 6c3 0 5 2.5 5 6z"/><path d="M12 12C12 12 17 11 17 6c-3 0-5 2.5-5 6z"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af", marginBottom: "16px" }}>まだ体験が登録されていません</p>
               <Link href="/admin/experiences/new">
                 <button style={{ backgroundColor: "#7B6BA8", color: "white", border: "none", borderRadius: "12px", padding: "10px 24px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", touchAction: "manipulation" }}>
@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
         {tab === "bookings" && (
           bookings.length === 0 ? (
             <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
-              <p style={{ fontSize: "28px", marginBottom: "8px" }}>📋</p>
+              <div style={{ marginBottom: "8px", display:"flex", justifyContent:"center" }}><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af" }}>まだ予約がありません</p>
             </div>
           ) : (
@@ -339,7 +339,7 @@ export default function AdminDashboardPage() {
         {tab === "reports" && (
           reports.length === 0 ? (
             <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
-              <p style={{ fontSize: "28px", marginBottom: "8px" }}>✅</p>
+              <div style={{ marginBottom: "8px", display:"flex", justifyContent:"center" }}><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg></div>
               <p style={{ fontSize: "13px", color: "#9ca3af" }}>通報はありません</p>
             </div>
           ) : (
