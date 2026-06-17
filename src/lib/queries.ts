@@ -35,6 +35,7 @@ function mapExperience(e: Record<string, unknown>): Experience {
     imageUrl: e.image_url as string,
     category: e.category as Experience["category"],
     tags: e.tags as string[],
+    isFeatured: e.is_featured as boolean | undefined,
   };
 }
 

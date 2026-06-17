@@ -184,18 +184,18 @@ export default async function Home() {
       </section>
 
       {/* 人気の体験 */}
-      {experiences.length > 0 && (
+      {experiences.filter(e => e.isFeatured).length > 0 && (
         <section style={{ background: "#F7F6FD", padding: "32px 16px" }}>
           <div style={{ maxWidth: "680px", margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
               <div>
                 <p style={{ fontSize: "11px", fontWeight: 700, color: "#7B6BA8", letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 4px" }}>Popular</p>
-                <h2 style={{ fontSize: "18px", fontWeight: 800, color: "#1a1a1a", margin: 0 }}>人気の体験</h2>
+                <h2 style={{ fontSize: "18px", fontWeight: 800, color: "#1a1a1a", margin: 0 }}>注目の体験</h2>
               </div>
               <Link href="/experiences" style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>すべて見る →</Link>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              {[...experiences].sort((a, b) => b.currentBookings - a.currentBookings).slice(0, 4).map(exp => (
+              {experiences.filter(e => e.isFeatured).slice(0, 4).map(exp => (
                 <ExperienceCard key={exp.id} experience={exp} />
               ))}
             </div>

@@ -30,6 +30,7 @@ export type Experience = {
   imageUrl: string;
   category: Category;
   tags: string[];
+  isFeatured?: boolean;
 };
 
 export type Review = {

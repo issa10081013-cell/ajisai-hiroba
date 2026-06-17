@@ -17,6 +17,7 @@ export default function NewExperiencePage() {
     location: "", priceMember: "", priceRegular: "", capacity: "10",
     category: "農業体験", tags: "",
   });
+  const [isFeatured, setIsFeatured] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -91,6 +92,7 @@ export default function NewExperiencePage() {
       current_bookings: 0,
       category: form.category,
       tags,
+      is_featured: isFeatured,
       ...(imageUrl ? { image_url: imageUrl } : {}),
     });
 
@@ -281,6 +283,20 @@ export default function NewExperiencePage() {
               className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
             />
           </div>
+
+          {/* おすすめフラグ */}
+          <label className="flex items-center gap-3 bg-white rounded-2xl p-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={e => setIsFeatured(e.target.checked)}
+              className="w-5 h-5 accent-[#7B6BA8]"
+            />
+            <div>
+              <p className="text-sm font-bold text-[#1a1a1a] m-0">トップページに掲載する</p>
+              <p className="text-xs text-[#9ca3af] m-0">チェックするとトップページの「注目の体験」に表示されます</p>
+            </div>
+          </label>
 
           <button
             type="submit"
