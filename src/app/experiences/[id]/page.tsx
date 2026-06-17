@@ -158,19 +158,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
           {isFree ? (
             <p style={{ fontWeight: 800, color: "#059669", fontSize: "16px" }}>無料</p>
           ) : (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
-                <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "16px", margin: 0 }}>あじさい会員 ¥{experience.priceMember.toLocaleString()}</p>
-                {discountPct > 0 && (
-                  <span style={{ fontSize: "10px", background: "#7B6BA8", color: "white", padding: "2px 7px", borderRadius: "20px", fontWeight: 700 }}>
-                    {discountPct}%OFF
-                  </span>
-                )}
-              </div>
-              {experience.priceRegular > experience.priceMember && (
-                <p style={{ fontSize: "11px", color: "#d1d5db", textDecoration: "line-through", margin: 0 }}>一般 ¥{experience.priceRegular.toLocaleString()}</p>
-              )}
-            </div>
+            <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "15px", margin: 0 }}>¥{experience.priceMember.toLocaleString()}〜</p>
           )}
         </div>
         <div>
@@ -180,6 +168,44 @@ export default async function ExperienceDetailPage({ params }: Props) {
           </p>
         </div>
       </div>
+
+      {/* 価格比較 */}
+      {!isFree && (
+        <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "12px" }}>
+            <Banknote size={13} color="#7B6BA8" />
+            <span style={{ fontSize: "13px", fontWeight: 700, color: "#111827" }}>参加費</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            {/* あじさい会員 */}
+            <div style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "14px", padding: "14px", textAlign: "center", position: "relative" }}>
+              {discountPct > 0 && (
+                <span style={{ position: "absolute", top: "-8px", left: "50%", transform: "translateX(-50%)", background: "#f59e0b", color: "white", fontSize: "9px", fontWeight: 800, padding: "2px 8px", borderRadius: "20px", whiteSpace: "nowrap" }}>
+                  {discountPct}%お得
+                </span>
+              )}
+              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.7)", margin: "0 0 4px", fontWeight: 600 }}>🌸 あじさい会員</p>
+              <p style={{ fontSize: "22px", fontWeight: 800, color: "white", margin: 0 }}>
+                ¥{experience.priceMember.toLocaleString()}
+              </p>
+              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", margin: "2px 0 0" }}>/ 人</p>
+            </div>
+            {/* 一般 */}
+            <div style={{ background: "#f9fafb", borderRadius: "14px", padding: "14px", textAlign: "center", border: "1.5px solid #e5e7eb" }}>
+              <p style={{ fontSize: "10px", color: "#9ca3af", margin: "0 0 4px", fontWeight: 600 }}>一般</p>
+              <p style={{ fontSize: "22px", fontWeight: 800, color: "#374151", margin: 0 }}>
+                ¥{experience.priceRegular.toLocaleString()}
+              </p>
+              <p style={{ fontSize: "10px", color: "#d1d5db", margin: "2px 0 0" }}>/ 人</p>
+            </div>
+          </div>
+          {discountPct > 0 && (
+            <p style={{ fontSize: "11px", color: "#7B6BA8", margin: "10px 0 0", textAlign: "center", fontWeight: 600 }}>
+              会員になると ¥{(experience.priceRegular - experience.priceMember).toLocaleString()} お得！
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Tags */}
       {experience.tags.length > 0 && (
