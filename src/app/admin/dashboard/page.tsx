@@ -106,7 +106,12 @@ export default function AdminDashboardPage() {
     if (!confirm(`「${title}」を削除しますか？\n予約データも一緒に削除されます。`)) return;
     setDeleting(expId);
     await supabaseBrowser.from("bookings").delete().eq("experience_id", expId);
-    await supabaseBrowser.from("experiences").delete().eq("id", expId);
+    const { error } = await supabaseBrowser.from("experiences").delete().eq("id", expId);
+    if (error) {
+      alert("削除に失敗しました: " + error.message);
+      setDeleting(null);
+      return;
+    }
     setExperiences(prev => prev.filter(e => e.id !== expId));
     setBookings(prev => prev.filter(b => b.experience_id !== expId));
     setDeleting(null);
