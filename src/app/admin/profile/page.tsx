@@ -64,13 +64,18 @@ export default function AdminProfilePage() {
         .from("images")
         .upload(fileName, imageFile, { contentType: imageFile.type, upsert: true });
 
-      if (!uploadError && uploadData) {
+      if (uploadError) {
+        alert("画像のアップロードに失敗しました: " + uploadError.message);
+        setSaving(false);
+        return;
+      }
+      if (uploadData) {
         const { data: urlData } = supabaseBrowser.storage.from("images").getPublicUrl(uploadData.path);
         imageUrl = urlData.publicUrl;
       }
     }
 
-    await supabaseBrowser.from("providers").update({
+    const { error } = await supabaseBrowser.from("providers").update({
       name: form.name,
       bio: form.bio,
       location: form.location,
@@ -82,6 +87,10 @@ export default function AdminProfilePage() {
     }).eq("id", providerId);
 
     setSaving(false);
+    if (error) {
+      alert("保存に失敗しました: " + error.message);
+      return;
+    }
     router.push("/admin/dashboard");
   };
 
