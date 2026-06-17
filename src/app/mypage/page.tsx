@@ -116,16 +116,21 @@ function MyPageContent() {
   const handleJoinMembership = async () => {
     if (!user) return;
     setJoiningMembership(true);
-    const res = await fetch("/api/stripe/create-checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id, userEmail: user.email }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("エラーが発生しました: " + (data.error ?? "不明なエラー"));
+    try {
+      const res = await fetch("/api/stripe/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, userEmail: user.email }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("エラーが発生しました: " + (data.error ?? "不明なエラー"));
+        setJoiningMembership(false);
+      }
+    } catch (err) {
+      alert("通信エラーが発生しました: " + (err instanceof Error ? err.message : "不明なエラー"));
       setJoiningMembership(false);
     }
   };
