@@ -26,14 +26,31 @@ const ICON_USER = (active: boolean) => (
   </svg>
 );
 
+const ICON_PROVIDER = (active: boolean) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "#7B6BA8" : "#9ca3af"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+  </svg>
+);
+
 export default function BottomNav() {
   const pathname = usePathname();
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isProvider, setIsProvider] = useState(false);
 
   useEffect(() => {
-    supabaseBrowser.auth.getUser().then(({ data: { user } }) => setLoggedIn(!!user));
+    const check = async () => {
+      const { data: { user } } = await supabaseBrowser.auth.getUser();
+      setLoggedIn(!!user);
+      if (user) {
+        const { data } = await supabaseBrowser.from("providers").select("id").eq("auth_user_id", user.id).single();
+        setIsProvider(!!data);
+      }
+    };
+    check();
     const { data: { subscription } } = supabaseBrowser.auth.onAuthStateChange((_e, session) => {
       setLoggedIn(!!session);
+      if (!session) setIsProvider(false);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -44,6 +61,7 @@ export default function BottomNav() {
     { href: "/", label: "ホーム", icon: ICON_HOME },
     { href: "/experiences", label: "体験を探す", icon: ICON_SEARCH },
     { href: "/board", label: "掲示板", icon: ICON_BOARD },
+    ...(isProvider ? [{ href: "/admin/dashboard", label: "管理画面", icon: ICON_PROVIDER }] : []),
     { href: mypageHref, label: "マイページ", icon: ICON_USER },
   ];
 

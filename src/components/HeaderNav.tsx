@@ -5,11 +5,21 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function HeaderNav() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isProvider, setIsProvider] = useState(false);
 
   useEffect(() => {
-    supabaseBrowser.auth.getUser().then(({ data: { user } }) => setLoggedIn(!!user));
+    const check = async () => {
+      const { data: { user } } = await supabaseBrowser.auth.getUser();
+      setLoggedIn(!!user);
+      if (user) {
+        const { data } = await supabaseBrowser.from("providers").select("id").eq("auth_user_id", user.id).single();
+        setIsProvider(!!data);
+      }
+    };
+    check();
     const { data: { subscription } } = supabaseBrowser.auth.onAuthStateChange((_e, session) => {
       setLoggedIn(!!session);
+      if (!session) setIsProvider(false);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -24,6 +34,12 @@ export default function HeaderNav() {
         className="hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline">
         掲示板
       </Link>
+      {isProvider && (
+        <Link href="/admin/dashboard"
+          className="hidden sm:block text-[13px] font-medium text-[#7B6BA8] px-4 py-2 rounded-full border border-[#d8d0ef] hover:border-[#7B6BA8] transition-colors no-underline">
+          管理画面
+        </Link>
+      )}
       {loggedIn ? (
         <Link href="/mypage"
           className="ml-1 hidden sm:block text-[13px] font-medium text-[#222] px-4 py-2 rounded-full border border-[#DDDDDD] hover:border-[#222] transition-colors no-underline">
