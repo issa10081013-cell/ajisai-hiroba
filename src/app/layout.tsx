@@ -57,9 +57,11 @@ export default function RootLayout({
               />
               <span className="text-xs font-semibold text-[#717171]">あじさい体験ひろば</span>
             </div>
-            <p className="text-[11px] text-[#AAAAAA]">
-              © 2026 紫人彩（あじさい）— 福岡の子育て家族のための体験プラットフォーム
-            </p>
+            <div className="flex items-center gap-4">
+              <Link href="/terms" className="text-[11px] text-[#AAAAAA] hover:text-[#7B6BA8]">利用規約</Link>
+              <Link href="/privacy" className="text-[11px] text-[#AAAAAA] hover:text-[#7B6BA8]">プライバシーポリシー</Link>
+              <p className="text-[11px] text-[#AAAAAA] m-0">© 2026 あじさい体験ひろば</p>
+            </div>
           </div>
         </footer>
 
