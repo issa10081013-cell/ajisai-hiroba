@@ -83,22 +83,23 @@ export default function BoardPage() {
   };
 
   return (
+    <div style={{ background: "#EDF4EE", minHeight: "100vh" }}>
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 0 80px" }}>
       {report && user && (
         <ReportModal targetType="post" targetId={report.id} reporterId={user.id} onClose={() => setReport(null)} />
       )}
 
       {/* Header */}
-      <div style={{ padding: "20px 16px 0" }}>
+      <div style={{ background: "white", padding: "20px 16px 12px", marginBottom: "4px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
           <h1 style={{ fontSize: "18px", fontWeight: 800, color: "#1a1a1a", margin: 0 }}>保護者掲示板</h1>
           {user ? (
             <button onClick={() => setShowForm(v => !v)}
-              style={{ background: "#7B6BA8", color: "white", border: "none", borderRadius: "20px", padding: "8px 18px", fontSize: "13px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}>
+              style={{ background: "#4A7A5C", color: "white", border: "none", borderRadius: "20px", padding: "8px 18px", fontSize: "13px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation" }}>
               ＋ 投稿する
             </button>
           ) : (
-            <Link href="/login" style={{ background: "#7B6BA8", color: "white", borderRadius: "20px", padding: "8px 18px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
+            <Link href="/login" style={{ background: "#4A7A5C", color: "white", borderRadius: "20px", padding: "8px 18px", fontSize: "13px", fontWeight: 700, textDecoration: "none" }}>
               ログインして投稿
             </Link>
           )}
@@ -113,7 +114,7 @@ export default function BoardPage() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
               {CATS.filter(c => c.key !== "全て").map(c => (
                 <button key={c.key} type="button" onClick={() => setForm(f => ({ ...f, category: c.key }))}
-                  style={{ padding: "5px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", border: "1.5px solid", borderColor: form.category === c.key ? "#7B6BA8" : "#e5e7eb", background: form.category === c.key ? "#7B6BA8" : "white", color: form.category === c.key ? "white" : "#6b7280" }}>
+                  style={{ padding: "5px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", border: "1.5px solid", borderColor: form.category === c.key ? "#4A7A5C" : "#e5e7eb", background: form.category === c.key ? "#7B6BA8" : "white", color: form.category === c.key ? "white" : "#6b7280" }}>
                   {c.emoji} {c.key}
                 </button>
               ))}
@@ -130,7 +131,7 @@ export default function BoardPage() {
                 キャンセル
               </button>
               <button type="submit" disabled={posting}
-                style={{ flex: 2, padding: "10px", borderRadius: "10px", border: "none", background: "#7B6BA8", color: "white", fontSize: "13px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation", opacity: posting ? 0.6 : 1 }}>
+                style={{ flex: 2, padding: "10px", borderRadius: "10px", border: "none", background: "#4A7A5C", color: "white", fontSize: "13px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation", opacity: posting ? 0.6 : 1 }}>
                 {posting ? "投稿中..." : "投稿する"}
               </button>
             </div>
@@ -142,7 +143,7 @@ export default function BoardPage() {
       <div style={{ display: "flex", overflowX: "auto", gap: "8px", padding: "0 16px 12px", scrollbarWidth: "none" }}>
         {CATS.map(c => (
           <button key={c.key} onClick={() => handleCat(c.key)}
-            style={{ flexShrink: 0, padding: "6px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", border: "1.5px solid", borderColor: cat === c.key ? "#7B6BA8" : "#e5e7eb", background: cat === c.key ? "#7B6BA8" : "white", color: cat === c.key ? "white" : "#6b7280" }}>
+            style={{ flexShrink: 0, padding: "6px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", border: "1.5px solid", borderColor: cat === c.key ? "#4A7A5C" : "#e5e7eb", background: cat === c.key ? "#7B6BA8" : "white", color: cat === c.key ? "white" : "#6b7280" }}>
             {c.emoji} {c.key}
           </button>
         ))}
@@ -159,10 +160,10 @@ export default function BoardPage() {
             <p style={{ fontSize: "13px", color: "#9ca3af" }}>最初の投稿をしてみましょう！</p>
           </div>
         ) : posts.map(post => (
-          <div key={post.id} style={{ position: "relative", background: "white", borderRadius: "16px", border: "1px solid #f3f4f6" }}>
+          <div key={post.id} style={{ position: "relative", background: "white", borderRadius: "16px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
             <Link href={`/board/${post.id}`} style={{ textDecoration: "none", display: "block", padding: "16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", paddingRight: "28px" }}>
-                <span style={{ fontSize: "10px", background: "#E8E4F5", color: "#7B6BA8", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
+                <span style={{ fontSize: "10px", background: "#D4EAD9", color: "#2d5a3f", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
                   {CATS.find(c => c.key === post.category)?.emoji} {post.category}
                 </span>
                 <span style={{ fontSize: "11px", color: "#9ca3af", marginLeft: "auto" }}>{timeAgo(post.created_at)}</span>
@@ -197,6 +198,7 @@ export default function BoardPage() {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }
