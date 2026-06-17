@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import BookingForm from "@/components/BookingForm";
 import ReviewForm from "@/components/ReviewForm";
+import StickyBookingBar from "@/components/StickyBookingBar";
 import { Calendar, MapPin, Banknote, Users, Leaf, ChefHat, BookOpen, Scissors, TreePine, Sparkles } from "lucide-react";
 
 export const revalidate = 60;
@@ -88,7 +89,8 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
   return (
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "16px 16px 48px", backgroundColor: "#FAFAF9", minHeight: "100vh" }}>
-      <Link href="/" style={{ fontSize: "12px", color: "#7B6BA8", display: "inline-block", marginBottom: "16px", textDecoration: "none", fontWeight: 600 }}>← トップに戻る</Link>
+      <Link href="/" style={{ fontSize: "12px", color: "#4A7A5C", display: "inline-block", marginBottom: "16px", textDecoration: "none", fontWeight: 600 }}>← トップに戻る</Link>
+      <StickyBookingBar isFull={isFull} title={experience.title} />
 
       {/* Hero image */}
       <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "16px", height: "240px" }}>
@@ -104,7 +106,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
       {/* Title block */}
       <div style={{ marginBottom: "16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-          <span style={{ fontSize: "11px", color: "#7B6BA8", fontWeight: 700, backgroundColor: "#E8E4F5", padding: "4px 12px", borderRadius: "999px" }}>
+          <span style={{ fontSize: "11px", color: "#2d5a3f", fontWeight: 700, backgroundColor: "#D4EAD9", padding: "4px 12px", borderRadius: "999px" }}>
             {experience.category}
           </span>
           {avgRating && (
@@ -158,7 +160,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
           {isFree ? (
             <p style={{ fontWeight: 800, color: "#059669", fontSize: "16px" }}>無料</p>
           ) : (
-            <p style={{ fontWeight: 800, color: "#7B6BA8", fontSize: "15px", margin: 0 }}>¥{experience.priceMember.toLocaleString()}〜</p>
+            <p style={{ fontWeight: 800, color: "#2d5a3f", fontSize: "15px", margin: 0 }}>¥{experience.priceMember.toLocaleString()}〜</p>
           )}
         </div>
         <div>
@@ -178,13 +180,13 @@ export default async function ExperienceDetailPage({ params }: Props) {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
             {/* あじさい会員 */}
-            <div style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "14px", padding: "14px", textAlign: "center", position: "relative" }}>
+            <div style={{ background: "linear-gradient(135deg, #2d5a3f, #4A7A5C)", borderRadius: "14px", padding: "14px", textAlign: "center", position: "relative" }}>
               {discountPct > 0 && (
                 <span style={{ position: "absolute", top: "-8px", left: "50%", transform: "translateX(-50%)", background: "#f59e0b", color: "white", fontSize: "9px", fontWeight: 800, padding: "2px 8px", borderRadius: "20px", whiteSpace: "nowrap" }}>
                   {discountPct}%お得
                 </span>
               )}
-              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.7)", margin: "0 0 4px", fontWeight: 600 }}>🌸 あじさい会員</p>
+              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.7)", margin: "0 0 4px", fontWeight: 600 }}>あじさい会員</p>
               <p style={{ fontSize: "22px", fontWeight: 800, color: "white", margin: 0 }}>
                 ¥{experience.priceMember.toLocaleString()}
               </p>
@@ -200,7 +202,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
             </div>
           </div>
           {discountPct > 0 && (
-            <p style={{ fontSize: "11px", color: "#7B6BA8", margin: "10px 0 0", textAlign: "center", fontWeight: 600 }}>
+            <p style={{ fontSize: "11px", color: "#2d5a3f", margin: "10px 0 0", textAlign: "center", fontWeight: 600 }}>
               会員になると ¥{(experience.priceRegular - experience.priceMember).toLocaleString()} お得！
             </p>
           )}
@@ -226,14 +228,14 @@ export default async function ExperienceDetailPage({ params }: Props) {
       <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
           <h2 style={{ fontSize: "13px", fontWeight: 700, color: "#111827", margin: 0 }}>提供者プロフィール</h2>
-          <Link href={`/providers/${provider.id}`} style={{ fontSize: "11px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>
+          <Link href={`/providers/${provider.id}`} style={{ fontSize: "11px", color: "#4A7A5C", fontWeight: 600, textDecoration: "none" }}>
             詳しく見る →
           </Link>
         </div>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
           <Link href={`/providers/${provider.id}`} style={{ flexShrink: 0 }}>
             <img src={provider.imageUrl || `https://i.pravatar.cc/80?u=${provider.id}`} alt={provider.name}
-              style={{ width: "60px", height: "60px", borderRadius: "50%", objectFit: "cover", border: "2px solid #E8E4F5" }} />
+              style={{ width: "60px", height: "60px", borderRadius: "50%", objectFit: "cover", border: "2px solid #D4EAD9" }} />
           </Link>
           <div style={{ flex: 1 }}>
             <Link href={`/providers/${provider.id}`} style={{ fontWeight: 700, color: "#111827", fontSize: "15px", marginBottom: "2px", textDecoration: "none", display: "block" }}>{provider.name}</Link>
@@ -241,19 +243,19 @@ export default async function ExperienceDetailPage({ params }: Props) {
             <div style={{ display: "flex", gap: "16px", marginBottom: "10px" }}>
               {provider.yearsActive && (
                 <div style={{ textAlign: "center" }}>
-                  <p style={{ fontWeight: 700, color: "#7B6BA8", fontSize: "14px" }}>{provider.yearsActive}年</p>
+                  <p style={{ fontWeight: 700, color: "#2d5a3f", fontSize: "14px" }}>{provider.yearsActive}年</p>
                   <p style={{ fontSize: "10px", color: "#9ca3af" }}>経験年数</p>
                 </div>
               )}
               {provider.totalParticipants && (
                 <div style={{ textAlign: "center" }}>
-                  <p style={{ fontWeight: 700, color: "#7B6BA8", fontSize: "14px" }}>{provider.totalParticipants}人</p>
+                  <p style={{ fontWeight: 700, color: "#2d5a3f", fontSize: "14px" }}>{provider.totalParticipants}人</p>
                   <p style={{ fontSize: "10px", color: "#9ca3af" }}>累計参加者</p>
                 </div>
               )}
               {avgRating && (
                 <div style={{ textAlign: "center" }}>
-                  <p style={{ fontWeight: 700, color: "#7B6BA8", fontSize: "14px" }}>★{avgRating}</p>
+                  <p style={{ fontWeight: 700, color: "#2d5a3f", fontSize: "14px" }}>★{avgRating}</p>
                   <p style={{ fontSize: "10px", color: "#9ca3af" }}>評価</p>
                 </div>
               )}
@@ -262,7 +264,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
             {provider.tags && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
                 {provider.tags.map(tag => (
-                  <span key={tag} style={{ fontSize: "11px", backgroundColor: "#E8E4F5", color: "#7B6BA8", padding: "3px 8px", borderRadius: "999px" }}>{tag}</span>
+                  <span key={tag} style={{ fontSize: "11px", backgroundColor: "#D4EAD9", color: "#2d5a3f", padding: "3px 8px", borderRadius: "999px" }}>{tag}</span>
                 ))}
               </div>
             )}
@@ -287,14 +289,16 @@ export default async function ExperienceDetailPage({ params }: Props) {
       </div>
 
       {/* Booking */}
-      {isFull ? (
-        <div style={{ backgroundColor: "#f9fafb", borderRadius: "20px", padding: "32px", textAlign: "center" }}>
-          <p style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600, marginBottom: "12px" }}>この体験は満員です</p>
-          <Link href="/" style={{ fontSize: "12px", color: "#7B6BA8", textDecoration: "underline" }}>他の体験を探す</Link>
-        </div>
-      ) : (
-        <BookingForm experienceId={experience.id} experienceTitle={experience.title} />
-      )}
+      <div id="booking-section">
+        {isFull ? (
+          <div style={{ backgroundColor: "#f9fafb", borderRadius: "20px", padding: "32px", textAlign: "center" }}>
+            <p style={{ fontSize: "14px", color: "#6b7280", fontWeight: 600, marginBottom: "12px" }}>この体験は満員です</p>
+            <Link href="/" style={{ fontSize: "12px", color: "#4A7A5C", textDecoration: "underline" }}>他の体験を探す</Link>
+          </div>
+        ) : (
+          <BookingForm experienceId={experience.id} experienceTitle={experience.title} />
+        )}
+      </div>
     </div>
   );
 }
