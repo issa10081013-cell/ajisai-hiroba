@@ -1,8 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import { Sparkles, Loader2 } from "lucide-react";
 
 const CATEGORIES = ["農業体験", "料理教室", "学習体験", "ものづくり", "自然体験", "その他"];
 
@@ -10,14 +9,15 @@ export default function NewExperiencePage() {
   const router = useRouter();
   const [providerId, setProviderId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null); // base64 data URL
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", description: "", date: "", timeStart: "", timeEnd: "",
     location: "", priceMember: "", priceRegular: "", capacity: "10",
     category: "農業体験", tags: "",
   });
   const [isFeatured, setIsFeatured] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -32,25 +32,11 @@ export default function NewExperiencePage() {
 
   const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
 
-  const handleGenerateImage = async () => {
-    if (!form.title) { alert("先にタイトルを入力してください"); return; }
-    setGenerating(true);
-    setGeneratedImage(null);
-
-    try {
-      const res = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: form.title, category: form.category }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "生成に失敗しました");
-      setGeneratedImage(`data:${data.mimeType};base64,${data.base64}`);
-    } catch (err) {
-      alert("画像生成エラー: " + (err instanceof Error ? err.message : "不明なエラー"));
-    } finally {
-      setGenerating(false);
-    }
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,17 +46,13 @@ export default function NewExperiencePage() {
 
     const tags = form.tags.split("　").concat(form.tags.split(" ")).join(",").split(",").map(t => t.trim()).filter(Boolean);
 
-    // Upload generated image to Supabase Storage if exists
     let imageUrl = "";
-    if (generatedImage) {
-      const base64Data = generatedImage.split(",")[1];
-      const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-      const blob = new Blob([byteArray], { type: "image/png" });
-      const fileName = `experiences/${Date.now()}.png`;
-
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop() ?? "jpg";
+      const fileName = `experiences/${Date.now()}.${ext}`;
       const { data: uploadData, error: uploadError } = await supabaseBrowser.storage
         .from("images")
-        .upload(fileName, blob, { contentType: "image/png", upsert: false });
+        .upload(fileName, imageFile, { contentType: imageFile.type, upsert: false });
 
       if (!uploadError && uploadData) {
         const { data: urlData } = supabaseBrowser.storage.from("images").getPublicUrl(uploadData.path);
@@ -103,7 +85,6 @@ export default function NewExperiencePage() {
 
   return (
     <div className="min-h-screen bg-[#F5F3FA]">
-      {/* Header */}
       <div className="bg-white border-b border-[#EBEBEB]">
         <div className="max-w-[640px] mx-auto px-4 h-14 flex items-center gap-3">
           <button onClick={() => router.back()} className="text-[#7B6BA8] text-sm bg-none border-none cursor-pointer">
@@ -147,54 +128,39 @@ export default function NewExperiencePage() {
             </div>
           </div>
 
-          {/* AI Image Generation */}
+          {/* Image Upload */}
           <div className="bg-white rounded-2xl p-4">
             <label className="text-[12px] text-[#717171] block mb-2">体験画像</label>
-
-            {generatedImage ? (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            {imagePreview ? (
               <div className="space-y-3">
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100">
-                  <img src={generatedImage} alt="AI生成画像" className="w-full h-full object-cover" />
-                  <span className="absolute top-2 left-2 bg-[#7B6BA8] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    ✨ AI生成
-                  </span>
+                  <img src={imagePreview} alt="プレビュー" className="w-full h-full object-cover" />
                 </div>
                 <button
                   type="button"
-                  onClick={handleGenerateImage}
-                  disabled={generating}
-                  className="flex items-center gap-1.5 text-[12px] text-[#7B6BA8] font-medium cursor-pointer bg-none border-none disabled:opacity-50"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-[12px] text-[#7B6BA8] font-medium cursor-pointer bg-none border-none"
                 >
-                  {generating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
-                  もう一度生成する
+                  画像を変更する
                 </button>
               </div>
             ) : (
               <button
                 type="button"
-                onClick={handleGenerateImage}
-                disabled={generating || !form.title}
-                className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed text-sm font-semibold cursor-pointer transition-all ${
-                  generating
-                    ? "border-[#7B6BA8] text-[#7B6BA8] bg-[#F7F6FD]"
-                    : "border-[#DDDDDD] text-[#717171] hover:border-[#7B6BA8] hover:text-[#7B6BA8] hover:bg-[#F7F6FD]"
-                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex flex-col items-center justify-center gap-2 py-8 rounded-xl border-2 border-dashed border-[#DDDDDD] text-[#717171] hover:border-[#7B6BA8] hover:text-[#7B6BA8] hover:bg-[#F7F6FD] cursor-pointer transition-all"
               >
-                {generating ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    AIが画像を生成中...（10〜30秒）
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={15} />
-                    ✨ AIで画像を自動生成する
-                  </>
-                )}
+                <span style={{ fontSize: "28px" }}>📷</span>
+                <span className="text-sm font-semibold">タップして画像を選択</span>
+                <span className="text-[11px] text-[#AAAAAA]">JPG・PNG・HEICなど</span>
               </button>
-            )}
-            {!form.title && (
-              <p className="text-[11px] text-[#AAAAAA] mt-1.5">※ タイトルを入力してから使えます</p>
             )}
           </div>
 
