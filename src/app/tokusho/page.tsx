@@ -6,13 +6,13 @@ export default function TokushoPage() {
     },
     {
       label: "代表者名",
-      value: "【要記入：代表者の氏名】",
+      value: "井手壱彩",
     },
     {
       label: "所在地",
       value: (
         <>
-          福岡県（詳細は電子メールにてご請求ください）
+          福岡県
           <br />
           <span style={{ fontSize: "11px", color: "#9ca3af" }}>
             ※特定商取引法第11条に基づき、請求があった場合は遅滞なく開示します
@@ -132,23 +132,6 @@ export default function TokushoPage() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div
-        style={{
-          marginTop: "32px",
-          padding: "20px",
-          background: "#FFF8E1",
-          borderRadius: "12px",
-          border: "1px solid #FFE082",
-        }}
-      >
-        <p style={{ fontSize: "13px", color: "#B45309", margin: 0, fontWeight: 600 }}>
-          ⚠️ 公開前に「代表者名」と「所在地」を実際の情報に更新してください
-        </p>
-        <p style={{ fontSize: "12px", color: "#78350F", marginTop: "8px", marginBottom: 0 }}>
-          個人事業主・法人問わず、特定商取引法により住所と代表者名の開示が義務付けられています。
-        </p>
       </div>
 
       <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "24px" }}>

@@ -7,6 +7,8 @@ import Link from "next/link";
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -92,9 +94,39 @@ export default function RegisterPage() {
               style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
             />
           </div>
+          {/* 同意チェックボックス */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "14px", background: "#F9F8FF", borderRadius: "12px", marginTop: "4px" }}>
+            <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={agreedTerms}
+                onChange={e => setAgreedTerms(e.target.checked)}
+                style={{ marginTop: "2px", accentColor: "#7B6BA8", flexShrink: 0, width: "16px", height: "16px" }}
+              />
+              <span style={{ fontSize: "12px", color: "#374151", lineHeight: 1.6 }}>
+                <Link href="/terms" target="_blank" style={{ color: "#7B6BA8", fontWeight: 600 }}>利用規約</Link>
+                ・
+                <Link href="/tokusho" target="_blank" style={{ color: "#7B6BA8", fontWeight: 600 }}>特定商取引法に基づく表示</Link>
+                に同意します
+              </span>
+            </label>
+            <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={agreedPrivacy}
+                onChange={e => setAgreedPrivacy(e.target.checked)}
+                style={{ marginTop: "2px", accentColor: "#7B6BA8", flexShrink: 0, width: "16px", height: "16px" }}
+              />
+              <span style={{ fontSize: "12px", color: "#374151", lineHeight: 1.6 }}>
+                <Link href="/privacy" target="_blank" style={{ color: "#7B6BA8", fontWeight: 600 }}>プライバシーポリシー</Link>
+                に同意し、個人情報の取り扱いについて承諾します
+              </span>
+            </label>
+          </div>
+
           <button
-            type="submit" disabled={loading}
-            style={{ backgroundColor: "#7B6BA8", color: "white", border: "none", borderRadius: "12px", padding: "12px", fontSize: "14px", fontWeight: "bold", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1, marginTop: "4px", touchAction: "manipulation" }}
+            type="submit" disabled={loading || !agreedTerms || !agreedPrivacy}
+            style={{ backgroundColor: "#7B6BA8", color: "white", border: "none", borderRadius: "12px", padding: "12px", fontSize: "14px", fontWeight: "bold", cursor: (loading || !agreedTerms || !agreedPrivacy) ? "not-allowed" : "pointer", opacity: (loading || !agreedTerms || !agreedPrivacy) ? 0.5 : 1, marginTop: "4px", touchAction: "manipulation" }}
           >
             {loading ? "登録中..." : "登録する"}
           </button>
