@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { notifyBooking } from "@/lib/notifyBooking";
 
 type StripeSubLike = { customer: string; current_period_end: number; status: string; cancel_at_period_end: boolean };
 
@@ -27,6 +28,35 @@ export async function POST(req: NextRequest) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // === 体験予約（mode: payment）＝決済成功で予約を確定 ===
+      if (session.mode === "payment" && session.metadata?.type === "booking") {
+        const m = session.metadata;
+        await supabaseAdmin.from("bookings").insert({
+          experience_id: m.experienceId,
+          parent_name: m.parentName,
+          parent_email: m.parentEmail,
+          parent_phone: m.parentPhone,
+          children_count: Number(m.childrenCount),
+          adults_count: Number(m.adultsCount),
+          message: m.message,
+          amount: Number(m.amount),
+          application_fee: Number(m.applicationFee),
+          stripe_payment_intent_id: session.payment_intent as string,
+          payment_status: "paid",
+        });
+        await notifyBooking(m.experienceId, {
+          parentName: m.parentName,
+          parentEmail: m.parentEmail,
+          parentPhone: m.parentPhone,
+          childrenCount: Number(m.childrenCount),
+          adultsCount: Number(m.adultsCount),
+          message: m.message,
+        });
+        break;
+      }
+
+      // === 会員サブスク（既存） ===
       if (session.mode !== "subscription") break;
       const customerId = session.customer as string;
       const subscriptionId = session.subscription as string;
@@ -79,6 +109,15 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq("stripe_customer_id", customerId);
+      break;
+    }
+
+    case "account.updated": {
+      // 提供者のConnectオンボーディング状態を反映（入金受取が可能になったか）
+      const account = event.data.object as Stripe.Account;
+      await supabaseAdmin.from("providers")
+        .update({ charges_enabled: account.charges_enabled })
+        .eq("stripe_account_id", account.id);
       break;
     }
   }

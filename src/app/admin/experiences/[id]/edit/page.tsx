@@ -16,7 +16,7 @@ export default function EditExperiencePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     title: "", description: "", date: "", timeStart: "", timeEnd: "",
-    location: "", area: "", priceMember: "", priceRegular: "", capacity: "10",
+    location: "", area: "", priceMember: "", priceRegular: "", priceUnit: "household", capacity: "10",
     category: "農業体験", tags: "", imageUrl: "",
   });
 
@@ -40,6 +40,7 @@ export default function EditExperiencePage() {
         area: exp.area ?? "",
         priceMember: exp.price_member?.toString() ?? "0",
         priceRegular: exp.price_regular?.toString() ?? "0",
+        priceUnit: exp.price_unit ?? "household",
         capacity: exp.capacity?.toString() ?? "10",
         category: exp.category ?? "農業体験",
         tags: (exp.tags ?? []).join(", "),
@@ -93,6 +94,7 @@ export default function EditExperiencePage() {
       area: form.area || null,
       price_member: Number(form.priceMember) || 0,
       price_regular: Number(form.priceRegular) || 0,
+      price_unit: form.priceUnit,
       capacity: Number(form.capacity),
       category: form.category,
       tags,
@@ -220,6 +222,15 @@ export default function EditExperiencePage() {
                 <input type="number" min="0" value={form.priceRegular} onChange={e => f("priceRegular", e.target.value)}
                   className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]" />
               </div>
+            </div>
+            <div>
+              <label className="text-[12px] text-[#717171] block mb-1.5">料金のかけ方</label>
+              <select value={form.priceUnit} onChange={e => f("priceUnit", e.target.value)}
+                className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]">
+                <option value="household">1組（世帯）あたり ※人数で増えない</option>
+                <option value="person">1人あたり（大人＋子ども）</option>
+                <option value="child">子ども1人あたり</option>
+              </select>
             </div>
             <div>
               <label className="text-[12px] text-[#717171] block mb-1.5">定員（人）</label>

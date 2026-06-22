@@ -17,14 +17,19 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
-    supabaseBrowser.auth.getUser().then(({ data: { user: u } }) => {
+    supabaseBrowser.auth.getUser().then(async ({ data: { user: u } }) => {
       if (u) {
         const name = u.user_metadata?.display_name ?? "";
         const email = u.email ?? "";
         setUser({ email, name });
         setForm(prev => ({ ...prev, parentName: name, parentEmail: email }));
+        // あじさい会員かどうか（会員価格の判定に使う）
+        const { data: mem } = await supabaseBrowser
+          .from("memberships").select("status").eq("user_id", u.id).single();
+        setIsMember(mem?.status === "active");
       }
     });
   }, []);
@@ -33,14 +38,35 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
     e.preventDefault();
     setLoading(true);
     setError(false);
-    const res = await fetch("/api/booking", {
+
+    // まず決済を試みる（提供者がConnect設定済みなら有料決済へ）
+    const payRes = await fetch("/api/stripe/booking-checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ experienceId, ...form }),
+      body: JSON.stringify({ experienceId, ...form, isMember }),
     });
+    const payData = await payRes.json().catch(() => ({}));
+
+    if (payRes.ok && payData?.url) {
+      window.location.href = payData.url; // Stripe決済画面へ
+      return;
+    }
+
+    // 提供者がまだ決済未設定 → 無料予約（従来フロー）にフォールバック
+    if (payData?.noPayment) {
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ experienceId, ...form }),
+      });
+      setLoading(false);
+      if (res.ok) setSubmitted(true);
+      else setError(true);
+      return;
+    }
+
     setLoading(false);
-    if (res.ok) setSubmitted(true);
-    else setError(true);
+    setError(true);
   };
 
   if (submitted) {

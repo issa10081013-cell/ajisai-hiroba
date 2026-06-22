@@ -48,9 +48,12 @@ export default function AdminDashboardPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [verified, setVerified] = useState(false);
   const [verifiedStatus, setVerifiedStatus] = useState<string | null>(null);
+  const [chargesEnabled, setChargesEnabled] = useState(false);
   const [requestingVerification, setRequestingVerification] = useState(false);
   const [userId, setUserId] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [banning, setBanning] = useState<string | null>(null);
+  const [bannedIds, setBannedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const init = async () => {
@@ -61,13 +64,14 @@ export default function AdminDashboardPage() {
       setIsAdmin(user.email === "issa10081013@gmail.com");
 
       const { data: provider } = await supabaseBrowser
-        .from("providers").select("id, name, verified, verified_status").eq("auth_user_id", user.id).single();
+        .from("providers").select("id, name, verified, verified_status, charges_enabled").eq("auth_user_id", user.id).single();
 
       if (provider) {
         setProviderName(provider.name);
         setProviderId(provider.id);
         setVerified(provider.verified ?? false);
         setVerifiedStatus(provider.verified_status ?? null);
+        setChargesEnabled(provider.charges_enabled ?? false);
 
         const { data: exps } = await supabaseBrowser
           .from("experiences")
@@ -97,6 +101,13 @@ export default function AdminDashboardPage() {
       const res = await fetch("/api/admin/reports");
       if (res.ok) setReports(await res.json());
 
+      // バン済みユーザー一覧
+      const banRes = await fetch("/api/admin/ban");
+      if (banRes.ok) {
+        const banned = await banRes.json();
+        setBannedIds(new Set(banned.map((b: { user_id: string }) => b.user_id)));
+      }
+
       setLoading(false);
     };
     init();
@@ -117,6 +128,51 @@ export default function AdminDashboardPage() {
     setDeleting(null);
   };
 
+  const handleBan = async (targetType: string, targetId: string, reason: string) => {
+    setBanning(targetId);
+    // 投稿からuser_idを取得
+    let userId = "";
+    if (targetType === "post") {
+      const { data } = await supabaseBrowser.from("posts").select("user_id").eq("id", targetId).single();
+      userId = data?.user_id ?? "";
+    }
+    if (!userId) { alert("ユーザーIDが取得できませんでした"); setBanning(null); return; }
+
+    const res = await fetch("/api/admin/ban", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, reason }),
+    });
+    if (res.ok) {
+      setBannedIds(prev => new Set([...prev, userId]));
+      alert("アカウントを永久停止しました");
+    } else {
+      alert("バンに失敗しました");
+    }
+    setBanning(null);
+  };
+
+  const handleUnban = async (targetType: string, targetId: string) => {
+    setBanning(targetId);
+    let userId = "";
+    if (targetType === "post") {
+      const { data } = await supabaseBrowser.from("posts").select("user_id").eq("id", targetId).single();
+      userId = data?.user_id ?? "";
+    }
+    if (!userId) { alert("ユーザーIDが取得できませんでした"); setBanning(null); return; }
+
+    const res = await fetch("/api/admin/ban", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    if (res.ok) {
+      setBannedIds(prev => { const s = new Set(prev); s.delete(userId); return s; });
+      alert("バンを解除しました");
+    }
+    setBanning(null);
+  };
+
   const handleLogout = async () => {
     await supabaseBrowser.auth.signOut();
     router.push("/admin/login");
@@ -131,6 +187,17 @@ export default function AdminDashboardPage() {
     });
     setVerifiedStatus("pending");
     setRequestingVerification(false);
+  };
+
+  const handleConnect = async () => {
+    const res = await fetch("/api/stripe/connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ providerId }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else alert(data.error ?? "決済設定に失敗しました");
   };
 
   const totalParticipants = bookings.reduce((s, b) => s + b.children_count + b.adults_count, 0);
@@ -195,6 +262,20 @@ export default function AdminDashboardPage() {
             </div>
           )}
         </div>
+
+        {/* 決済（売上の受け取り）設定 */}
+        {!chargesEnabled && (
+          <div style={{ background: "#FFF8F0", border: "1px solid #FED7AA", borderRadius: "16px", padding: "16px", marginBottom: "20px" }}>
+            <p style={{ fontSize: "14px", fontWeight: "bold", color: "#92400E", margin: "0 0 4px" }}>💳 売上を受け取る設定をしましょう</p>
+            <p style={{ fontSize: "12px", color: "#92400E", lineHeight: 1.7, margin: "0 0 12px" }}>
+              銀行口座を登録すると、体験の参加費をアプリ内決済で受け取れます（あじさいの手数料は10%、最初の1ヶ月は無料）。未設定の間は無料予約のみになります。
+            </p>
+            <button onClick={handleConnect}
+              style={{ background: "#7B6BA8", color: "white", border: "none", borderRadius: "10px", padding: "10px 18px", fontSize: "13px", fontWeight: "bold", cursor: "pointer", touchAction: "manipulation" }}>
+              銀行口座を登録する →
+            </button>
+          </div>
+        )}
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
@@ -364,11 +445,22 @@ export default function AdminDashboardPage() {
                     </div>
                     <p style={{ fontSize: "13px", fontWeight: 700, color: "#1a1a1a", margin: "0 0 6px" }}>理由：{r.reason}</p>
                     <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 8px", wordBreak: "break-all" }}>対象ID：{r.target_id}</p>
-                    {typeLink && (
-                      <Link href={typeLink} style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>
-                        対象を確認する →
-                      </Link>
-                    )}
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                      {typeLink && (
+                        <Link href={typeLink} style={{ fontSize: "12px", color: "#7B6BA8", fontWeight: 600, textDecoration: "none" }}>
+                          対象を確認する →
+                        </Link>
+                      )}
+                      {isAdmin && r.target_type === "post" && (
+                        <button
+                          onClick={() => handleBan(r.target_type, r.target_id, r.reason)}
+                          disabled={banning === r.target_id}
+                          style={{ fontSize: "11px", padding: "4px 12px", borderRadius: "20px", border: "none", background: "#ef4444", color: "white", fontWeight: 700, cursor: "pointer", opacity: banning === r.target_id ? 0.5 : 1, touchAction: "manipulation" }}
+                        >
+                          {banning === r.target_id ? "処理中..." : "永久バン"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

@@ -13,7 +13,7 @@ export default function NewExperiencePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", description: "", date: "", timeStart: "", timeEnd: "",
-    location: "", area: "", priceMember: "", priceRegular: "", capacity: "10",
+    location: "", area: "", priceMember: "", priceRegular: "", priceUnit: "household", capacity: "10",
     category: "農業体験", tags: "",
   });
   const [isFeatured, setIsFeatured] = useState(false);
@@ -71,6 +71,7 @@ export default function NewExperiencePage() {
       area: form.area || null,
       price_member: Number(form.priceMember) || 0,
       price_regular: Number(form.priceRegular) || 0,
+      price_unit: form.priceUnit,
       capacity: Number(form.capacity),
       current_bookings: 0,
       category: form.category,
@@ -241,6 +242,15 @@ export default function NewExperiencePage() {
                   className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]"
                 />
               </div>
+            </div>
+            <div>
+              <label className="text-[12px] text-[#717171] block mb-1.5">料金のかけ方</label>
+              <select value={form.priceUnit} onChange={e => f("priceUnit", e.target.value)}
+                className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8]">
+                <option value="household">1組（世帯）あたり ※人数で増えない</option>
+                <option value="person">1人あたり（大人＋子ども）</option>
+                <option value="child">子ども1人あたり</option>
+              </select>
             </div>
             <div>
               <label className="text-[12px] text-[#717171] block mb-1.5">定員（人）</label>
