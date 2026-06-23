@@ -263,8 +263,9 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* 決済（売上の受け取り）設定 */}
-        {!chargesEnabled && (
+        {/* 決済（売上の受け取り）設定。launchは予約のみなので非表示。
+            課金を始める時に Vercelで NEXT_PUBLIC_PAYMENTS_ENABLED=true ＋再デプロイで表示される */}
+        {process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true" && !chargesEnabled && (
           <div style={{ background: "#FFF8F0", border: "1px solid #FED7AA", borderRadius: "16px", padding: "16px", marginBottom: "20px" }}>
             <p style={{ fontSize: "14px", fontWeight: "bold", color: "#92400E", margin: "0 0 4px" }}>💳 売上を受け取る設定をしましょう</p>
             <p style={{ fontSize: "12px", color: "#92400E", lineHeight: 1.7, margin: "0 0 12px" }}>
