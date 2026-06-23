@@ -28,6 +28,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
   const [selectedArea, setSelectedArea] = useState("全域");
   const [showAreaFilter, setShowAreaFilter] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [query, setQuery] = useState("");
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -44,13 +45,20 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
     cursor: "pointer", touchAction: "manipulation",
   });
 
+  const q = query.trim().toLowerCase();
   const filtered = experiences.filter(e => {
     const catOk = selectedCat === "全て" || e.category === selectedCat;
     const areaOk = selectedArea === "全域" || e.location.includes(selectedArea);
-    return catOk && areaOk;
+    const queryOk = q === "" || [
+      e.title, e.description, e.location, e.category,
+      e.provider?.name ?? "",
+      ...(e.tags ?? []),
+      ...(e.ageTags ?? []),
+    ].some(field => field.toLowerCase().includes(q));
+    return catOk && areaOk && queryOk;
   });
 
-  const hasFilter = selectedCat !== "全て" || selectedArea !== "全域";
+  const hasFilter = selectedCat !== "全て" || selectedArea !== "全域" || query.trim() !== "";
 
   return (
     <div id="browse">
@@ -62,6 +70,39 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
         backgroundColor: "white",
         borderBottom: "1px solid #EBEBEB",
       }}>
+        {/* Search box */}
+        <div style={{ padding: "10px 16px 0" }}>
+          <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "12px", pointerEvents: "none" }} />
+            <input
+              type="search"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="キーワードで探す（例：野菜・料理・消防・ものづくり）"
+              style={{
+                width: "100%", padding: "10px 36px", borderRadius: "12px",
+                border: "1.5px solid #DDDDDD", fontSize: "13px", outline: "none",
+                background: "#FAFAFA", color: "#222",
+              }}
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                aria-label="検索をクリア"
+                style={{
+                  position: "absolute", right: "8px", width: "22px", height: "22px",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "#E5E5E5", border: "none", borderRadius: "999px",
+                  color: "#717171", fontSize: "13px", lineHeight: 1, cursor: "pointer",
+                  touchAction: "manipulation",
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Category tabs */}
         <div style={{
           display: "flex",
@@ -139,7 +180,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
             {hasFilter && (
               <button
-                onClick={() => { setSelectedCat("全て"); setSelectedArea("全域"); }}
+                onClick={() => { setSelectedCat("全て"); setSelectedArea("全域"); setQuery(""); }}
                 style={{
                   fontSize: "11px", color: "#717171", fontWeight: 500,
                   background: "none", border: "none", cursor: "pointer",
@@ -213,7 +254,7 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
               エリアやカテゴリを変えてみてください
             </p>
             <button
-              onClick={() => { setSelectedCat("全て"); setSelectedArea("全域"); }}
+              onClick={() => { setSelectedCat("全て"); setSelectedArea("全域"); setQuery(""); }}
               style={{
                 padding: "12px 28px", borderRadius: "999px",
                 border: "1.5px solid #222", background: "white",
