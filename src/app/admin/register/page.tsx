@@ -127,7 +127,7 @@ export default function AdminRegisterPage() {
               style={{ marginTop: "2px", accentColor: "#7B6BA8", flexShrink: 0 }}
             />
             <span style={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.6 }}>
-              <a href="/terms" target="_blank" style={{ color: "#7B6BA8", fontWeight: 600 }}>利用規約</a>に同意します。子どもが参加する体験の主催者として、安全な環境の提供に責任を持ちます。虚偽の情報での登録・不審な行為はアカウント停止の対象となります。
+              <a href="/terms" target="_blank" style={{ color: "#7B6BA8", fontWeight: 600 }}>利用規約</a>に同意します。子どもが参加する体験の主催者として、安全な環境の提供・体験中の事故対応に責任を持ちます。提供者都合の中止やチャージバック等が生じた場合の返金・負担は提供者が行います。虚偽の情報での登録・不審な行為はアカウント停止の対象となります。
             </span>
           </label>
 

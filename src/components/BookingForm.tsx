@@ -18,6 +18,7 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [isMember, setIsMember] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(async ({ data: { user: u } }) => {
@@ -162,8 +163,14 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
             rows={3} placeholder="アレルギーや不安なことがあれば"
             style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", resize: "none", boxSizing: "border-box" }} />
         </div>
-        <button type="submit" disabled={loading}
-          style={{ width: "100%", background: "#7B6BA8", color: "white", border: "none", borderRadius: "12px", padding: "13px", fontSize: "14px", fontWeight: "bold", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1, touchAction: "manipulation" }}>
+        <label style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "12px", color: "#6b7280", lineHeight: 1.6 }}>
+          <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ marginTop: "2px", flexShrink: 0 }} />
+          <span>
+            <a href="/terms" target="_blank" style={{ color: "#7B6BA8", fontWeight: 600 }}>利用規約・キャンセルポリシー</a>を確認し、同意します
+          </span>
+        </label>
+        <button type="submit" disabled={loading || !agreed}
+          style={{ width: "100%", background: "#7B6BA8", color: "white", border: "none", borderRadius: "12px", padding: "13px", fontSize: "14px", fontWeight: "bold", cursor: (loading || !agreed) ? "not-allowed" : "pointer", opacity: (loading || !agreed) ? 0.6 : 1, touchAction: "manipulation" }}>
           {loading ? "送信中..." : "予約を申し込む"}
         </button>
         <p style={{ fontSize: "11px", textAlign: "center", color: "#9ca3af", margin: 0 }}>予約後、主催者からご連絡します</p>

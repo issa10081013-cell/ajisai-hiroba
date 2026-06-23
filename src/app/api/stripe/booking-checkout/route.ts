@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const APP_FEE_RATE = 0.10; // あじさいの手数料10%
+// 手数料率。デフォルト0%（アプリ開始時の無料期間）。
+// 月2から10%にする時は、Vercelの環境変数 STRIPE_APP_FEE_RATE=0.1 を設定するだけ（再デプロイ不要）。
+const APP_FEE_RATE = process.env.STRIPE_APP_FEE_RATE ? Number(process.env.STRIPE_APP_FEE_RATE) : 0;
 
 // 体験予約の決済セッションを作る。
 // お金は提供者の口座へ直接（destination charge）、あじさいは10%だけ（application_fee）。
