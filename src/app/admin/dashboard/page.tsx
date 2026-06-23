@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
@@ -54,64 +54,72 @@ export default function AdminDashboardPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [banning, setBanning] = useState<string | null>(null);
   const [bannedIds, setBannedIds] = useState<Set<string>>(new Set());
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadData = useCallback(async () => {
+    const { data: { user } } = await supabaseBrowser.auth.getUser();
+    if (!user) { router.push("/admin/login"); return; }
+
+    setUserId(user.id);
+    setIsAdmin(user.email === "issa10081013@gmail.com");
+
+    const { data: provider } = await supabaseBrowser
+      .from("providers").select("id, name, verified, verified_status, charges_enabled").eq("auth_user_id", user.id).single();
+
+    if (provider) {
+      setProviderName(provider.name);
+      setProviderId(provider.id);
+      setVerified(provider.verified ?? false);
+      setVerifiedStatus(provider.verified_status ?? null);
+      setChargesEnabled(provider.charges_enabled ?? false);
+
+      const { data: exps } = await supabaseBrowser
+        .from("experiences")
+        .select("id, title, date, time_start, capacity, current_bookings, category")
+        .eq("provider_id", provider.id)
+        .order("date", { ascending: true });
+
+      const expList = exps ?? [];
+      setExperiences(expList);
+
+      if (expList.length > 0) {
+        const expIds = expList.map(e => e.id);
+        const { data: bks } = await supabaseBrowser
+          .from("bookings")
+          .select("*")
+          .in("experience_id", expIds)
+          .order("created_at", { ascending: false });
+
+        const bksWithTitle = (bks ?? []).map(b => ({
+          ...b,
+          experience_title: expList.find(e => e.id === b.experience_id)?.title ?? "",
+        }));
+        setBookings(bksWithTitle);
+      } else {
+        setBookings([]);
+      }
+    }
+    // 通報一覧（管理者APIで取得）
+    const res = await fetch("/api/admin/reports");
+    if (res.ok) setReports(await res.json());
+
+    // バン済みユーザー一覧
+    const banRes = await fetch("/api/admin/ban");
+    if (banRes.ok) {
+      const banned = await banRes.json();
+      setBannedIds(new Set(banned.map((b: { user_id: string }) => b.user_id)));
+    }
+  }, [router]);
 
   useEffect(() => {
-    const init = async () => {
-      const { data: { user } } = await supabaseBrowser.auth.getUser();
-      if (!user) { router.push("/admin/login"); return; }
+    loadData().finally(() => setLoading(false));
+  }, [loadData]);
 
-      setUserId(user.id);
-      setIsAdmin(user.email === "issa10081013@gmail.com");
-
-      const { data: provider } = await supabaseBrowser
-        .from("providers").select("id, name, verified, verified_status, charges_enabled").eq("auth_user_id", user.id).single();
-
-      if (provider) {
-        setProviderName(provider.name);
-        setProviderId(provider.id);
-        setVerified(provider.verified ?? false);
-        setVerifiedStatus(provider.verified_status ?? null);
-        setChargesEnabled(provider.charges_enabled ?? false);
-
-        const { data: exps } = await supabaseBrowser
-          .from("experiences")
-          .select("id, title, date, time_start, capacity, current_bookings, category")
-          .eq("provider_id", provider.id)
-          .order("date", { ascending: true });
-
-        const expList = exps ?? [];
-        setExperiences(expList);
-
-        if (expList.length > 0) {
-          const expIds = expList.map(e => e.id);
-          const { data: bks } = await supabaseBrowser
-            .from("bookings")
-            .select("*")
-            .in("experience_id", expIds)
-            .order("created_at", { ascending: false });
-
-          const bksWithTitle = (bks ?? []).map(b => ({
-            ...b,
-            experience_title: expList.find(e => e.id === b.experience_id)?.title ?? "",
-          }));
-          setBookings(bksWithTitle);
-        }
-      }
-      // 通報一覧（管理者APIで取得）
-      const res = await fetch("/api/admin/reports");
-      if (res.ok) setReports(await res.json());
-
-      // バン済みユーザー一覧
-      const banRes = await fetch("/api/admin/ban");
-      if (banRes.ok) {
-        const banned = await banRes.json();
-        setBannedIds(new Set(banned.map((b: { user_id: string }) => b.user_id)));
-      }
-
-      setLoading(false);
-    };
-    init();
-  }, [router]);
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
 
   const handleDelete = async (expId: string, title: string) => {
     if (!confirm(`「${title}」を削除しますか？\n予約データも一緒に削除されます。`)) return;
@@ -317,24 +325,40 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", borderBottom: "2px solid #f3f4f6", marginBottom: "16px" }}>
-          {[
-            { key: "experiences", label: `体験一覧（${experiences.length}）` },
-            { key: "bookings", label: `予約一覧（${bookings.length}）` },
-            { key: "reports", label: `通報（${reports.length}）` },
-          ].map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key as "experiences" | "bookings" | "reports")}
-              style={{
-                padding: "10px 16px", fontSize: "13px", fontWeight: tab === t.key ? 700 : 500,
-                color: tab === t.key ? "#7B6BA8" : "#9ca3af",
-                background: "none", border: "none",
-                borderBottom: tab === t.key ? "2px solid #7B6BA8" : "2px solid transparent",
-                marginBottom: "-2px", cursor: "pointer", touchAction: "manipulation",
-              }}
-            >{t.label}</button>
-          ))}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #f3f4f6", marginBottom: "16px" }}>
+          <div style={{ display: "flex" }}>
+            {[
+              { key: "experiences", label: `体験一覧（${experiences.length}）` },
+              { key: "bookings", label: `予約一覧（${bookings.length}）` },
+              { key: "reports", label: `通報（${reports.length}）` },
+            ].map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key as "experiences" | "bookings" | "reports")}
+                style={{
+                  padding: "10px 16px", fontSize: "13px", fontWeight: tab === t.key ? 700 : 500,
+                  color: tab === t.key ? "#7B6BA8" : "#9ca3af",
+                  background: "none", border: "none",
+                  borderBottom: tab === t.key ? "2px solid #7B6BA8" : "2px solid transparent",
+                  marginBottom: "-2px", cursor: "pointer", touchAction: "manipulation",
+                }}
+              >{t.label}</button>
+            ))}
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            style={{
+              display: "flex", alignItems: "center", gap: "4px", flexShrink: 0,
+              fontSize: "12px", color: "#7B6BA8", background: "#F9F8FF",
+              border: "1px solid #d8d0ef", borderRadius: "20px", padding: "6px 12px",
+              marginBottom: "6px", cursor: "pointer", fontWeight: 600,
+              touchAction: "manipulation", opacity: refreshing ? 0.5 : 1,
+            }}
+          >
+            <span style={{ display: "inline-block", transform: refreshing ? "rotate(360deg)" : "none", transition: "transform 0.6s" }}>🔄</span>
+            {refreshing ? "更新中..." : "更新"}
+          </button>
         </div>
 
         {/* Tab: 体験一覧 */}
