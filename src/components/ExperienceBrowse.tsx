@@ -16,7 +16,10 @@ const CATS: { key: string; label: string; Icon: React.ElementType }[] = [
   { key: "その他",    label: "その他",      Icon: Sparkles },
 ];
 
-const AREAS = ["全域", "東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区", "糸島市", "春日市"];
+const AREA_GROUPS: { label: string; areas: string[] }[] = [
+  { label: "福岡市", areas: ["東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区"] },
+  { label: "近郊・その他の市", areas: ["春日市", "大野城市", "筑紫野市", "太宰府市", "那珂川市", "宗像市", "古賀市", "福津市", "糸島市"] },
+];
 
 export default function ExperienceBrowse({ experiences }: { experiences: Experience[] }) {
   const router = useRouter();
@@ -31,6 +34,15 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
     router.refresh();
     setTimeout(() => setRefreshing(false), 1000);
   };
+
+  const areaPillStyle = (area: string): React.CSSProperties => ({
+    padding: "7px 16px", borderRadius: "999px",
+    border: `1.5px solid ${selectedArea === area ? "#222" : "#DDDDDD"}`,
+    background: selectedArea === area ? "#222" : "white",
+    color: selectedArea === area ? "white" : "#222",
+    fontSize: "13px", fontWeight: 500,
+    cursor: "pointer", touchAction: "manipulation",
+  });
 
   const filtered = experiences.filter(e => {
     const catOk = selectedCat === "全て" || e.category === selectedCat;
@@ -157,28 +169,34 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
 
         {/* Area dropdown */}
         {showAreaFilter && (
-          <div style={{ borderTop: "1px solid #F0F0F0", padding: "12px 16px", backgroundColor: "white" }}>
+          <div style={{ borderTop: "1px solid #F0F0F0", padding: "12px 16px", backgroundColor: "white", maxHeight: "50vh", overflowY: "auto" }}>
             <p style={{ fontSize: "11px", color: "#717171", fontWeight: 600, marginBottom: "10px" }}>
               開催エリアで絞り込む
             </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              {AREAS.map(area => (
-                <button
-                  key={area}
-                  onClick={() => { setSelectedArea(area); setShowAreaFilter(false); }}
-                  style={{
-                    padding: "7px 16px", borderRadius: "999px",
-                    border: `1.5px solid ${selectedArea === area ? "#222" : "#DDDDDD"}`,
-                    background: selectedArea === area ? "#222" : "white",
-                    color: selectedArea === area ? "white" : "#222",
-                    fontSize: "13px", fontWeight: 500,
-                    cursor: "pointer", touchAction: "manipulation",
-                  }}
-                >
-                  {area}
-                </button>
-              ))}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+              <button
+                onClick={() => { setSelectedArea("全域"); setShowAreaFilter(false); }}
+                style={areaPillStyle("全域")}
+              >
+                全域
+              </button>
             </div>
+            {AREA_GROUPS.map(group => (
+              <div key={group.label} style={{ marginBottom: "14px" }}>
+                <p style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 700, marginBottom: "8px", letterSpacing: "0.04em" }}>{group.label}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {group.areas.map(area => (
+                    <button
+                      key={area}
+                      onClick={() => { setSelectedArea(area); setShowAreaFilter(false); }}
+                      style={areaPillStyle(area)}
+                    >
+                      {area}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

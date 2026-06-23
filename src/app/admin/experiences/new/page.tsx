@@ -235,14 +235,26 @@ export default function NewExperiencePage() {
                 className="w-full border border-[#DDDDDD] rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#7B6BA8] bg-white"
               >
                 <option value="">選択してください</option>
-                <option>博多区</option>
-                <option>中央区</option>
-                <option>城南区</option>
-                <option>南区</option>
-                <option>早良区</option>
-                <option>西区</option>
-                <option>東区</option>
-                <option>糸島市</option>
+                <optgroup label="福岡市">
+                  <option>東区</option>
+                  <option>博多区</option>
+                  <option>中央区</option>
+                  <option>南区</option>
+                  <option>城南区</option>
+                  <option>早良区</option>
+                  <option>西区</option>
+                </optgroup>
+                <optgroup label="近郊・その他の市">
+                  <option>春日市</option>
+                  <option>大野城市</option>
+                  <option>筑紫野市</option>
+                  <option>太宰府市</option>
+                  <option>那珂川市</option>
+                  <option>宗像市</option>
+                  <option>古賀市</option>
+                  <option>福津市</option>
+                  <option>糸島市</option>
+                </optgroup>
                 <option>その他</option>
               </select>
             </div>
