@@ -83,6 +83,12 @@ export default function ExperienceCard({ experience }: { experience: Experience 
           {dateStr}　{experience.timeStart}〜{experience.timeEnd}
         </p>
 
+        {experience.ageTags && experience.ageTags.length > 0 && (
+          <p className="text-[11px] text-[#7B6BA8] font-medium">
+            👦 {experience.ageTags.join("・")}
+          </p>
+        )}
+
         {isFree ? (
           <p className="text-[13px] font-semibold text-emerald-600 pt-0.5">無料で参加</p>
         ) : (

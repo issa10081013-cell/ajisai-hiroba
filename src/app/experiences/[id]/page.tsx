@@ -209,6 +209,21 @@ export default async function ExperienceDetailPage({ params }: Props) {
         </div>
       )}
 
+      {/* 対象年齢 */}
+      {experience.ageTags && experience.ageTags.length > 0 && (
+        <div style={{ backgroundColor: "white", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "10px" }}>
+            <Users size={13} color="#7B6BA8" />
+            <span style={{ fontSize: "13px", fontWeight: 700, color: "#111827" }}>対象年齢</span>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            {experience.ageTags.map(age => (
+              <span key={age} style={{ fontSize: "12px", backgroundColor: "#EFEAF7", color: "#5a4a86", padding: "5px 12px", borderRadius: "999px", fontWeight: 600 }}>{age}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Tags */}
       {experience.tags.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>

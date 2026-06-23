@@ -31,6 +31,7 @@ export type Experience = {
   imageUrl: string;
   category: Category;
   tags: string[];
+  ageTags?: string[];
   isFeatured?: boolean;
 };
 

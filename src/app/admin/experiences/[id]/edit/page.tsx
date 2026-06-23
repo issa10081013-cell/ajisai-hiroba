@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const CATEGORIES = ["農業体験", "料理教室", "学習体験", "ものづくり", "自然体験", "その他"];
+const AGE_OPTIONS = ["幼児（3〜5歳）", "小学校低学年（6〜8歳）", "小学校高学年（9〜12歳）", "中学生以上", "全年齢OK"];
 
 export default function EditExperiencePage() {
   const router = useRouter();
@@ -19,6 +20,10 @@ export default function EditExperiencePage() {
     location: "", area: "", priceMember: "", priceRegular: "", priceUnit: "household", capacity: "10",
     category: "農業体験", tags: "", imageUrl: "",
   });
+  const [ageTags, setAgeTags] = useState<string[]>([]);
+
+  const toggleAge = (a: string) =>
+    setAgeTags(prev => (prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]));
 
   useEffect(() => {
     const init = async () => {
@@ -46,6 +51,7 @@ export default function EditExperiencePage() {
         tags: (exp.tags ?? []).join(", "),
         imageUrl: exp.image_url ?? "",
       });
+      setAgeTags((exp.age_tags as string[] | undefined) ?? []);
       if (exp.image_url) setImagePreview(exp.image_url);
       setInitializing(false);
     };
@@ -98,6 +104,7 @@ export default function EditExperiencePage() {
       capacity: Number(form.capacity),
       category: form.category,
       tags,
+      age_tags: ageTags,
       ...(imageUrl ? { image_url: imageUrl } : {}),
     }).eq("id", id);
 
@@ -162,6 +169,25 @@ export default function EditExperiencePage() {
                   className={`px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition-all ${
                     form.category === cat ? "bg-[#7B6BA8] text-white border-[#7B6BA8]" : "bg-white text-[#717171] border-[#DDDDDD]"
                   }`}>{cat}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* 対象年齢 */}
+          <div className="bg-white rounded-2xl p-4">
+            <label className="text-[12px] text-[#717171] block mb-2">対象年齢（複数選択OK）</label>
+            <div className="flex flex-wrap gap-2">
+              {AGE_OPTIONS.map(age => (
+                <button
+                  key={age} type="button" onClick={() => toggleAge(age)}
+                  className={`px-3 py-1.5 rounded-full border text-xs font-medium cursor-pointer transition-all ${
+                    ageTags.includes(age)
+                      ? "bg-[#7B6BA8] text-white border-[#7B6BA8]"
+                      : "bg-white text-[#717171] border-[#DDDDDD] hover:border-[#7B6BA8]"
+                  }`}
+                >
+                  {age}
+                </button>
               ))}
             </div>
           </div>
