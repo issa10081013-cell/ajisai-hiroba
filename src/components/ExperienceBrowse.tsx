@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Experience } from "@/lib/types";
 import ExperienceCard from "./ExperienceCard";
 import CalendarView from "./CalendarView";
-import { LayoutGrid, Leaf, UtensilsCrossed, BookOpen, Wrench, TreePine, Sparkles, MapPin, CalendarDays, Search } from "lucide-react";
+import { LayoutGrid, Leaf, UtensilsCrossed, BookOpen, Wrench, TreePine, Sparkles, MapPin, CalendarDays, Search, RefreshCw } from "lucide-react";
 
 const CATS: { key: string; label: string; Icon: React.ElementType }[] = [
   { key: "全て",      label: "すべて",      Icon: LayoutGrid },
@@ -18,10 +19,18 @@ const CATS: { key: string; label: string; Icon: React.ElementType }[] = [
 const AREAS = ["全域", "東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区", "糸島市", "春日市"];
 
 export default function ExperienceBrowse({ experiences }: { experiences: Experience[] }) {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<"grid" | "calendar">("grid");
   const [selectedCat, setSelectedCat] = useState("全て");
   const [selectedArea, setSelectedArea] = useState("全域");
   const [showAreaFilter, setShowAreaFilter] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    router.refresh();
+    setTimeout(() => setRefreshing(false), 1000);
+  };
 
   const filtered = experiences.filter(e => {
     const catOk = selectedCat === "全て" || e.category === selectedCat;
@@ -115,19 +124,35 @@ export default function ExperienceBrowse({ experiences }: { experiences: Experie
             <CalendarDays size={13} strokeWidth={2} /> {viewMode === "calendar" ? "一覧に戻る" : "日程で探す"}
           </button>
 
-          {hasFilter && (
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "12px" }}>
+            {hasFilter && (
+              <button
+                onClick={() => { setSelectedCat("全て"); setSelectedArea("全域"); }}
+                style={{
+                  fontSize: "11px", color: "#717171", fontWeight: 500,
+                  background: "none", border: "none", cursor: "pointer",
+                  touchAction: "manipulation", textDecoration: "underline",
+                }}
+              >
+                絞り込みを解除
+              </button>
+            )}
             <button
-              onClick={() => { setSelectedCat("全て"); setSelectedArea("全域"); }}
+              onClick={handleRefresh}
+              disabled={refreshing}
               style={{
-                marginLeft: "auto",
-                fontSize: "11px", color: "#717171", fontWeight: 500,
-                background: "none", border: "none", cursor: "pointer",
-                touchAction: "manipulation", textDecoration: "underline",
+                display: "flex", alignItems: "center", gap: "5px", flexShrink: 0,
+                padding: "6px 13px", borderRadius: "999px",
+                border: "1.5px solid #DDDDDD", background: "white",
+                color: "#222", fontSize: "12px", fontWeight: 500,
+                cursor: "pointer", touchAction: "manipulation",
+                opacity: refreshing ? 0.5 : 1,
               }}
             >
-              絞り込みを解除
+              <RefreshCw size={13} strokeWidth={2} style={{ animation: refreshing ? "spin 1s linear infinite" : "none" }} />
+              {refreshing ? "更新中" : "更新"}
             </button>
-          )}
+          </div>
         </div>
 
         {/* Area dropdown */}
