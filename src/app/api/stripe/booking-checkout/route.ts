@@ -23,8 +23,22 @@ export async function POST(req: NextRequest) {
     const b = await req.json();
     const {
       experienceId, parentName, parentEmail, parentPhone,
-      childrenCount, adultsCount, message, isMember,
+      childrenCount, adultsCount, message,
     } = b;
+
+    // 会員かどうかは「ブラウザの自己申告」を信じず、サーバー側で本人確認してから判定する。
+    // （リクエストを細工して会員価格を不正取得されるのを防ぐ）
+    let isMember = false;
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (token) {
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      if (user) {
+        const { data: mem } = await supabaseAdmin
+          .from("memberships").select("status").eq("user_id", user.id).single();
+        isMember = mem?.status === "active";
+      }
+    }
 
     const { data: exp } = await supabaseAdmin
       .from("experiences")

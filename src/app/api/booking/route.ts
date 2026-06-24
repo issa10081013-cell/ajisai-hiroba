@@ -19,12 +19,38 @@ export async function POST(req: NextRequest) {
   // 体験と提供者情報を取得
   const { data: exp } = await supabaseAdmin
     .from("experiences")
-    .select("title, date, time_start, current_bookings, providers(name, auth_user_id, phone)")
+    .select("title, date, time_start, current_bookings, price_member, price_regular, price_unit, providers(name, auth_user_id, phone, stripe_account_id, charges_enabled)")
     .eq("id", experienceId)
     .single();
 
   // 主催者のメールアドレスを取得
-  const provider = exp?.providers as { name: string; auth_user_id: string; phone?: string } | null;
+  const provider = exp?.providers as unknown as { name: string; auth_user_id: string; phone?: string; stripe_account_id?: string | null; charges_enabled?: boolean } | null;
+
+  // 不正対策：この「無料予約」が本当に無料で許されるかをサーバー側で検証する。
+  // 提供者が決済対応(Connect)済みで、かつ料金が0円より大きい場合は、ここで無料予約させない
+  // （決済をスキップして有料体験をタダ取りされるのを防ぐ）。会員判定もサーバー側で行う。
+  const paymentCapable = !!(provider?.stripe_account_id && provider?.charges_enabled);
+  if (paymentCapable) {
+    let isMember = false;
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (token) {
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      if (user) {
+        const { data: mem } = await supabaseAdmin
+          .from("memberships").select("status").eq("user_id", user.id).single();
+        isMember = mem?.status === "active";
+      }
+    }
+    const unit = (isMember ? exp?.price_member : exp?.price_regular) as number | undefined;
+    const priceUnit = (exp as { price_unit?: string } | null)?.price_unit ?? "household";
+    let amount = unit ?? 0;
+    if (priceUnit === "person") amount = (unit ?? 0) * Math.max((adultsCount ?? 0) + (childrenCount ?? 0), 1);
+    else if (priceUnit === "child") amount = (unit ?? 0) * Math.max(childrenCount ?? 0, 1);
+    if (amount > 0) {
+      return NextResponse.json({ error: "この体験はオンライン決済が必要です" }, { status: 400 });
+    }
+  }
   let providerEmail: string | null = null;
   if (provider?.auth_user_id) {
     const { data: { user: providerUser } } = await supabaseAdmin.auth.admin.getUserById(provider.auth_user_id);

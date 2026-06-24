@@ -17,7 +17,6 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [isMember, setIsMember] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
@@ -27,10 +26,6 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
         const email = u.email ?? "";
         setUser({ email, name });
         setForm(prev => ({ ...prev, parentName: name, parentEmail: email }));
-        // あじさい会員かどうか（会員価格の判定に使う）
-        const { data: mem } = await supabaseBrowser
-          .from("memberships").select("status").eq("user_id", u.id).single();
-        setIsMember(mem?.status === "active");
       }
     });
   }, []);
@@ -40,11 +35,16 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
     setLoading(true);
     setError(false);
 
+    // ログイン中なら本人確認用トークンを付ける（会員判定はサーバー側で行う）
+    const { data: { session } } = await supabaseBrowser.auth.getSession();
+    const authHeaders: Record<string, string> = { "Content-Type": "application/json" };
+    if (session?.access_token) authHeaders["Authorization"] = `Bearer ${session.access_token}`;
+
     // まず決済を試みる（提供者がConnect設定済みなら有料決済へ）
     const payRes = await fetch("/api/stripe/booking-checkout", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ experienceId, ...form, isMember }),
+      headers: authHeaders,
+      body: JSON.stringify({ experienceId, ...form }),
     });
     const payData = await payRes.json().catch(() => ({}));
 
@@ -53,11 +53,11 @@ export default function BookingForm({ experienceId, experienceTitle }: Props) {
       return;
     }
 
-    // 提供者がまだ決済未設定 → 無料予約（従来フロー）にフォールバック
+    // 提供者がまだ決済未設定、または無料(¥0) → 無料予約フローにフォールバック
     if (payData?.noPayment) {
       const res = await fetch("/api/booking", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ experienceId, ...form }),
       });
       setLoading(false);
