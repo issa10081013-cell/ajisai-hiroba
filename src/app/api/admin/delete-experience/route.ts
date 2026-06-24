@@ -40,11 +40,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "この体験を削除する権限がありません" }, { status: 403 });
   }
 
-  // 予約 → 体験 の順で削除（FK制約を満たす）
-  const { error: bErr } = await supabaseAdmin.from("bookings").delete().eq("experience_id", experienceId);
-  if (bErr) {
-    return NextResponse.json({ error: "予約の削除に失敗: " + bErr.message }, { status: 500 });
+  // 予約が入っている体験は削除させない（参加した家族の予約が黙って消えるのを防ぐ）。
+  // 提供者には「参加者に連絡してキャンセルしてから」削除するよう促す。
+  const { count } = await supabaseAdmin
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("experience_id", experienceId);
+  if (count && count > 0) {
+    return NextResponse.json({
+      error: `この体験には予約が${count}件入っているため削除できません。参加者へご連絡のうえ、予約をキャンセルしてから削除してください。`,
+      hasBookings: true,
+      bookingCount: count,
+    }, { status: 409 });
   }
+
+  // 予約ゼロなら削除OK
   const { error: eErr } = await supabaseAdmin.from("experiences").delete().eq("id", experienceId);
   if (eErr) {
     return NextResponse.json({ error: "体験の削除に失敗: " + eErr.message }, { status: 500 });

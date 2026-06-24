@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleDelete = async (expId: string, title: string) => {
-    if (!confirm(`「${title}」を削除しますか？\n予約データも一緒に削除されます。`)) return;
+    if (!confirm(`「${title}」を削除しますか？\n※予約が入っている体験は削除できません。`)) return;
     setDeleting(expId);
     // サーバー側(service role)で「予約→体験」の順に削除する。
     // ブラウザ権限だと予約(bookings)をRLSで消せず、FK制約エラーになるため。
