@@ -17,7 +17,9 @@ const CAT_META: Record<string, { emoji: string; color: string; bg: string; text:
 };
 
 const AREAS = [
-  "全域", "東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区", "糸島市", "春日市", "大野城市",
+  "全域", "東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区",
+  "門司区", "小倉北区", "小倉南区", "若松区", "八幡東区", "八幡西区", "戸畑区",
+  "糸島市", "春日市", "大野城市",
 ];
 
 export default function CalendarView({ experiences }: Props) {

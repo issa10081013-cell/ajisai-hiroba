@@ -255,6 +255,15 @@ export default function NewExperiencePage() {
                   <option>福津市</option>
                   <option>糸島市</option>
                 </optgroup>
+                <optgroup label="北九州市">
+                  <option>門司区</option>
+                  <option>小倉北区</option>
+                  <option>小倉南区</option>
+                  <option>若松区</option>
+                  <option>八幡東区</option>
+                  <option>八幡西区</option>
+                  <option>戸畑区</option>
+                </optgroup>
                 <option>その他</option>
               </select>
             </div>

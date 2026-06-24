@@ -18,6 +18,7 @@ const CATS: { key: string; label: string; Icon: React.ElementType }[] = [
 
 const AREA_GROUPS: { label: string; areas: string[] }[] = [
   { label: "福岡市", areas: ["東区", "博多区", "中央区", "南区", "城南区", "早良区", "西区"] },
+  { label: "北九州市", areas: ["門司区", "小倉北区", "小倉南区", "若松区", "八幡東区", "八幡西区", "戸畑区"] },
   { label: "近郊・その他の市", areas: ["春日市", "大野城市", "筑紫野市", "太宰府市", "那珂川市", "宗像市", "古賀市", "福津市", "糸島市"] },
 ];
 
