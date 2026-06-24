@@ -7,11 +7,23 @@ import Link from "next/link";
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "", phone: "" });
+  const [profile, setProfile] = useState({
+    parentAgeRange: "",
+    childrenCount: "",
+    area: "",
+    interests: [] as string[],
+  });
   const [isProvider, setIsProvider] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const AREAS = ["福岡市東区", "福岡市博多区", "福岡市中央区", "福岡市南区", "福岡市西区", "福岡市城南区", "福岡市早良区", "北九州市", "福岡市外・その他"];
+  const INTERESTS = ["農業・自然", "料理・食育", "ものづくり", "学習・科学", "アート・音楽", "スポーツ・アウトドア"];
+
+  const toggleInterest = (v: string) =>
+    setProfile(p => ({ ...p, interests: p.interests.includes(v) ? p.interests.filter(i => i !== v) : [...p.interests, v] }));
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,13 +49,29 @@ export default function RegisterPage() {
       return;
     }
 
-    // 主催者として登録する場合はprovidersテーブルにも追加
-    if (isProvider && signUpData.user) {
-      await fetch("/api/become-provider", {
+    if (signUpData.user) {
+      // プロフィール保存（サーバー側でservice role経由・RLSに依存しない）
+      await fetch("/api/save-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: signUpData.user.id, name: form.name, phone: form.phone }),
+        body: JSON.stringify({
+          userId: signUpData.user.id,
+          displayName: form.name,
+          parentAgeRange: profile.parentAgeRange,
+          childrenCount: profile.childrenCount,
+          area: profile.area,
+          interests: profile.interests,
+        }),
       });
+
+      // 主催者として登録する場合はprovidersテーブルにも追加
+      if (isProvider) {
+        await fetch("/api/become-provider", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: signUpData.user.id, name: form.name, phone: form.phone }),
+        });
+      }
     }
 
     await supabaseBrowser.auth.signInWithPassword({ email: form.email, password: form.password });
@@ -136,6 +164,52 @@ export default function RegisterPage() {
               placeholder="••••••••"
               style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
             />
+          </div>
+
+          {/* プロフィール情報（任意） */}
+          <div style={{ background: "#F5F9F6", borderRadius: "12px", padding: "14px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 700, color: "#4A7A5C", margin: 0 }}>あなたについて教えてください（任意）</p>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>保護者の年代</label>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                {["20代", "30代", "40代", "50代以上"].map(v => (
+                  <button key={v} type="button" onClick={() => setProfile(p => ({ ...p, parentAgeRange: v }))}
+                    style={{ padding: "6px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: 600, cursor: "pointer", border: "1.5px solid", borderColor: profile.parentAgeRange === v ? "#4A7A5C" : "#e5e7eb", background: profile.parentAgeRange === v ? "#4A7A5C" : "white", color: profile.parentAgeRange === v ? "white" : "#6b7280" }}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>お子さんの人数</label>
+              <input type="number" min="0" max="10" value={profile.childrenCount}
+                onChange={e => setProfile(p => ({ ...p, childrenCount: e.target.value }))}
+                placeholder="例：2"
+                style={{ width: "80px", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "8px 12px", fontSize: "14px", outline: "none" }} />
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>お住まいのエリア</label>
+              <select value={profile.area} onChange={e => setProfile(p => ({ ...p, area: e.target.value }))}
+                style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "8px 12px", fontSize: "13px", outline: "none", background: "white", boxSizing: "border-box" }}>
+                <option value="">選択してください</option>
+                {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>興味のある体験（複数選択可）</label>
+              <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                {INTERESTS.map(v => (
+                  <button key={v} type="button" onClick={() => toggleInterest(v)}
+                    style={{ padding: "6px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: 600, cursor: "pointer", border: "1.5px solid", borderColor: profile.interests.includes(v) ? "#7B6BA8" : "#e5e7eb", background: profile.interests.includes(v) ? "#7B6BA8" : "white", color: profile.interests.includes(v) ? "white" : "#6b7280" }}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* 同意チェックボックス */}
