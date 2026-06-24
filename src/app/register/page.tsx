@@ -13,6 +13,7 @@ export default function RegisterPage() {
     area: "",
     interests: [] as string[],
   });
+  const [areaOther, setAreaOther] = useState(false);
   const [isProvider, setIsProvider] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
@@ -192,11 +193,30 @@ export default function RegisterPage() {
 
             <div>
               <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>お住まいのエリア</label>
-              <select value={profile.area} onChange={e => setProfile(p => ({ ...p, area: e.target.value }))}
+              <select
+                value={areaOther ? "福岡市外・その他" : profile.area}
+                onChange={e => {
+                  const v = e.target.value;
+                  if (v === "福岡市外・その他") {
+                    setAreaOther(true);
+                    setProfile(p => ({ ...p, area: "" }));
+                  } else {
+                    setAreaOther(false);
+                    setProfile(p => ({ ...p, area: v }));
+                  }
+                }}
                 style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "8px 12px", fontSize: "13px", outline: "none", background: "white", boxSizing: "border-box" }}>
                 <option value="">選択してください</option>
                 {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
+              {areaOther && (
+                <input
+                  value={profile.area}
+                  onChange={e => setProfile(p => ({ ...p, area: e.target.value }))}
+                  placeholder="例：福岡県朝倉市 / 北九州市小倉北区"
+                  style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "8px 12px", fontSize: "13px", outline: "none", boxSizing: "border-box", marginTop: "8px" }}
+                />
+              )}
             </div>
 
             <div>
