@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function AdminRegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", confirm: "", agreed: false });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", confirm: "", location: "", agreed: false });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,7 +32,7 @@ export default function AdminRegisterPage() {
     const res = await fetch("/api/register-provider", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: form.name, phone: form.phone, email: form.email, password: form.password }),
+      body: JSON.stringify({ name: form.name, phone: form.phone, email: form.email, password: form.password, location: form.location }),
     });
 
     if (!res.ok) {
@@ -86,6 +86,24 @@ export default function AdminRegisterPage() {
               placeholder="例：田中農園 田中さん"
               style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box" }}
             />
+          </div>
+          <div>
+            <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>活動エリア *</label>
+            <select
+              required value={form.location} onChange={e => f("location", e.target.value)}
+              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", backgroundColor: "white", color: form.location ? "#1a1a1a" : "#9ca3af" }}
+            >
+              <option value="" disabled>選択してください</option>
+              <option value="城南区">福岡市 城南区</option>
+              <option value="早良区">福岡市 早良区</option>
+              <option value="中央区">福岡市 中央区</option>
+              <option value="南区">福岡市 南区</option>
+              <option value="西区">福岡市 西区</option>
+              <option value="東区">福岡市 東区</option>
+              <option value="博多区">福岡市 博多区</option>
+              <option value="糸島市">糸島市</option>
+              <option value="その他">その他（福岡市外）</option>
+            </select>
           </div>
           <div>
             <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>電話番号 *</label>

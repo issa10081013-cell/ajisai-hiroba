@@ -7,9 +7,9 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { name, email, password, phone } = await req.json();
+  const { name, email, password, phone, location } = await req.json();
 
-  if (!name || !email || !password || !phone) {
+  if (!name || !email || !password || !phone || !location) {
     return NextResponse.json({ error: "必須項目が不足しています" }, { status: 400 });
   }
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     name,
     phone: phone ?? "",
     bio: "",
-    location: "",
+    location: location ?? "",
     category: "その他",
     tags: [],
     verified: false,

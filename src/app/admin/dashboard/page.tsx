@@ -4,6 +4,13 @@ import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 
+type AdminStats = {
+  totalProviders: number;
+  newThisWeek: number;
+  totalBookings: number;
+  byLocation: Record<string, number>;
+};
+
 type Experience = {
   id: string;
   title: string;
@@ -52,6 +59,7 @@ export default function AdminDashboardPage() {
   const [requestingVerification, setRequestingVerification] = useState(false);
   const [userId, setUserId] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
   const [banning, setBanning] = useState<string | null>(null);
   const [bannedIds, setBannedIds] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
@@ -61,7 +69,12 @@ export default function AdminDashboardPage() {
     if (!user) { router.push("/admin/login"); return; }
 
     setUserId(user.id);
-    setIsAdmin(user.email === "issa10081013@gmail.com");
+    const admin = user.email === "issa10081013@gmail.com";
+    setIsAdmin(admin);
+    if (admin) {
+      const statsRes = await fetch("/api/admin/stats");
+      if (statsRes.ok) setAdminStats(await statsRes.json());
+    }
 
     const { data: provider } = await supabaseBrowser
       .from("providers").select("id, name, verified, verified_status, charges_enabled").eq("auth_user_id", user.id).single();
@@ -309,6 +322,37 @@ export default function AdminDashboardPage() {
             </div>
           ))}
         </div>
+
+        {/* Admin global stats */}
+        {isAdmin && adminStats && (
+          <div style={{ background: "linear-gradient(135deg, #7B6BA8, #3d3566)", borderRadius: "14px", padding: "16px", marginBottom: "20px" }}>
+            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", margin: "0 0 12px", fontWeight: 600 }}>📊 全体ログ（管理者のみ）</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+              {[
+                { label: "先生登録数", value: `${adminStats.totalProviders}名` },
+                { label: "今週の新規", value: `${adminStats.newThisWeek}名` },
+                { label: "累計予約数", value: `${adminStats.totalBookings}件` },
+              ].map(stat => (
+                <div key={stat.label} style={{ backgroundColor: "rgba(255,255,255,0.15)", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
+                  <p style={{ fontSize: "20px", fontWeight: "bold", color: "white", margin: "0 0 2px" }}>{stat.value}</p>
+                  <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.7)", margin: 0 }}>{stat.label}</p>
+                </div>
+              ))}
+            </div>
+            {Object.keys(adminStats.byLocation).length > 0 && (
+              <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255,255,255,0.2)", paddingTop: "12px" }}>
+                <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", margin: "0 0 8px", fontWeight: 600 }}>地区別内訳</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {Object.entries(adminStats.byLocation).sort((a, b) => b[1] - a[1]).map(([loc, cnt]) => (
+                    <span key={loc} style={{ backgroundColor: "rgba(255,255,255,0.15)", borderRadius: "20px", padding: "3px 10px", fontSize: "11px", color: "white" }}>
+                      {loc} {cnt}名
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Quick actions */}
         <div style={{ display: "grid", gridTemplateColumns: isAdmin ? "1fr 1fr 1fr" : "1fr 1fr", gap: "10px", marginBottom: "20px" }}>
