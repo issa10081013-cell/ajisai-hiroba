@@ -149,19 +149,37 @@ export default function AdminProfilePage() {
             </div>
             <div>
               <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>活動地域</label>
-              <select value={form.location} onChange={e => f("location", e.target.value)}
-                style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", backgroundColor: "white" }}>
-                <option value="">選択してください</option>
-                <option value="城南区">福岡市 城南区</option>
-                <option value="早良区">福岡市 早良区</option>
-                <option value="中央区">福岡市 中央区</option>
-                <option value="南区">福岡市 南区</option>
-                <option value="西区">福岡市 西区</option>
-                <option value="東区">福岡市 東区</option>
-                <option value="博多区">福岡市 博多区</option>
-                <option value="糸島市">糸島市</option>
-                <option value="その他">その他（福岡市外）</option>
-              </select>
+              {(() => {
+                const PRESETS = ["城南区", "早良区", "中央区", "南区", "西区", "東区", "博多区", "糸島市"];
+                const isPreset = PRESETS.includes(form.location) || form.location === "";
+                const selectVal = isPreset ? form.location : "その他";
+                return (
+                  <>
+                    <select value={selectVal}
+                      onChange={e => f("location", e.target.value === "その他" ? "" : e.target.value)}
+                      style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", backgroundColor: "white" }}>
+                      <option value="">選択してください</option>
+                      <option value="城南区">福岡市 城南区</option>
+                      <option value="早良区">福岡市 早良区</option>
+                      <option value="中央区">福岡市 中央区</option>
+                      <option value="南区">福岡市 南区</option>
+                      <option value="西区">福岡市 西区</option>
+                      <option value="東区">福岡市 東区</option>
+                      <option value="博多区">福岡市 博多区</option>
+                      <option value="糸島市">糸島市</option>
+                      <option value="その他">その他（福岡市外）</option>
+                    </select>
+                    {selectVal === "その他" && (
+                      <input
+                        value={form.location}
+                        onChange={e => f("location", e.target.value)}
+                        placeholder="例：福岡県朝倉市"
+                        style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "10px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", marginTop: "8px" }}
+                      />
+                    )}
+                  </>
+                );
+              })()}
             </div>
             <div>
               <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "6px" }}>Instagram（任意）</label>

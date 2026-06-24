@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function AdminRegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", confirm: "", location: "", agreed: false });
+  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "", confirm: "", location: "", locationSelect: "", agreed: false });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,7 +32,7 @@ export default function AdminRegisterPage() {
     const res = await fetch("/api/register-provider", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: form.name, phone: form.phone, email: form.email, password: form.password, location: form.location }),
+      body: JSON.stringify({ name: form.name, phone: form.phone, email: form.email, password: form.password, location: form.locationSelect === "その他" ? form.location : form.locationSelect }),
     });
 
     if (!res.ok) {
@@ -90,8 +90,8 @@ export default function AdminRegisterPage() {
           <div>
             <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>活動エリア *</label>
             <select
-              required value={form.location} onChange={e => f("location", e.target.value)}
-              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", backgroundColor: "white", color: form.location ? "#1a1a1a" : "#9ca3af" }}
+              required value={form.locationSelect} onChange={e => f("locationSelect", e.target.value)}
+              style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", backgroundColor: "white", color: form.locationSelect ? "#1a1a1a" : "#9ca3af" }}
             >
               <option value="" disabled>選択してください</option>
               <option value="城南区">福岡市 城南区</option>
@@ -104,6 +104,13 @@ export default function AdminRegisterPage() {
               <option value="糸島市">糸島市</option>
               <option value="その他">その他（福岡市外）</option>
             </select>
+            {form.locationSelect === "その他" && (
+              <input
+                required value={form.location} onChange={e => f("location", e.target.value)}
+                placeholder="例：福岡県朝倉市"
+                style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "10px 12px", fontSize: "14px", outline: "none", boxSizing: "border-box", marginTop: "8px" }}
+              />
+            )}
           </div>
           <div>
             <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>電話番号 *</label>
