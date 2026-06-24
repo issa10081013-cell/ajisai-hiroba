@@ -51,6 +51,13 @@ export async function POST(req: NextRequest) {
     let amount = unit; // household（世帯定額）
     if (priceUnit === "person") amount = unit * Math.max(adults + children, 1);
     else if (priceUnit === "child") amount = unit * Math.max(children, 1);
+
+    // 無料（¥0）の体験は決済を作らない。Stripeは¥0決済を作れずエラーになるため、
+    // 提供者が決済設定済みでも、料金0円なら無料予約フローにフォールバックさせる。
+    if (!amount || amount <= 0) {
+      return NextResponse.json({ error: "無料の体験です", noPayment: true }, { status: 400 });
+    }
+
     const applicationFee = Math.round(amount * APP_FEE_RATE);
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ajisai-hiroba.vercel.app";
