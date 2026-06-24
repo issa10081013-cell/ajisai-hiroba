@@ -95,22 +95,6 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div style={{ background: "white", borderBottom: "1px solid #f3f4f6", padding: "20px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "center", gap: "0", maxWidth: "480px", margin: "0 auto" }}>
-          {[
-            { value: "30+", label: "開催体験数" },
-            { value: "200+", label: "参加家族数" },
-            { value: "10+", label: "提供者数" },
-          ].map((s, i) => (
-            <div key={s.label} style={{ flex: 1, textAlign: "center", borderRight: i < 2 ? "1px solid #f3f4f6" : "none", padding: "8px 0" }}>
-              <p style={{ fontSize: "22px", fontWeight: 800, color: "#7B6BA8", margin: "0 0 2px" }}>{s.value}</p>
-              <p style={{ fontSize: "10px", color: "#9ca3af", margin: 0 }}>{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Browse */}
       <ExperienceBrowse experiences={experiences} />
 
