@@ -408,6 +408,11 @@ export default function AdminDashboardPage() {
                           編集
                         </button>
                       </Link>
+                      <Link href={`/admin/experiences/new?from=${exp.id}`} style={{ textDecoration: "none", flex: 1 }}>
+                        <button style={{ width: "100%", padding: "8px", borderRadius: "10px", border: "1.5px solid #5A8A6A", background: "white", color: "#5A8A6A", fontSize: "12px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation" }}>
+                          複製
+                        </button>
+                      </Link>
                       <button
                         onClick={() => handleDelete(exp.id, exp.title)}
                         disabled={deleting === exp.id}

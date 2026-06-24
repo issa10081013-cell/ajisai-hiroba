@@ -5,6 +5,21 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const CATEGORIES = ["農業体験", "料理教室", "学習体験", "ものづくり", "自然体験", "その他"];
 const AGE_OPTIONS = ["幼児（3〜5歳）", "小学校低学年（6〜8歳）", "小学校高学年（9〜12歳）", "中学生以上", "全年齢OK"];
+const DRAFT_KEY = "ajisai_exp_draft_v1";
+
+const EMPTY_FORM = {
+  title: "", description: "", date: "", timeStart: "", timeEnd: "",
+  location: "", area: "", priceMember: "", priceRegular: "", priceUnit: "household", capacity: "10",
+  category: "農業体験", tags: "",
+};
+
+type DraftData = {
+  form: typeof EMPTY_FORM;
+  ageTags: string[];
+  isFeatured: boolean;
+  copiedImageUrl: string;
+  savedAt: string;
+};
 
 export default function NewExperiencePage() {
   const router = useRouter();
@@ -12,28 +27,118 @@ export default function NewExperiencePage() {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    title: "", description: "", date: "", timeStart: "", timeEnd: "",
-    location: "", area: "", priceMember: "", priceRegular: "", priceUnit: "household", capacity: "10",
-    category: "農業体験", tags: "",
-  });
+  const [form, setForm] = useState({ ...EMPTY_FORM });
   const [isFeatured, setIsFeatured] = useState(false);
   const [ageTags, setAgeTags] = useState<string[]>([]);
+  const [copiedImageUrl, setCopiedImageUrl] = useState("");
+  const [pendingDraft, setPendingDraft] = useState<DraftData | null>(null);
+  const [autosaveReady, setAutosaveReady] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const [isDuplicate, setIsDuplicate] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleAge = (a: string) =>
     setAgeTags(prev => (prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]));
 
+  // 初期化：ログイン確認 → 複製元の読み込み（?from=）or 下書きの検出
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabaseBrowser.auth.getUser();
       if (!user) { router.push("/admin/login"); return; }
       const { data: provider } = await supabaseBrowser
         .from("providers").select("id").eq("auth_user_id", user.id).single();
-      if (provider) setProviderId(provider.id);
+      if (!provider) { setAutosaveReady(true); return; }
+      setProviderId(provider.id);
+
+      const fromId = typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("from")
+        : null;
+
+      if (fromId) {
+        // 複製：元の体験を読み込んでフォームに反映。開催日だけ空にして入れ直してもらう
+        const { data: src } = await supabaseBrowser
+          .from("experiences").select("*").eq("id", fromId).single();
+        if (src) {
+          setForm({
+            title: src.title ?? "",
+            description: src.description ?? "",
+            date: "",
+            timeStart: src.time_start ?? "",
+            timeEnd: src.time_end ?? "",
+            location: src.location ?? "",
+            area: src.area ?? "",
+            priceMember: src.price_member != null ? String(src.price_member) : "",
+            priceRegular: src.price_regular != null ? String(src.price_regular) : "",
+            priceUnit: src.price_unit ?? "household",
+            capacity: src.capacity != null ? String(src.capacity) : "10",
+            category: src.category ?? "農業体験",
+            tags: Array.isArray(src.tags) ? src.tags.join(", ") : "",
+          });
+          setAgeTags(Array.isArray(src.age_tags) ? src.age_tags : []);
+          setIsFeatured(false);
+          if (src.image_url) { setCopiedImageUrl(src.image_url); setImagePreview(src.image_url); }
+          setIsDuplicate(true);
+        }
+        setAutosaveReady(true);
+        return;
+      }
+
+      // 下書きの検出（あればバナー表示。解決するまで自動保存は止めてクロバーを防ぐ）
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (raw) {
+          const d = JSON.parse(raw) as DraftData;
+          if (d && d.form) { setPendingDraft(d); return; }
+        }
+      } catch {}
+      setAutosaveReady(true);
     };
     init();
   }, [router]);
+
+  // 入力内容を端末に自動保存（下書き）
+  useEffect(() => {
+    if (!autosaveReady) return;
+    const isEmpty = !form.title && !form.description && !form.location && !form.date
+      && ageTags.length === 0 && !copiedImageUrl;
+    try {
+      if (isEmpty) {
+        localStorage.removeItem(DRAFT_KEY);
+        setDraftSavedAt(null);
+      } else {
+        const data: DraftData = { form, ageTags, isFeatured, copiedImageUrl, savedAt: new Date().toISOString() };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        setDraftSavedAt(data.savedAt);
+      }
+    } catch {}
+  }, [autosaveReady, form, ageTags, isFeatured, copiedImageUrl]);
+
+  const restoreDraft = () => {
+    if (!pendingDraft) return;
+    setForm({ ...EMPTY_FORM, ...pendingDraft.form });
+    setAgeTags(pendingDraft.ageTags ?? []);
+    setIsFeatured(pendingDraft.isFeatured ?? false);
+    if (pendingDraft.copiedImageUrl) { setCopiedImageUrl(pendingDraft.copiedImageUrl); setImagePreview(pendingDraft.copiedImageUrl); }
+    setPendingDraft(null);
+    setAutosaveReady(true);
+  };
+
+  const discardDraft = () => {
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+    setPendingDraft(null);
+    setAutosaveReady(true);
+  };
+
+  const saveDraftManually = () => {
+    try {
+      const data: DraftData = { form, ageTags, isFeatured, copiedImageUrl, savedAt: new Date().toISOString() };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      setDraftSavedAt(data.savedAt);
+      alert("下書きを保存しました。あとでこのページに戻ると続きから入力できます。");
+    } catch {
+      alert("下書きの保存に失敗しました");
+    }
+  };
 
   const f = (key: keyof typeof form, val: string) => setForm(prev => ({ ...prev, [key]: val }));
 
@@ -64,6 +169,8 @@ export default function NewExperiencePage() {
         imageUrl = urlData.publicUrl;
       }
     }
+    // 新しい画像が無ければ、複製元/下書きの画像URLをそのまま使う
+    const finalImageUrl = imageUrl || copiedImageUrl;
 
     const { error } = await supabaseBrowser.from("experiences").insert({
       provider_id: providerId,
@@ -83,11 +190,12 @@ export default function NewExperiencePage() {
       tags,
       age_tags: ageTags,
       is_featured: isFeatured,
-      ...(imageUrl ? { image_url: imageUrl } : {}),
+      ...(finalImageUrl ? { image_url: finalImageUrl } : {}),
     });
 
     setLoading(false);
     if (error) { alert("エラー: " + error.message); return; }
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
     router.push("/admin/dashboard");
   };
 
@@ -98,11 +206,42 @@ export default function NewExperiencePage() {
           <button onClick={() => router.back()} className="text-[#7B6BA8] text-sm bg-none border-none cursor-pointer">
             ← 戻る
           </button>
-          <span className="font-bold text-[#222] text-sm">体験を追加する</span>
+          <span className="font-bold text-[#222] text-sm">{isDuplicate ? "体験を複製して追加" : "体験を追加する"}</span>
         </div>
       </div>
 
       <div className="max-w-[640px] mx-auto px-4 py-6">
+        {/* 下書き復元バナー */}
+        {pendingDraft && (
+          <div className="bg-[#FFF8F0] border border-[#FED7AA] rounded-2xl p-4 mb-4">
+            <p className="text-sm font-bold text-[#92400E] m-0 mb-1">📝 前回の下書きがあります</p>
+            <p className="text-[12px] text-[#92400E] leading-relaxed m-0 mb-3">
+              「{pendingDraft.form.title || "（タイトル未入力）"}」
+              {pendingDraft.savedAt ? `／${new Date(pendingDraft.savedAt).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} 保存` : ""}
+              <br />続きから入力しますか？
+            </p>
+            <div className="flex gap-2">
+              <button type="button" onClick={restoreDraft}
+                className="px-4 py-2 rounded-lg bg-[#7B6BA8] text-white text-[12px] font-bold cursor-pointer border-none">
+                復元する
+              </button>
+              <button type="button" onClick={discardDraft}
+                className="px-4 py-2 rounded-lg bg-white text-[#92400E] text-[12px] font-bold cursor-pointer border border-[#FED7AA]">
+                破棄して新規
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 複製の案内 */}
+        {isDuplicate && (
+          <div className="bg-[#F0F7F2] border border-[#BFE0CC] rounded-2xl p-4 mb-4">
+            <p className="text-[12px] text-[#2F6B45] leading-relaxed m-0">
+              ✅ 元の体験の内容を読み込みました。<strong>開催日</strong>を入れ直して登録してください（画像・時間・料金などはそのままコピーされています）。
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
           {/* Title */}
@@ -348,6 +487,21 @@ export default function NewExperiencePage() {
           >
             {loading ? "登録中..." : "体験を登録する"}
           </button>
+
+          {/* 下書き保存 */}
+          <button
+            type="button"
+            onClick={saveDraftManually}
+            className="bg-white text-[#7B6BA8] border border-[#D8D0EF] rounded-2xl py-3 text-[13px] font-bold cursor-pointer hover:bg-[#F7F6FD] transition-colors"
+          >
+            下書きとして保存する
+          </button>
+          <p className="text-[11px] text-[#9ca3af] text-center m-0 -mt-1">
+            {draftSavedAt
+              ? `入力内容はこの端末に自動保存されています（${new Date(draftSavedAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}）。途中で閉じても、このページに戻れば続きから入力できます。`
+              : "入力を始めると、この端末に自動で下書き保存されます（途中で閉じても続きから入力できます）。"}
+            <br />※画像は端末保存に含まれないため、復元後にもう一度選び直してください。
+          </p>
         </form>
       </div>
     </div>
