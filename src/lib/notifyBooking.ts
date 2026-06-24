@@ -90,9 +90,14 @@ export async function notifyBooking(experienceId: string, d: BookingDetails) {
           <p style="color:#374151;margin:4px 0;font-size:14px;">🕐 ${exp?.time_start}〜</p>
           <p style="color:#374151;margin:4px 0;font-size:14px;">👥 大人${d.adultsCount}人・子ども${d.childrenCount}人</p>
         </div>
-        <p style="color:#374151;font-size:13px;">主催者より詳細の連絡が届く場合があります。当日は時間に余裕を持ってお越しください。</p>
+        <p style="color:#374151;font-size:13px;">当日は時間に余裕を持ってお越しください。ご不明な点は、下記の主催者まで直接ご連絡いただけます。</p>
+        <div style="background:#F7F6FD;border-radius:12px;padding:12px 16px;margin:12px 0;">
+          <p style="color:#7B6BA8;margin:0 0 6px;font-size:12px;font-weight:bold;">主催者の連絡先</p>
+          <p style="color:#374151;margin:2px 0;font-size:13px;"><strong>主催者：</strong>${provider?.name ?? ""}</p>
+          ${providerEmail ? `<p style="color:#374151;margin:2px 0;font-size:13px;"><strong>メール：</strong><a href="mailto:${providerEmail}">${providerEmail}</a></p>` : ""}
+          ${provider?.phone ? `<p style="color:#374151;margin:2px 0;font-size:13px;"><strong>電話：</strong>${provider.phone}</p>` : ""}
+        </div>
         <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
-        <p style="font-size:12px;color:#9ca3af;">ご不明な点は主催者（${provider?.name ?? ""}）までお問い合わせください。</p>
         <p style="font-size:12px;color:#9ca3af;">あじさい体験ひろば</p>
       </div>
     `,
