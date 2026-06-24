@@ -124,10 +124,20 @@ export default function AdminDashboardPage() {
   const handleDelete = async (expId: string, title: string) => {
     if (!confirm(`「${title}」を削除しますか？\n予約データも一緒に削除されます。`)) return;
     setDeleting(expId);
-    await supabaseBrowser.from("bookings").delete().eq("experience_id", expId);
-    const { error } = await supabaseBrowser.from("experiences").delete().eq("id", expId);
-    if (error) {
-      alert("削除に失敗しました: " + error.message);
+    // サーバー側(service role)で「予約→体験」の順に削除する。
+    // ブラウザ権限だと予約(bookings)をRLSで消せず、FK制約エラーになるため。
+    const { data: { session } } = await supabaseBrowser.auth.getSession();
+    const res = await fetch("/api/admin/delete-experience", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
+      body: JSON.stringify({ experienceId: expId }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert("削除に失敗しました: " + (data.error ?? "不明なエラー"));
       setDeleting(null);
       return;
     }
