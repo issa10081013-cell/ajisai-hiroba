@@ -92,12 +92,12 @@ export default async function ExperienceDetailPage({ params }: Props) {
       <Link href="/" style={{ fontSize: "12px", color: "#4A7A5C", display: "inline-block", marginBottom: "16px", textDecoration: "none", fontWeight: 600 }}>← トップに戻る</Link>
       <StickyBookingBar isFull={isFull} title={experience.title} />
 
-      {/* Hero image */}
-      <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "16px", height: "240px" }}>
+      {/* Hero image（詳細では切らず全体表示。一覧カードは4:3固定のまま） */}
+      <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "16px", backgroundColor: "#F5F3FA" }}>
         {experience.imageUrl ? (
-          <img src={experience.imageUrl} alt={experience.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img src={experience.imageUrl} alt={experience.title} style={{ width: "100%", height: "auto", display: "block" }} />
         ) : (
-          <div style={{ width: "100%", height: "100%", background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "100%", height: "240px", background: cat.gradient, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <CatIcon size={80} color="rgba(255,255,255,0.9)" strokeWidth={1.2} style={{ filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.15))" }} />
           </div>
         )}
