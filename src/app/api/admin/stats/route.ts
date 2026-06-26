@@ -15,11 +15,16 @@ export async function GET() {
     { count: newThisWeek },
     { count: totalBookings },
     { data: locationData },
+    { count: totalParticipants },
+    { count: participantsNewThisWeek },
   ] = await Promise.all([
     supabaseAdmin.from("providers").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("providers").select("*", { count: "exact", head: true }).gte("created_at", weekStart.toISOString()),
     supabaseAdmin.from("bookings").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("providers").select("location"),
+    // 参加者（家族）の登録数＝profilesテーブル。提供者しか集計されていなかったため追加。
+    supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }),
+    supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", weekStart.toISOString()),
   ]);
 
   const byLocation: Record<string, number> = {};
@@ -31,6 +36,8 @@ export async function GET() {
   return NextResponse.json({
     totalProviders: totalProviders ?? 0,
     newThisWeek: newThisWeek ?? 0,
+    totalParticipants: totalParticipants ?? 0,
+    participantsNewThisWeek: participantsNewThisWeek ?? 0,
     totalBookings: totalBookings ?? 0,
     byLocation,
   });

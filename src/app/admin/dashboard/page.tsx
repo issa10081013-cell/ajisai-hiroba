@@ -7,6 +7,8 @@ import Link from "next/link";
 type AdminStats = {
   totalProviders: number;
   newThisWeek: number;
+  totalParticipants: number;
+  participantsNewThisWeek: number;
   totalBookings: number;
   byLocation: Record<string, number>;
 };
@@ -330,8 +332,10 @@ export default function AdminDashboardPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
               {[
                 { label: "先生登録数", value: `${adminStats.totalProviders}名` },
-                { label: "今週の新規", value: `${adminStats.newThisWeek}名` },
+                { label: "参加者登録数", value: `${adminStats.totalParticipants}名` },
                 { label: "累計予約数", value: `${adminStats.totalBookings}件` },
+                { label: "先生・今週新規", value: `${adminStats.newThisWeek}名` },
+                { label: "参加者・今週新規", value: `${adminStats.participantsNewThisWeek}名` },
               ].map(stat => (
                 <div key={stat.label} style={{ backgroundColor: "rgba(255,255,255,0.15)", borderRadius: "10px", padding: "12px", textAlign: "center" }}>
                   <p style={{ fontSize: "20px", fontWeight: "bold", color: "white", margin: "0 0 2px" }}>{stat.value}</p>
