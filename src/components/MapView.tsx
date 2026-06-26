@@ -1,7 +1,8 @@
 "use client";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import Link from "next/link";
 import { Experience } from "@/lib/types";
 import { FUKUOKA_CENTER, resolveCoord } from "@/lib/fukuoka-geo";
@@ -33,6 +34,17 @@ function makeIcon(emoji: string, color: string) {
   });
 }
 
+// タブ内/動的読み込みでコンテナのサイズ確定前に描画されると地図が灰色になるため、
+// マウント後にサイズを再計算する。
+function MapResizeFix() {
+  const map = useMap();
+  useEffect(() => {
+    const t = setTimeout(() => map.invalidateSize(), 200);
+    return () => clearTimeout(t);
+  }, [map]);
+  return null;
+}
+
 export default function MapView({ experiences }: Props) {
   return (
     <div style={{ borderRadius: "20px", overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: "1px solid #f3f4f6" }}>
@@ -42,6 +54,7 @@ export default function MapView({ experiences }: Props) {
         scrollWheelZoom={false}
         style={{ height: "460px", width: "100%" }}
       >
+        <MapResizeFix />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
