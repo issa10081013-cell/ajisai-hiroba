@@ -3,6 +3,7 @@ import ExperienceBrowse from "@/components/ExperienceBrowse";
 import ExperienceCard from "@/components/ExperienceCard";
 import Link from "next/link";
 import ProviderCTAButton from "@/components/ProviderCTAButton";
+import HideOnNativeApp from "@/components/HideOnNativeApp";
 
 export const revalidate = 60;
 
@@ -176,7 +177,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 会員CTA */}
+      {/* 会員CTA（App Store 3.1.1対策：ネイティブアプリでは非表示） */}
+      <HideOnNativeApp>
       <section style={{ background: "linear-gradient(135deg, #2d5a3f, #4A7A5C)", padding: "40px 16px", position: "relative", overflow: "hidden" }}>
         {/* 葉の形の装飾SVG */}
         <svg style={{ position: "absolute", top: "-20px", right: "-20px", opacity: 0.12 }} width="180" height="180" viewBox="0 0 180 180" fill="none">
@@ -214,6 +216,7 @@ export default async function Home() {
           <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)", margin: "12px 0 0" }}>いつでも解約できます</p>
         </div>
       </section>
+      </HideOnNativeApp>
 
       {/* LINE CTA */}
       <section className="bg-[#06C755] py-12 px-6">
