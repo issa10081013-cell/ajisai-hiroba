@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useIsNativeApp } from "@/components/HideOnNativeApp";
 
 type Booking = {
   id: string;
@@ -48,6 +49,7 @@ function MyPageContent() {
   const [canceling, setCanceling] = useState<string | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
   const [joiningMembership, setJoiningMembership] = useState(false);
+  const isNative = useIsNativeApp(); // App Store 3.1.1対策：iOS/Androアプリでは会員購入導線を隠す
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelingMembership, setCancelingMembership] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -317,7 +319,7 @@ function MyPageContent() {
             </div>
           )}
         </div>
-      ) : (
+      ) : isNative ? null : (
         <div style={{ margin: "16px", background: "white", borderRadius: "20px", padding: "20px", border: "2px dashed #b0d4bc" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <div>

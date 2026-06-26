@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import BookingForm from "@/components/BookingForm";
 import ReviewForm from "@/components/ReviewForm";
 import StickyBookingBar from "@/components/StickyBookingBar";
+import ShareButton from "@/components/ShareButton";
 import { Calendar, MapPin, Banknote, Users, Leaf, ChefHat, BookOpen, Scissors, TreePine, Sparkles } from "lucide-react";
 
 export const revalidate = 60;
@@ -138,6 +139,10 @@ export default async function ExperienceDetailPage({ params }: Props) {
             </svg>
             シェア
           </a>
+          <ShareButton
+            title={experience.title}
+            url={`${process.env.NEXT_PUBLIC_SITE_URL ?? "https://ajisai-hiroba.vercel.app"}/experiences/${experience.id}`}
+          />
         </div>
         <h1 style={{ fontSize: "20px", fontWeight: 800, color: "#111827", lineHeight: 1.35, margin: 0 }}>
           {experience.title}
