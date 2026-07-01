@@ -33,10 +33,15 @@ export default function BoardPage() {
   const [form, setForm] = useState({ title: "", body: "", category: "体験の感想" });
   const [posting, setPosting] = useState(false);
   const [report, setReport] = useState<{ id: string } | null>(null);
+  const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    supabaseBrowser.auth.getUser().then(({ data: { user: u } }) => {
-      if (u) setUser({ id: u.id, name: u.user_metadata?.display_name ?? u.email?.split("@")[0] ?? "匿名" });
+    supabaseBrowser.auth.getUser().then(async ({ data: { user: u } }) => {
+      if (u) {
+        setUser({ id: u.id, name: u.user_metadata?.display_name ?? u.email?.split("@")[0] ?? "匿名" });
+        const { data: blocks } = await supabaseBrowser.from("user_blocks").select("blocked_id").eq("blocker_id", u.id);
+        if (blocks) setBlockedIds(new Set(blocks.map((b: { blocked_id: string }) => b.blocked_id)));
+      }
     });
     fetchPosts();
   }, []);
@@ -56,6 +61,14 @@ export default function BoardPage() {
     e.preventDefault();
     if (!user) return;
     setPosting(true);
+
+    const { data: banned } = await supabaseBrowser.from("banned_users").select("user_id").eq("user_id", user.id).maybeSingle();
+    if (banned) {
+      alert("このアカウントは利用停止されています。");
+      setPosting(false);
+      return;
+    }
+
     const { data } = await supabaseBrowser.from("posts").insert({
       user_id: user.id, author_name: user.name,
       title: form.title, body: form.body, category: form.category,
@@ -70,6 +83,26 @@ export default function BoardPage() {
     if (!window.confirm("この投稿を削除しますか？")) return;
     const { error } = await supabaseBrowser.from("posts").delete().eq("id", id);
     if (!error) setPosts(prev => prev.filter(p => p.id !== id));
+  };
+
+  const handleBlock = async (post: Post) => {
+    if (!user || !post.user_id) return;
+    if (!window.confirm(`${post.author_name} さんをブロックしますか？\nこの人の投稿は今後表示されなくなり、運営にも通知されます。`)) return;
+    const { data: { session } } = await supabaseBrowser.auth.getSession();
+    const token = session?.access_token;
+    const res = await fetch("/api/block", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ blockedId: post.user_id, blockedName: post.author_name, postId: post.id }),
+    });
+    if (res.ok) {
+      const blockedUserId = post.user_id;
+      setBlockedIds(prev => new Set(prev).add(blockedUserId));
+      setPosts(prev => prev.filter(p => p.user_id !== blockedUserId));
+      alert("ブロックしました。この人の投稿は表示されなくなります。");
+    } else {
+      alert("ブロックに失敗しました。");
+    }
   };
 
   const timeAgo = (date: string) => {
@@ -159,7 +192,7 @@ export default function BoardPage() {
             <p style={{ fontWeight: 600, color: "#374151", marginBottom: "6px" }}>まだ投稿がありません</p>
             <p style={{ fontSize: "13px", color: "#9ca3af" }}>最初の投稿をしてみましょう！</p>
           </div>
-        ) : posts.map(post => (
+        ) : posts.filter(post => !(post.user_id && blockedIds.has(post.user_id))).map(post => (
           <div key={post.id} style={{ position: "relative", background: "white", borderRadius: "16px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
             <Link href={`/board/${post.id}`} style={{ textDecoration: "none", display: "block", padding: "16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", paddingRight: "28px" }}>
@@ -179,19 +212,25 @@ export default function BoardPage() {
               </div>
             </Link>
 
-            {/* 削除 or 通報ボタン */}
+            {/* 削除 or 通報・ブロックボタン */}
             {user && (
-              <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+              <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", gap: "2px" }}>
                 {post.user_id === user.id ? (
                   <button
                     onClick={e => { e.preventDefault(); handleDeletePost(post.id); }}
                     style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.45 }}
                     title="削除">🗑️</button>
                 ) : (
-                  <button
-                    onClick={e => { e.preventDefault(); setReport({ id: post.id }); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
-                    title="通報">⚠️</button>
+                  <>
+                    <button
+                      onClick={e => { e.preventDefault(); setReport({ id: post.id }); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                      title="通報">⚠️</button>
+                    <button
+                      onClick={e => { e.preventDefault(); handleBlock(post); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                      title="このユーザーをブロック">🚫</button>
+                  </>
                 )}
               </div>
             )}
