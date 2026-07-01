@@ -195,7 +195,7 @@ export default function BoardPage() {
         ) : posts.filter(post => !(post.user_id && blockedIds.has(post.user_id))).map(post => (
           <div key={post.id} style={{ position: "relative", background: "white", borderRadius: "16px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
             <Link href={`/board/${post.id}`} style={{ textDecoration: "none", display: "block", padding: "16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", paddingRight: "28px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", paddingRight: "72px" }}>
                 <span style={{ fontSize: "10px", background: "#D4EAD9", color: "#2d5a3f", padding: "3px 10px", borderRadius: "20px", fontWeight: 700 }}>
                   {CATS.find(c => c.key === post.category)?.emoji} {post.category}
                 </span>
@@ -214,21 +214,21 @@ export default function BoardPage() {
 
             {/* 削除 or 通報・ブロックボタン */}
             {user && (
-              <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", gap: "2px" }}>
+              <div style={{ position: "absolute", top: "8px", right: "8px", display: "flex", gap: "2px", zIndex: 3 }}>
                 {post.user_id === user.id ? (
                   <button
-                    onClick={e => { e.preventDefault(); handleDeletePost(post.id); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.45 }}
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); handleDeletePost(post.id); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "8px", lineHeight: 1, touchAction: "manipulation", opacity: 0.5 }}
                     title="削除">🗑️</button>
                 ) : (
                   <>
                     <button
-                      onClick={e => { e.preventDefault(); setReport({ id: post.id }); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); setReport({ id: post.id }); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "8px", lineHeight: 1, touchAction: "manipulation", opacity: 0.5 }}
                       title="通報">⚠️</button>
                     <button
-                      onClick={e => { e.preventDefault(); handleBlock(post); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px", padding: "4px", touchAction: "manipulation", opacity: 0.35 }}
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); handleBlock(post); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "8px", lineHeight: 1, touchAction: "manipulation", opacity: 0.5 }}
                       title="このユーザーをブロック">🚫</button>
                   </>
                 )}
