@@ -52,6 +52,8 @@ function MyPageContent() {
   const isNative = useIsNativeApp(); // App Store 3.1.1対策：iOS/Androアプリでは会員購入導線を隠す
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelingMembership, setCancelingMembership] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -98,6 +100,30 @@ function MyPageContent() {
   const handleLogout = async () => {
     await supabaseBrowser.auth.signOut();
     router.push("/");
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const { data: { session } } = await supabaseBrowser.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch("/api/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        await supabaseBrowser.auth.signOut();
+        alert("アカウントを削除しました。ご利用ありがとうございました。");
+        router.push("/");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert("削除に失敗しました：" + (data.error ?? "時間をおいて再度お試しください"));
+        setDeletingAccount(false);
+      }
+    } catch {
+      alert("通信エラーが発生しました。時間をおいて再度お試しください。");
+      setDeletingAccount(false);
+    }
   };
 
   const handleCancel = async (bookingId: string) => {
@@ -474,6 +500,33 @@ function MyPageContent() {
             style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #e5e7eb", background: "white", color: "#9ca3af", fontSize: "13px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation" }}>
             ログアウト
           </button>
+        </div>
+
+        {/* アカウント削除（App Store 5.1.1(v) 対応） */}
+        <div style={{ marginTop: "16px" }}>
+          {!showDeleteConfirm ? (
+            <button onClick={() => setShowDeleteConfirm(true)}
+              style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "none", background: "none", color: "#ef4444", fontSize: "12px", fontWeight: 600, cursor: "pointer", touchAction: "manipulation", textDecoration: "underline" }}>
+              アカウントを削除する
+            </button>
+          ) : (
+            <div style={{ background: "#fef2f2", border: "1.5px solid #fecaca", borderRadius: "14px", padding: "16px" }}>
+              <p style={{ fontSize: "13px", fontWeight: 700, color: "#b91c1c", margin: "0 0 8px" }}>本当にアカウントを削除しますか？</p>
+              <p style={{ fontSize: "12px", color: "#7f1d1d", lineHeight: 1.7, margin: "0 0 14px" }}>
+                この操作は取り消せません。あなたの投稿・コメント・口コミ・予約履歴・会員情報・プロフィールがすべて完全に削除され、元に戻すことはできません。
+              </p>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button onClick={() => setShowDeleteConfirm(false)} disabled={deletingAccount}
+                  style={{ flex: 1, padding: "11px", borderRadius: "10px", border: "1px solid #e5e7eb", background: "white", color: "#6b7280", fontSize: "13px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation", opacity: deletingAccount ? 0.5 : 1 }}>
+                  やめる
+                </button>
+                <button onClick={handleDeleteAccount} disabled={deletingAccount}
+                  style={{ flex: 1, padding: "11px", borderRadius: "10px", border: "none", background: "#ef4444", color: "white", fontSize: "13px", fontWeight: 700, cursor: "pointer", touchAction: "manipulation", opacity: deletingAccount ? 0.6 : 1 }}>
+                  {deletingAccount ? "削除中..." : "完全に削除する"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 法律リンク */}
