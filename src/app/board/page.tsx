@@ -34,6 +34,9 @@ export default function BoardPage() {
   const [posting, setPosting] = useState(false);
   const [report, setReport] = useState<{ id: string } | null>(null);
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
+  const [blockTarget, setBlockTarget] = useState<Post | null>(null);
+  const [blocking, setBlocking] = useState(false);
+  const [blockDone, setBlockDone] = useState(false);
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(async ({ data: { user: u } }) => {
@@ -85,25 +88,28 @@ export default function BoardPage() {
     if (!error) setPosts(prev => prev.filter(p => p.id !== id));
   };
 
-  const handleBlock = async (post: Post) => {
-    if (!user || !post.user_id) return;
-    if (!window.confirm(`${post.author_name} さんをブロックしますか？\nこの人の投稿は今後表示されなくなり、運営にも通知されます。`)) return;
+  const confirmBlock = async () => {
+    if (!user || !blockTarget?.user_id) return;
+    setBlocking(true);
     const { data: { session } } = await supabaseBrowser.auth.getSession();
     const token = session?.access_token;
     const res = await fetch("/api/block", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ blockedId: post.user_id, blockedName: post.author_name, postId: post.id }),
+      body: JSON.stringify({ blockedId: blockTarget.user_id, blockedName: blockTarget.author_name, postId: blockTarget.id }),
     });
+    setBlocking(false);
     if (res.ok) {
-      const blockedUserId = post.user_id;
+      const blockedUserId = blockTarget.user_id;
       setBlockedIds(prev => new Set(prev).add(blockedUserId));
       setPosts(prev => prev.filter(p => p.user_id !== blockedUserId));
-      alert("ブロックしました。この人の投稿は表示されなくなります。");
+      setBlockDone(true);
     } else {
-      alert("ブロックに失敗しました。");
+      alert("ブロックに失敗しました。時間をおいて再度お試しください。");
     }
   };
+
+  const closeBlockModal = () => { setBlockTarget(null); setBlockDone(false); };
 
   const timeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
@@ -120,6 +126,47 @@ export default function BoardPage() {
     <div style={{ maxWidth: "680px", margin: "0 auto", padding: "0 0 80px" }}>
       {report && user && (
         <ReportModal targetType="post" targetId={report.id} reporterId={user.id} onClose={() => setReport(null)} />
+      )}
+
+      {/* ブロック確認モーダル（画面内・webviewでも確実に表示） */}
+      {blockTarget && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+          onClick={closeBlockModal}
+        >
+          <div
+            style={{ background: "white", borderRadius: "20px 20px 0 0", padding: "24px 20px 36px", width: "100%", maxWidth: "480px" }}
+            onClick={e => e.stopPropagation()}
+          >
+            {blockDone ? (
+              <div style={{ textAlign: "center", padding: "16px 0" }}>
+                <p style={{ fontSize: "32px", marginBottom: "10px" }}>✅</p>
+                <p style={{ fontWeight: 700, color: "#1a1a1a", marginBottom: "4px" }}>ブロックしました</p>
+                <p style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "20px" }}>このユーザーの投稿は表示されなくなります。運営にも通知しました。</p>
+                <button onClick={closeBlockModal} style={{ background: "#7B6BA8", color: "white", border: "none", borderRadius: "10px", padding: "10px 32px", fontWeight: 700, fontSize: "13px", cursor: "pointer", touchAction: "manipulation" }}>
+                  閉じる
+                </button>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontWeight: 700, fontSize: "15px", color: "#1a1a1a", margin: "0 0 4px" }}>このユーザーをブロックしますか？</p>
+                <p style={{ fontSize: "12px", color: "#6b7280", margin: "0 0 20px", lineHeight: 1.7 }}>
+                  「{blockTarget.author_name}」さんの投稿は今後あなたのフィードに表示されなくなり、運営に通知されます。
+                </p>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button onClick={closeBlockModal} disabled={blocking}
+                    style={{ flex: 1, padding: "11px", borderRadius: "10px", border: "1px solid #e5e7eb", background: "white", color: "#6b7280", fontWeight: 600, fontSize: "13px", cursor: "pointer", touchAction: "manipulation", opacity: blocking ? 0.5 : 1 }}>
+                    キャンセル
+                  </button>
+                  <button onClick={confirmBlock} disabled={blocking}
+                    style={{ flex: 2, padding: "11px", borderRadius: "10px", border: "none", background: "#ef4444", color: "white", fontWeight: 700, fontSize: "13px", cursor: "pointer", touchAction: "manipulation", opacity: blocking ? 0.6 : 1 }}>
+                    {blocking ? "処理中..." : "ブロックする"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Header */}
@@ -227,7 +274,7 @@ export default function BoardPage() {
                       style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "8px", lineHeight: 1, touchAction: "manipulation", opacity: 0.5 }}
                       title="通報">⚠️</button>
                     <button
-                      onClick={e => { e.preventDefault(); e.stopPropagation(); handleBlock(post); }}
+                      onClick={e => { e.preventDefault(); e.stopPropagation(); setBlockTarget(post); }}
                       style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", padding: "8px", lineHeight: 1, touchAction: "manipulation", opacity: 0.5 }}
                       title="このユーザーをブロック">🚫</button>
                   </>
